@@ -4,11 +4,6 @@
 #include <wx/wx.h>
 #include "rCanvas.h"
 
-enum
-{
-    ID_Hello = 1
-};
-
 wxIMPLEMENT_APP(MyApp);
 
 bool MyApp::OnInit()
@@ -20,21 +15,21 @@ bool MyApp::OnInit()
 
 MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World")
 {
+    //Create File Menu
     wxMenu* menuFile = new wxMenu;
-    menuFile->Append(ID_Hello, "&Hello...\tCtrl-H",
-        "Help string shown in status bar for this menu item");
+    wxMenuItem* menuImport = new wxMenuItem(menuFile, 1001, "Import");
+    menuFile->Append(menuImport);
     menuFile->AppendSeparator();
     menuFile->Append(wxID_EXIT);
-    wxMenu* menuHelp = new wxMenu;
-    menuHelp->Append(wxID_ABOUT);
+
+    //Create menu bar
     wxMenuBar* menuBar = new wxMenuBar;
     menuBar->Append(menuFile, "&File");
-    menuBar->Append(menuHelp, "&Help");
     SetMenuBar(menuBar);
+
+    //Create Status bar
     CreateStatusBar();
-    SetStatusText("Welcome to wxWidgets!");
-    Bind(wxEVT_MENU, &MyFrame::OnHello, this, ID_Hello);
-    Bind(wxEVT_MENU, &MyFrame::OnAbout, this, wxID_ABOUT);
+    //SetStatusText("Welcome to wxWidgets!");
     Bind(wxEVT_MENU, &MyFrame::OnExit, this, wxID_EXIT);
 }
 
@@ -43,13 +38,7 @@ void MyFrame::OnExit(wxCommandEvent& event)
     Close(true);
 }
 
-void MyFrame::OnAbout(wxCommandEvent& event)
+void MyFrame::OnImport(wxCommandEvent& event)
 {
-    wxMessageBox("This is a wxWidgets Hello World example",
-        "About Hello World", wxOK | wxICON_INFORMATION);
-}
 
-void MyFrame::OnHello(wxCommandEvent& event)
-{
-    wxLogMessage("Hello world from wxWidgets!");
 }
