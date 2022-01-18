@@ -24,6 +24,9 @@
   <ItemGroup>
     <ClCompile Include="rCanvas.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="image.jpg" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
