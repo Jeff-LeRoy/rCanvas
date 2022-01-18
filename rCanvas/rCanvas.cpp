@@ -21,6 +21,7 @@ MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "rCanvas")
     menuFile->AppendSeparator();
     menuFile->Append(wxID_EXIT);
     Bind(wxEVT_MENU, &MyFrame::OnImport, this, 1001);
+    Bind(wxEVT_MENU, &MyFrame::OnExit, this, wxID_EXIT);
 
     //Create menu bar
     wxMenuBar* menuBar = new wxMenuBar;
@@ -28,9 +29,8 @@ MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "rCanvas")
     SetMenuBar(menuBar);
 
     //Create Status bar
-    CreateStatusBar();
+    //CreateStatusBar();
     //SetStatusText("Welcome to wxWidgets!");
-    Bind(wxEVT_MENU, &MyFrame::OnExit, this, wxID_EXIT);
 }
 
 void MyFrame::OnExit(wxCommandEvent& event)
