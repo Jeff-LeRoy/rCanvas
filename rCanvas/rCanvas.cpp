@@ -7,7 +7,6 @@ ImagePanel::ImagePanel(wxWindow* parent) : wxPanel(parent)
 {
     this->SetBackgroundColour(wxColor(15, 68, 125));
     image.LoadFile("image.jpg", wxBITMAP_TYPE_JPEG);
-
 }
 
 //The handler of wxPaintEvent must create a wxPaintDC object and use it for painting the window contents
@@ -35,12 +34,13 @@ bool MyApp::OnInit()
     wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
 
     //Create a frame and Panel
-    wxFrame* mainFrame = new wxFrame(NULL, wxID_ANY, "rCanvas", wxPoint(100,100), wxSize(640,480));
+    wxFrame* mainFrame = new wxFrame(NULL, wxID_ANY, "rCanvas", wxPoint(100,100), wxSize(854,480));
     ImagePanel* imagePanel = new ImagePanel(mainFrame);
+    mainFrame->CreateStatusBar();
 
     //Add panel to sizer, fit frame to sizer
     sizer->Add(imagePanel, 1, wxEXPAND);
-    mainFrame->SetSizerAndFit(sizer);
+    mainFrame->SetSizer(sizer);
     mainFrame->Show(true);
 
     return true;
