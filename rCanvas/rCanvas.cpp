@@ -3,10 +3,16 @@
 #include <wx/sizer.h>
 #include "rCanvas.h"
 
-ImagePanel::ImagePanel(wxWindow* parent) : wxPanel(parent)
+ImagePanel::ImagePanel(wxWindow* parent) : wxScrolledWindow(parent)
 {
     this->SetBackgroundColour(wxColor(15, 68, 125));
     image.LoadFile("image.jpg", wxBITMAP_TYPE_JPEG);
+
+    w = image.GetWidth();
+    h = image.GetHeight();
+
+    /* init scrolled area size, scrolling speed, etc. */
+    SetScrollbars(1, 1, w, h, 0, 0);
 }
 
 //The handler of wxPaintEvent must create a wxPaintDC object and use it for painting the window contents

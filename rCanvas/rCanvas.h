@@ -14,9 +14,11 @@ public:
 //    void OnImport(wxCommandEvent& event);
 //};
 
-class ImagePanel : public wxPanel
+class ImagePanel : public wxScrolledWindow
 {
     wxBitmap image;
+    int w;
+    int h;
 public:
     ImagePanel(wxWindow* parent);
     void OnPaint(wxPaintEvent& event);
