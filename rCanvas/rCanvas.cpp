@@ -7,24 +7,18 @@ ImagePanel::ImagePanel(wxWindow* parent) : wxPanel(parent)
 {
     this->SetBackgroundColour(wxColor(15, 68, 125));
     image.LoadFile("image.jpg", wxBITMAP_TYPE_JPEG);
+
 }
 
+//The handler of wxPaintEvent must create a wxPaintDC object and use it for painting the window contents
 void ImagePanel::OnPaint(wxPaintEvent& event)
 {
     wxPaintDC dc(this);
-    DrawMyImage(dc);
-}
-
-void ImagePanel::paintNow()
-{
-    // depending on your system you may need to look at double-buffered dcs
-    wxClientDC dc(this);
-    DrawMyImage(dc);
+    dc.DrawBitmap(image, 0, 0, false);
 }
 
 void ImagePanel::DrawMyImage(wxDC& dc)
 {
-    dc.DrawBitmap(image, 0, 0, false);
 }
 
 //MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "rCanvas")
@@ -51,6 +45,10 @@ bool MyApp::OnInit()
 
     return true;
 }
+
+BEGIN_EVENT_TABLE(ImagePanel, wxPanel)
+    EVT_PAINT(ImagePanel::OnPaint)
+END_EVENT_TABLE()
 
 wxIMPLEMENT_APP(MyApp);
 

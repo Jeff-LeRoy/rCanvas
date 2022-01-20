@@ -22,4 +22,6 @@ public:
     void OnPaint(wxPaintEvent& event);
     void DrawMyImage(wxDC& dc);
     void paintNow();
+
+    DECLARE_EVENT_TABLE()
 };
