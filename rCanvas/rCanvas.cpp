@@ -5,76 +5,64 @@
 
 ImagePanel::ImagePanel(wxWindow* parent) : wxPanel(parent)
 {
+    this->SetBackgroundColour(wxColor(15, 68, 125));
     image.LoadFile("image.jpg", wxBITMAP_TYPE_JPEG);
 }
 
-void ImagePanel::paintEvent(wxPaintEvent& evt)
+void ImagePanel::OnPaint(wxPaintEvent& event)
 {
     wxPaintDC dc(this);
+    DrawMyImage(dc);
+}
+
+void ImagePanel::paintNow()
+{
+    // depending on your system you may need to look at double-buffered dcs
+    wxClientDC dc(this);
+    DrawMyImage(dc);
+}
+
+void ImagePanel::DrawMyImage(wxDC& dc)
+{
     dc.DrawBitmap(image, 0, 0, false);
 }
 
+//MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "rCanvas")
+//{
+//
+//}
 
 bool MyApp::OnInit()
 {
-    // Initialize all image handlers
+    //Initialize all image handlers
     wxInitAllImageHandlers();
 
-    // Initialize box sizer
+    //Create box sizer
     wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
 
-    // Initialize a frame
-    wxFrame* frame = new wxFrame(NULL, wxID_ANY, "rCanvas", wxPoint(100,100), wxSize(640,480));
-    ImagePanel* drawImage = new ImagePanel(frame);
+    //Create a frame and Panel
+    wxFrame* mainFrame = new wxFrame(NULL, wxID_ANY, "rCanvas", wxPoint(100,100), wxSize(640,480));
+    ImagePanel* imagePanel = new ImagePanel(mainFrame);
 
-    sizer->Add(drawImage, 1, wxEXPAND);
-
-    frame->SetSizer(sizer);
-
-    frame->Show(true);
+    //Add panel to sizer, fit frame to sizer
+    sizer->Add(imagePanel, 1, wxEXPAND);
+    mainFrame->SetSizerAndFit(sizer);
+    mainFrame->Show(true);
 
     return true;
 }
 
 wxIMPLEMENT_APP(MyApp);
 
-
-MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "rCanvas")
-{
-    /*
-    //Create File Menu
-    wxMenu* menuFile = new wxMenu;
-    wxMenuItem* menuImport = new wxMenuItem(menuFile, 1001, "Import");
-    menuFile->Append(menuImport);
-    menuFile->AppendSeparator();
-    menuFile->Append(wxID_EXIT);
-    Bind(wxEVT_MENU, &MyFrame::OnImport, this, 1001);
-    Bind(wxEVT_MENU, &MyFrame::OnExit, this, wxID_EXIT);
-
-
-    //Create menu bar
-    wxMenuBar* menuBar = new wxMenuBar;
-    menuBar->Append(menuFile, "&File");
-    SetMenuBar(menuBar);
-
-    //Create Status bar
-    //CreateStatusBar();
-    //SetStatusText("Welcome to wxWidgets!");
-    */
-}
-void MyFrame::OnExit(wxCommandEvent& event)
-{
-    Close(true);
-}
-void MyFrame::OnImport(wxCommandEvent& event)
-{
-    wxFileDialog openFileDialog
-    (this, _("Open Image"), "", "", ".jpg files (*.jpg)|*.jpg", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
-
-    if (openFileDialog.ShowModal() == wxID_CANCEL)
-        return;
-
-    //Get path to image
-    wxString fileLocation = (openFileDialog.GetPath());
-    wxString fileName = openFileDialog.GetFilename();
-}
+//void MyFrame::OnImport(wxCommandEvent& event)
+//{
+//    wxFileDialog openFileDialog
+//    (this, _("Open Image"), "", "", ".jpg files (*.jpg)|*.jpg", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+//
+//    if (openFileDialog.ShowModal() == wxID_CANCEL)
+//        return;
+//
+//    //Get path to image
+//    wxString fileLocation = (openFileDialog.GetPath());
+//    wxString fileName = openFileDialog.GetFilename();
+//}
