@@ -3,37 +3,39 @@
 #include <wx/sizer.h>
 #include "rCanvas.h"
 
-ImagePanel::ImagePanel(wxWindow* parent) : wxScrolledWindow(parent)
-{
-    this->SetBackgroundColour(wxColor(15, 68, 125));
-    image.LoadFile("image.jpg", wxBITMAP_TYPE_JPEG);
 
+ImagePanel::ImagePanel(wxWindow* parent, wxWindowID id) 
+    : wxScrolledWindow(parent, id)
+{
+    //this->SetBackgroundColour(wxColor(15, 68, 125));
+
+    image.LoadFile("image.jpg", wxBITMAP_TYPE_JPEG);
+    if (!image.IsOk())
+    {
+        wxMessageBox("there was an error loading the image");
+        return;
+    }
     w = image.GetWidth();
     h = image.GetHeight();
 
-    /* init scrolled area size, scrolling speed, etc. */
     SetScrollbars(1, 1, w, h, 0, 0);
 }
 
-//The handler of wxPaintEvent must create a wxPaintDC object and use it for painting the window contents
-void ImagePanel::OnPaint(wxPaintEvent& event)
+void ImagePanel::OnRender(wxPaintEvent& event)
 {
     wxPaintDC dc(this);
+    //dc.DrawLine(wxPoint(10, 10), wxPoint(100, 100));
     dc.DrawBitmap(image, 0, 0, false);
 }
 
-void ImagePanel::DrawMyImage(wxDC& dc)
-{
-}
-
-//MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "rCanvas")
+//void ImagePanel::OnDraw(wxDC& dc)
 //{
-//
+//    dc.DrawLine(wxPoint(10, 10), wxPoint(100, 100));
+//    //dc.DrawBitmap(image, 0, 0, false);
 //}
 
 bool MyApp::OnInit()
 {
-    //Initialize all image handlers
     wxInitAllImageHandlers();
 
     //Create box sizer
@@ -41,7 +43,7 @@ bool MyApp::OnInit()
 
     //Create a frame and Panel
     wxFrame* mainFrame = new wxFrame(NULL, wxID_ANY, "rCanvas", wxPoint(100,100), wxSize(854,480));
-    ImagePanel* imagePanel = new ImagePanel(mainFrame);
+    ImagePanel* imagePanel = new ImagePanel(mainFrame, wxID_ANY);
     mainFrame->CreateStatusBar();
 
     //Add panel to sizer, fit frame to sizer
@@ -53,7 +55,7 @@ bool MyApp::OnInit()
 }
 
 BEGIN_EVENT_TABLE(ImagePanel, wxPanel)
-    EVT_PAINT(ImagePanel::OnPaint)
+    EVT_PAINT(ImagePanel::OnRender)
 END_EVENT_TABLE()
 
 wxIMPLEMENT_APP(MyApp);

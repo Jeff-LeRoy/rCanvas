@@ -6,23 +6,15 @@ public:
     virtual bool OnInit();
 };
 
-//class MyFrame : public wxFrame
-//{
-//public:
-//    MyFrame();
-//private:
-//    void OnImport(wxCommandEvent& event);
-//};
-
 class ImagePanel : public wxScrolledWindow
 {
     wxBitmap image;
-    int w;
-    int h;
+    int w{};
+    int h{};
 public:
-    ImagePanel(wxWindow* parent);
-    void OnPaint(wxPaintEvent& event);
-    void DrawMyImage(wxDC& dc);
+    ImagePanel(wxWindow* parent, wxWindowID id);
+    void OnRender(wxPaintEvent& event);
+    //void OnDraw(wxDC& dc) override;
 
     DECLARE_EVENT_TABLE()
 };
