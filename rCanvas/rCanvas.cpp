@@ -21,18 +21,11 @@ ImagePanel::ImagePanel(wxWindow* parent, wxWindowID id)
     SetScrollbars(1, 1, w, h, 0, 0);
 }
 
-void ImagePanel::OnRender(wxPaintEvent& event)
+void ImagePanel::OnDraw(wxDC& dc)
 {
-    wxPaintDC dc(this);
     //dc.DrawLine(wxPoint(10, 10), wxPoint(100, 100));
     dc.DrawBitmap(image, 0, 0, false);
 }
-
-//void ImagePanel::OnDraw(wxDC& dc)
-//{
-//    dc.DrawLine(wxPoint(10, 10), wxPoint(100, 100));
-//    //dc.DrawBitmap(image, 0, 0, false);
-//}
 
 bool MyApp::OnInit()
 {
@@ -54,9 +47,9 @@ bool MyApp::OnInit()
     return true;
 }
 
-BEGIN_EVENT_TABLE(ImagePanel, wxPanel)
-    EVT_PAINT(ImagePanel::OnRender)
-END_EVENT_TABLE()
+//BEGIN_EVENT_TABLE(ImagePanel, wxPanel)
+//    EVT_PAINT(ImagePanel::OnRender)
+//END_EVENT_TABLE()
 
 wxIMPLEMENT_APP(MyApp);
 

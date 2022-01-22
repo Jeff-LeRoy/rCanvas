@@ -13,8 +13,8 @@ class ImagePanel : public wxScrolledWindow
     int h{};
 public:
     ImagePanel(wxWindow* parent, wxWindowID id);
-    void OnRender(wxPaintEvent& event);
-    //void OnDraw(wxDC& dc) override;
-
-    DECLARE_EVENT_TABLE()
+    
+    void OnDraw(wxDC& dc) override;
+    
+    //DECLARE_EVENT_TABLE()
 };
