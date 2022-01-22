@@ -9,22 +9,28 @@ ImagePanel::ImagePanel(wxWindow* parent, wxWindowID id)
 {
     //this->SetBackgroundColour(wxColor(15, 68, 125));
 
-    image.LoadFile("image.jpg", wxBITMAP_TYPE_JPEG);
-    if (!image.IsOk())
+    image = new wxBitmap("image.jpg", wxBITMAP_TYPE_JPEG);
+    w = image->GetWidth();
+    h = image->GetHeight();
+
+    if (!image->IsOk())
     {
-        wxMessageBox("there was an error loading the image");
+        wxMessageBox("There was an error loading the image.");
         return;
     }
-    w = image.GetWidth();
-    h = image.GetHeight();
 
     SetScrollbars(1, 1, w, h, 0, 0);
 }
 
+ImagePanel::~ImagePanel()
+{
+    delete image;
+}
+
 void ImagePanel::OnDraw(wxDC& dc)
 {
+    dc.DrawBitmap(*image, 0, 0, false);
     //dc.DrawLine(wxPoint(10, 10), wxPoint(100, 100));
-    dc.DrawBitmap(image, 0, 0, false);
 }
 
 bool MyApp::OnInit()
@@ -40,7 +46,7 @@ bool MyApp::OnInit()
     mainFrame->CreateStatusBar();
 
     //Add panel to sizer, fit frame to sizer
-    sizer->Add(imagePanel, 1, wxEXPAND);
+    sizer->Add(imagePanel, 1, wxEXPAND | wxALL, 5);
     mainFrame->SetSizer(sizer);
     mainFrame->Show(true);
 
