@@ -13,11 +13,14 @@ private:
     int m_imgWidth{};
     int m_imgHeight{};
 
-public:
-    ImagePanel(wxWindow* parent, wxWindowID id);
-    ~ImagePanel();
     void OnDraw(wxDC& dc) override;
-    void rightClick(wxMouseEvent& event);
-    
-    DECLARE_EVENT_TABLE()
+
+    void rightDown(wxMouseEvent& event);
+    void rightUp(wxMouseEvent& event);
+    void inMotion(wxMouseEvent& event);
+
+public:
+    //Declarations
+    ImagePanel(wxWindow* parent, wxWindowID id, wxString imgPath);
+    ~ImagePanel();
 };
