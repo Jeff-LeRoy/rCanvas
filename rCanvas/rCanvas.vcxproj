@@ -26,7 +26,6 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="image.jpg" />
-    <Image Include="image2.jpg" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
