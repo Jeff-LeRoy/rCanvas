@@ -1,6 +1,6 @@
 #include <wx/wx.h>
 #include "rCanvas.h"
-
+#include <wx/graphics.h>
 
 ImagePanel::ImagePanel(wxWindow* parent, wxWindowID id, wxString imgPath)
     : wxScrolledWindow(parent, id)
@@ -60,7 +60,7 @@ void ImagePanel::OnDraw(wxDC& dc)
 {
     dc.DrawBitmap(*image, 0, 0, false);
     //dc.DrawLine(wxPoint(10, 10), wxPoint(100, 100));
-    dc.SetLogicalScale(0.5, 0.5);
+    //wxGraphicsContext* gc = wxGraphicsContext::Create(dc);
 }
 
 bool MyApp::OnInit()
