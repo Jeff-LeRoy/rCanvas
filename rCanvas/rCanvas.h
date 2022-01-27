@@ -28,11 +28,11 @@ class ImageWidget : public wxPanel
 {
 private:
     bool m_mouseDragging{ false };
-    int m_x;
-    int m_y;
+    int m_x{};
+    int m_y{};
     //int m_previous_x;
     //int m_previous_y;
-    wxScrolledWindow* parent;
+    wxScrolledWindow* parent = nullptr;
 
     void leftDown(wxMouseEvent& event);
     void leftUp(wxMouseEvent& event);
