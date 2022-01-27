@@ -23,7 +23,7 @@ ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id, wxString imgPath)
 
     //Bind(wxEVT_RIGHT_DOWN, &ImageCanvas::rightDown, this);
     //Bind(wxEVT_RIGHT_UP, &ImageCanvas::rightUp, this);
-    //Bind(wxEVT_MOTION, &ImageCanvas::inMotion, this);
+    Bind(wxEVT_MOTION, &ImageCanvas::inMotion, this);
     //Bind(wxEVT_LEFT_DOWN, &ImageCanvas::leftDown, this);
 
 }
@@ -62,14 +62,15 @@ void ImageCanvas::inMotion(wxMouseEvent& event)
 {
     //if (event.RightIsDown())
     //{
-    //    wxPoint pos = event.GetPosition();
-    //    wxLogStatus(wxString::Format(wxT("%d"), pos.x) + " " + wxString::Format(wxT("%d"), pos.y));
+        wxPoint pos = event.GetPosition();
+        wxLogStatus(wxString::Format(wxT("%d"), pos.x) + " " + wxString::Format(wxT("%d"), pos.y));
     //}
     return;
 }
 
 void ImageCanvas::OnDraw(wxDC& dc)
 {
+    //IsDoubleBuffered();
     //dc.DrawBitmap(*image, 0, 0, false);
     //dc.DrawRectangle(imageBoundingBox);
     //dc.DrawLine(wxPoint(10, 10), wxPoint(100, 100));
@@ -83,6 +84,8 @@ void ImageCanvas::OnDraw(wxDC& dc)
 ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, const wxPoint pos, wxSize size)
     :wxPanel(parent, id, pos, size)
 {
+    parent = ImageWidget::parent;
+
     this->SetBackgroundColour(wxColor(15, 68, 125));
 
     Bind(wxEVT_LEFT_DOWN, &ImageWidget::leftDown, this);
@@ -93,7 +96,10 @@ ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, const wxPoint pos, wxS
 
 void ImageWidget::leftDown(wxMouseEvent& event)
 {
-    wxPoint pos = event.GetPosition();
+    CaptureMouse();
+    //wxPoint pos = event.GetPosition();
+    m_x = event.GetX();
+    m_y = event.GetY();
     m_mouseDragging = true;
     //this->Move((wxPoint(x += 5, y += 5)));
     //wxLogStatus("X=" + wxString::Format(wxT("%d"), pos.x) + " " + "Y=" + wxString::Format(wxT("%d"), pos.y));
@@ -101,16 +107,28 @@ void ImageWidget::leftDown(wxMouseEvent& event)
 
 void ImageWidget::leftUp(wxMouseEvent& event)
 {
+    ReleaseMouse();
     m_mouseDragging = false;
     //wxLogStatus("L up");
 }
 
 void ImageWidget::mouseMoving(wxMouseEvent& event)
 {
-    if (m_mouseDragging & event.Dragging())
-        wxLogStatus("Dragging");
-    else
-        wxLogStatus("Not Dragging");
+    //if (m_mouseDragging & event.Dragging())
+    //    wxLogStatus("Dragging");
+    //else
+    //    wxLogStatus("Not Dragging");
+
+
+    if (m_mouseDragging)
+    {
+        wxPoint mouseOnScreen = wxGetMousePosition();
+        int newx = mouseOnScreen.x - m_x;
+        int newy = mouseOnScreen.y - m_y;
+        //this->Move(ImageWidget::parent->ScreenToClient(wxPoint(newx, newy)));
+        this->Move((wxPoint(newx, newy)));
+    }
+
 }
 
 //---------------------------------------------------------------------------
