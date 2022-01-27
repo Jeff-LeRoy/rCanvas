@@ -32,7 +32,7 @@ private:
     int m_y{};
     //int m_previous_x;
     //int m_previous_y;
-    wxScrolledWindow* parent = nullptr;
+    wxWindow* m_parent;
 
     void leftDown(wxMouseEvent& event);
     void leftUp(wxMouseEvent& event);

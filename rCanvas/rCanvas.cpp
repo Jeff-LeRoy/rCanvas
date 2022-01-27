@@ -67,7 +67,7 @@ void ImageCanvas::inMotion(wxMouseEvent& event)
     //if (event.RightIsDown())
     //{
         wxPoint pos = event.GetPosition();
-        wxLogStatus(wxString::Format(wxT("%d"), pos.x) + " " + wxString::Format(wxT("%d"), pos.y));
+        wxLogStatus("X=" + wxString::Format(wxT("%d"), pos.x) + " " + "Y=" + wxString::Format(wxT("%d"), pos.y));
     //}
     return;
 }
@@ -88,7 +88,7 @@ void ImageCanvas::OnDraw(wxDC& dc)
 ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, const wxPoint pos, wxSize size)
     :wxPanel(parent, id, pos, size)
 {
-    parent = ImageWidget::parent;
+    ImageWidget::m_parent = parent;
 
     this->SetBackgroundColour(wxColor(15, 68, 125));
 
@@ -101,38 +101,42 @@ ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, const wxPoint pos, wxS
 void ImageWidget::leftDown(wxMouseEvent& event)
 {
     CaptureMouse();
-    //wxPoint pos = event.GetPosition();
+
+    //Get local/client mouse position
     m_x = event.GetX();
     m_y = event.GetY();
+
     m_mouseDragging = true;
-    //this->Move((wxPoint(x += 5, y += 5)));
-    //wxLogStatus("X=" + wxString::Format(wxT("%d"), pos.x) + " " + "Y=" + wxString::Format(wxT("%d"), pos.y));
 }
 
 void ImageWidget::leftUp(wxMouseEvent& event)
 {
     ReleaseMouse();
     m_mouseDragging = false;
-    //wxLogStatus("L up");
 }
 
 void ImageWidget::mouseMoving(wxMouseEvent& event)
 {
-    //if (m_mouseDragging & event.Dragging())
-    //    wxLogStatus("Dragging");
-    //else
-    //    wxLogStatus("Not Dragging");
-
-
     if (m_mouseDragging)
     {
         wxPoint mouseOnScreen = wxGetMousePosition();
         int newx = mouseOnScreen.x - m_x;
         int newy = mouseOnScreen.y - m_y;
-        //this->Move(ImageWidget::parent->ScreenToClient(wxPoint(newx, newy)));
-        this->Move((wxPoint(newx, newy)));
-    }
 
+        this->Move(m_parent->ScreenToClient(wxPoint(newx, newy)));
+
+        wxLogStatus(/*"Local X=" + wxString::Format(wxT("%d"), m_x) + " " +
+                    "Local Y=" + wxString::Format(wxT("%d"), m_y) + " " +
+                    "Screen X=" + wxString::Format(wxT("%d"), mousePosScreen.x) + " " +
+                    "Screen Y=" + wxString::Format(wxT("%d"), mousePosScreen.y) + " " +
+                    "Conv X=" + wxString::Format(wxT("%d"), conv.x) + " " +
+                    "Conv Y=" + wxString::Format(wxT("%d"), conv.y)*/
+                    "mouseOnScreen X=" + wxString::Format(wxT("%d"), mouseOnScreen.x) + " " +
+                    "mouseOnScreen Y=" + wxString::Format(wxT("%d"), mouseOnScreen.y) + " " +
+                    "L X=" + wxString::Format(wxT("%d"), m_x) + " " +
+                    "L Y=" + wxString::Format(wxT("%d"), m_y)
+                    );
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -153,7 +157,7 @@ bool MyApp::OnInit()
     ImageWidget* imageWidget01 = new ImageWidget(mainImageCanvas, wxID_ANY, wxDefaultPosition, wxSize(100, 100));
 
     //Add panel to sizer, fit frame to sizer
-    sizer->Add(mainImageCanvas, 1, wxEXPAND | wxALL, 5);
+    sizer->Add(mainImageCanvas, 1, wxEXPAND /*| wxALL, 5*/);
     mainFrame->SetSizer(sizer);
     mainFrame->Show(true);
     mainFrame->Center();
