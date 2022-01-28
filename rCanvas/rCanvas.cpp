@@ -55,18 +55,19 @@ void ImageCanvas::OnDraw(wxDC& dc)
 // ImageWidget
 //---------------------------------------------------------------------------
 
+//Need to catch capture lost event
+
 ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, const wxPoint pos, wxSize size, wxString imgPath)
     :wxPanel(parent, id, pos, size)
 {
-    ImageWidget::m_parent = parent;
+    //ImageWidget::m_IwParent = parent;
 
     //load image on heap
-    image = new wxBitmap(imgPath, wxBITMAP_TYPE_JPEG);
-    m_imgWidth = image->GetWidth();
-    m_imgHeight = image->GetHeight();
-    //imageBoundingBox = wxRect(0, 0, m_imgWidth, m_imgHeight);
+    m_IwImage = new wxBitmap(imgPath, wxBITMAP_TYPE_JPEG);
+    //m_IwImgWidth = m_IwImage->GetWidth();
+    //m_IwImgHeight = m_IwImage->GetHeight();
 
-    if (!image->IsOk())
+    if (!m_IwImage->IsOk())
     {
         wxMessageBox("There was an error loading the image.");
         return;
@@ -83,7 +84,7 @@ ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, const wxPoint pos, wxS
 
 ImageWidget::~ImageWidget()
 {
-    delete image;
+    delete m_IwImage;
 }
 
 void ImageWidget::leftDown(wxMouseEvent& event)
@@ -91,10 +92,10 @@ void ImageWidget::leftDown(wxMouseEvent& event)
     CaptureMouse();
 
     //Get local/client mouse position
-    mouseLocal_x = event.GetX();
-    mouseLocal_y = event.GetY();
+    m_IwMouseLocal_x = event.GetX();
+    m_IwMouseLocal_y = event.GetY();
 
-    m_mouseDragging = true;
+    m_IwMouseDragging = true;
 
     Raise();
 }
@@ -102,24 +103,25 @@ void ImageWidget::leftDown(wxMouseEvent& event)
 void ImageWidget::leftUp(wxMouseEvent& event)
 {
     ReleaseMouse();
-    m_mouseDragging = false;
+    m_IwMouseDragging = false;
 }
 
 void ImageWidget::mouseMoving(wxMouseEvent& event)
 {
-    if (m_mouseDragging)
+    if (m_IwMouseDragging)
     {
         //Get screen space mouse pos
         wxPoint mouseScreen = wxGetMousePosition();
 
         //Subtract local mouse pos from screen pos
-        int mousePosConverted_x = mouseScreen.x - mouseLocal_x;
-        int mousePosConverted_y = mouseScreen.y - mouseLocal_y;
+        int mousePosConverted_x = mouseScreen.x - m_IwMouseLocal_x;
+        int mousePosConverted_y = mouseScreen.y - m_IwMouseLocal_y;
 
         //Move box to converted screen position
+        //m_parent from window.h
         this->Move(m_parent->ScreenToClient(wxPoint(mousePosConverted_x, mousePosConverted_y)));
 
-        //Need to do this otherwise dragging image widgets leave artifacts
+        //Need to do this otherwise dragging an ImageWidget leave artifacts
         GetParent()->ClearBackground();
 
         //wxLogStatus("mouseScreen X=" + wxString::Format(wxT("%d"), mouseScreen.x) + " " +
@@ -134,7 +136,7 @@ void ImageWidget::OnPaint(wxPaintEvent& event)
 {
     wxPaintDC dc(this);
     //DrawMyDocument(dc);
-    dc.DrawBitmap(*image, 0, 0, false);
+    dc.DrawBitmap(*m_IwImage, 0, 0, false);
     //dc.DrawLine(wxPoint(10, 10), wxPoint(100, 100));
 }
 
