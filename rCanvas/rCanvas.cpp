@@ -8,9 +8,10 @@
 ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id, wxString imgPath)
     : wxScrolledWindow(parent, id)
 {
-    //this->SetBackgroundColour(wxColor(15, 68, 125));
+    this->SetBackgroundColour(wxColor(34, 35, 37));
+    this->SetDoubleBuffered(true);
 
-    SetScrollbars(1, 1, 2000, 2000, 0, 0);
+    SetScrollbars(1, 1, 1000, 1000, 0, 0);
     SetScrollRate(5, 5);
 
     Bind(wxEVT_RIGHT_DOWN, &ImageCanvas::rightDown, this);
@@ -19,25 +20,18 @@ ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id, wxString imgPath)
     Bind(wxEVT_LEFT_DOWN, &ImageCanvas::leftDown, this);
 }
 
-ImageCanvas::~ImageCanvas()
-{
-    //delete image;
-}
+ImageCanvas::~ImageCanvas(){}
 
-void ImageCanvas::rightDown(wxMouseEvent& event)
-{
-}
+void ImageCanvas::rightDown(wxMouseEvent& event){}
 
-void ImageCanvas::rightUp(wxMouseEvent& event)
-{
-}
+void ImageCanvas::rightUp(wxMouseEvent& event){}
 
 void ImageCanvas::leftDown(wxMouseEvent& event)
 {
  /*   if (imageBoundingBox.Contains(event.GetPosition()) && event.LeftIsDown())
         wxLogStatus("Clicked Inside Box");
     else*/
-        wxLogStatus("clicked in canvas");
+        //wxLogStatus("clicked in canvas");
 }
 
 void ImageCanvas::inMotion(wxMouseEvent& event)
@@ -47,12 +41,11 @@ void ImageCanvas::inMotion(wxMouseEvent& event)
         //wxPoint pos = event.GetPosition();
         //wxLogStatus("X=" + wxString::Format(wxT("%d"), pos.x) + " " + "Y=" + wxString::Format(wxT("%d"), pos.y));
     //}
-    return;
+    //return;
 }
 
 void ImageCanvas::OnDraw(wxDC& dc)
 {
-    //IsDoubleBuffered();
     //dc.DrawRectangle(imageBoundingBox);
     //dc.DrawLine(wxPoint(10, 10), wxPoint(100, 100));
     //wxGraphicsContext* gc = wxGraphicsContext::Create(dc);
@@ -102,8 +95,6 @@ void ImageWidget::leftDown(wxMouseEvent& event)
     mouseLocal_y = event.GetY();
 
     m_mouseDragging = true;
-
-    wxLogStatus("clicked in panel");
 }
 
 void ImageWidget::leftUp(wxMouseEvent& event)
@@ -126,11 +117,14 @@ void ImageWidget::mouseMoving(wxMouseEvent& event)
         //Move box to converted screen position
         this->Move(m_parent->ScreenToClient(wxPoint(mousePosConverted_x, mousePosConverted_y)));
 
-        wxLogStatus("mouseScreen X=" + wxString::Format(wxT("%d"), mouseScreen.x) + " " +
-                    "mouseScreen Y=" + wxString::Format(wxT("%d"), mouseScreen.y) + " " +
-                    "L X=" + wxString::Format(wxT("%d"), mouseLocal_x) + " " +
-                    "L Y=" + wxString::Format(wxT("%d"), mouseLocal_y)
-                    );
+        //Need to do this otherwise dragging image widgets leave artifacts
+        GetParent()->ClearBackground();
+
+        //wxLogStatus("mouseScreen X=" + wxString::Format(wxT("%d"), mouseScreen.x) + " " +
+        //            "mouseScreen Y=" + wxString::Format(wxT("%d"), mouseScreen.y) + " " +
+        //            "L X=" + wxString::Format(wxT("%d"), mouseLocal_x) + " " +
+        //            "L Y=" + wxString::Format(wxT("%d"), mouseLocal_y)
+        //            );
     }
 }
 
@@ -154,11 +148,12 @@ bool MyApp::OnInit()
     wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
 
     //Create a mainFrame and Canvas
-    wxFrame* mainFrame = new wxFrame(NULL, wxID_ANY, "rCanvas", wxPoint(100,100), wxSize(854,480));
+    wxFrame* mainFrame = new wxFrame(NULL, wxID_ANY, "rCanvas", wxPoint(100,100), wxSize(1280,720));
     wxStatusBar* statusBar = mainFrame->CreateStatusBar();
     ImageCanvas* mainImageCanvas = new ImageCanvas(mainFrame, wxID_ANY, "image2.jpg");
 
-    ImageWidget* imageWidget01 = new ImageWidget(mainImageCanvas, wxID_ANY, wxDefaultPosition, wxSize(300, 300), "image2.jpg");
+    ImageWidget* imageWidget01 = new ImageWidget(mainImageCanvas, wxID_ANY, wxDefaultPosition, wxSize(250, 250), "image2.jpg");
+    ImageWidget* imageWidget02 = new ImageWidget(mainImageCanvas, wxID_ANY, wxDefaultPosition, wxSize(250, 250), "image2.jpg");
 
     //Add panel to sizer, fit frame to sizer
     sizer->Add(mainImageCanvas, 1, wxEXPAND | wxALL, 5);
