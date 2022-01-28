@@ -18,7 +18,7 @@ private:
     void inMotion(wxMouseEvent& event);
     void leftDown(wxMouseEvent& event);
 public:
-    ImageCanvas(wxWindow* parent, wxWindowID id, wxString imgPath);
+    ImageCanvas(wxWindow* parent, wxWindowID id);
     ~ImageCanvas();
 };
 

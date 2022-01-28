@@ -5,7 +5,7 @@
 // ImageCanvas
 //---------------------------------------------------------------------------
 
-ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id, wxString imgPath)
+ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id)
     : wxScrolledWindow(parent, id)
 {
     this->SetBackgroundColour(wxColor(34, 35, 37));
@@ -95,6 +95,8 @@ void ImageWidget::leftDown(wxMouseEvent& event)
     mouseLocal_y = event.GetY();
 
     m_mouseDragging = true;
+
+    Raise();
 }
 
 void ImageWidget::leftUp(wxMouseEvent& event)
@@ -150,10 +152,10 @@ bool MyApp::OnInit()
     //Create a mainFrame and Canvas
     wxFrame* mainFrame = new wxFrame(NULL, wxID_ANY, "rCanvas", wxPoint(100,100), wxSize(1280,720));
     wxStatusBar* statusBar = mainFrame->CreateStatusBar();
-    ImageCanvas* mainImageCanvas = new ImageCanvas(mainFrame, wxID_ANY, "image2.jpg");
+    ImageCanvas* mainImageCanvas = new ImageCanvas(mainFrame, wxID_ANY);
 
-    ImageWidget* imageWidget01 = new ImageWidget(mainImageCanvas, wxID_ANY, wxDefaultPosition, wxSize(250, 250), "image2.jpg");
-    ImageWidget* imageWidget02 = new ImageWidget(mainImageCanvas, wxID_ANY, wxDefaultPosition, wxSize(250, 250), "image2.jpg");
+    ImageWidget* imageWidget01 = new ImageWidget(mainImageCanvas, wxID_ANY, wxDefaultPosition, wxSize(250, 250), "image3.jpg");
+    ImageWidget* imageWidget02 = new ImageWidget(mainImageCanvas, wxID_ANY, wxDefaultPosition, wxSize(500, 500), "image.jpg");
 
     //Add panel to sizer, fit frame to sizer
     sizer->Add(mainImageCanvas, 1, wxEXPAND | wxALL, 5);
