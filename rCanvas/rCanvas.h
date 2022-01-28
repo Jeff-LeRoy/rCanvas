@@ -9,8 +9,7 @@ public:
 class ImageCanvas : public wxScrolledWindow
 {
 private:
-    wxRect imageBoundingBox{};
-
+    //wxRect imageBoundingBox{};
 
     void OnDraw(wxDC& dc) override;
     void rightDown(wxMouseEvent& event);

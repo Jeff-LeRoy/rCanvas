@@ -157,8 +157,9 @@ bool MyApp::OnInit()
     ImageWidget* imageWidget01 = new ImageWidget(mainImageCanvas, wxID_ANY, wxDefaultPosition, wxSize(250, 250), "image3.jpg");
     ImageWidget* imageWidget02 = new ImageWidget(mainImageCanvas, wxID_ANY, wxDefaultPosition, wxSize(500, 500), "image.jpg");
 
+
     //Add panel to sizer, fit frame to sizer
-    sizer->Add(mainImageCanvas, 1, wxEXPAND | wxALL, 5);
+    sizer->Add(mainImageCanvas, 1, wxEXPAND /*| wxALL, 5*/);
     mainFrame->SetSizer(sizer);
     mainFrame->Show(true);
     mainFrame->Center();
