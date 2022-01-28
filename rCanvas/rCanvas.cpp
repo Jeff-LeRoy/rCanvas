@@ -10,64 +10,42 @@ ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id, wxString imgPath)
 {
     //this->SetBackgroundColour(wxColor(15, 68, 125));
 
-    //load image on heap
-    //image = new wxBitmap(imgPath, wxBITMAP_TYPE_JPEG);
-    //m_imgWidth = image->GetWidth();
-    //m_imgHeight = image->GetHeight();
-    //imageBoundingBox = wxRect(0, 0, m_imgWidth, m_imgHeight);
+    SetScrollbars(1, 1, 2000, 2000, 0, 0);
+    SetScrollRate(5, 5);
 
-    //if (!image->IsOk())
-    //{
-    //    wxMessageBox("There was an error loading the image.");
-    //    return;
-    //}
-
-    //SetScrollbars(1, 1, m_imgWidth, m_imgHeight, 0, 0);
-    //SetScrollRate(5, 5);
-
-    //Bind(wxEVT_RIGHT_DOWN, &ImageCanvas::rightDown, this);
-    //Bind(wxEVT_RIGHT_UP, &ImageCanvas::rightUp, this);
+    Bind(wxEVT_RIGHT_DOWN, &ImageCanvas::rightDown, this);
+    Bind(wxEVT_RIGHT_UP, &ImageCanvas::rightUp, this);
     Bind(wxEVT_MOTION, &ImageCanvas::inMotion, this);
-    //Bind(wxEVT_LEFT_DOWN, &ImageCanvas::leftDown, this);
-
+    Bind(wxEVT_LEFT_DOWN, &ImageCanvas::leftDown, this);
 }
 
 ImageCanvas::~ImageCanvas()
 {
-    delete image;
+    //delete image;
 }
 
 void ImageCanvas::rightDown(wxMouseEvent& event)
 {
-    wxPoint pos = event.GetPosition();
-
-    //CaptureMouse();
-    //wxLogStatus("X=" + wxString::Format(wxT("%d"), pos.x) + " " + "Y=" + wxString::Format(wxT("%d"), pos.y));
-    return;
 }
 
 void ImageCanvas::rightUp(wxMouseEvent& event)
 {
-    //wxPoint pos = event.GetPosition();
-    //wxLogStatus("X=" + wxString::Format(wxT("%d"), pos.x) + " " + "Y=" + wxString::Format(wxT("%d"), pos.y));
-    wxLogStatus("up");
-    return;
 }
 
 void ImageCanvas::leftDown(wxMouseEvent& event)
 {
-    if (imageBoundingBox.Contains(event.GetPosition()) && event.LeftIsDown())
+ /*   if (imageBoundingBox.Contains(event.GetPosition()) && event.LeftIsDown())
         wxLogStatus("Clicked Inside Box");
-    else
-        wxLogStatus("");
+    else*/
+        wxLogStatus("clicked in canvas");
 }
 
 void ImageCanvas::inMotion(wxMouseEvent& event)
 {
     //if (event.RightIsDown())
     //{
-        wxPoint pos = event.GetPosition();
-        wxLogStatus("X=" + wxString::Format(wxT("%d"), pos.x) + " " + "Y=" + wxString::Format(wxT("%d"), pos.y));
+        //wxPoint pos = event.GetPosition();
+        //wxLogStatus("X=" + wxString::Format(wxT("%d"), pos.x) + " " + "Y=" + wxString::Format(wxT("%d"), pos.y));
     //}
     return;
 }
@@ -75,7 +53,6 @@ void ImageCanvas::inMotion(wxMouseEvent& event)
 void ImageCanvas::OnDraw(wxDC& dc)
 {
     //IsDoubleBuffered();
-    //dc.DrawBitmap(*image, 0, 0, false);
     //dc.DrawRectangle(imageBoundingBox);
     //dc.DrawLine(wxPoint(10, 10), wxPoint(100, 100));
     //wxGraphicsContext* gc = wxGraphicsContext::Create(dc);
@@ -85,17 +62,35 @@ void ImageCanvas::OnDraw(wxDC& dc)
 // ImageWidget
 //---------------------------------------------------------------------------
 
-ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, const wxPoint pos, wxSize size)
+ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, const wxPoint pos, wxSize size, wxString imgPath)
     :wxPanel(parent, id, pos, size)
 {
     ImageWidget::m_parent = parent;
+
+    //load image on heap
+    image = new wxBitmap(imgPath, wxBITMAP_TYPE_JPEG);
+    m_imgWidth = image->GetWidth();
+    m_imgHeight = image->GetHeight();
+    //imageBoundingBox = wxRect(0, 0, m_imgWidth, m_imgHeight);
+
+    if (!image->IsOk())
+    {
+        wxMessageBox("There was an error loading the image.");
+        return;
+    }
 
     this->SetBackgroundColour(wxColor(15, 68, 125));
 
     Bind(wxEVT_LEFT_DOWN, &ImageWidget::leftDown, this);
     Bind(wxEVT_LEFT_UP, &ImageWidget::leftUp, this);
-    Bind(wxEVT_LEFT_DOWN, &ImageWidget::leftDown, this);
     Bind(wxEVT_MOTION, &ImageWidget::mouseMoving, this);
+    Bind(wxEVT_PAINT, &ImageWidget::OnPaint, this);
+
+}
+
+ImageWidget::~ImageWidget()
+{
+    delete image;
 }
 
 void ImageWidget::leftDown(wxMouseEvent& event)
@@ -103,10 +98,12 @@ void ImageWidget::leftDown(wxMouseEvent& event)
     CaptureMouse();
 
     //Get local/client mouse position
-    m_x = event.GetX();
-    m_y = event.GetY();
+    mouseLocal_x = event.GetX();
+    mouseLocal_y = event.GetY();
 
     m_mouseDragging = true;
+
+    wxLogStatus("clicked in panel");
 }
 
 void ImageWidget::leftUp(wxMouseEvent& event)
@@ -119,24 +116,30 @@ void ImageWidget::mouseMoving(wxMouseEvent& event)
 {
     if (m_mouseDragging)
     {
-        wxPoint mouseOnScreen = wxGetMousePosition();
-        int newx = mouseOnScreen.x - m_x;
-        int newy = mouseOnScreen.y - m_y;
+        //Get screen space mouse pos
+        wxPoint mouseScreen = wxGetMousePosition();
 
-        this->Move(m_parent->ScreenToClient(wxPoint(newx, newy)));
+        //Subtract local mouse pos from screen pos
+        int mousePosConverted_x = mouseScreen.x - mouseLocal_x;
+        int mousePosConverted_y = mouseScreen.y - mouseLocal_y;
 
-        wxLogStatus(/*"Local X=" + wxString::Format(wxT("%d"), m_x) + " " +
-                    "Local Y=" + wxString::Format(wxT("%d"), m_y) + " " +
-                    "Screen X=" + wxString::Format(wxT("%d"), mousePosScreen.x) + " " +
-                    "Screen Y=" + wxString::Format(wxT("%d"), mousePosScreen.y) + " " +
-                    "Conv X=" + wxString::Format(wxT("%d"), conv.x) + " " +
-                    "Conv Y=" + wxString::Format(wxT("%d"), conv.y)*/
-                    "mouseOnScreen X=" + wxString::Format(wxT("%d"), mouseOnScreen.x) + " " +
-                    "mouseOnScreen Y=" + wxString::Format(wxT("%d"), mouseOnScreen.y) + " " +
-                    "L X=" + wxString::Format(wxT("%d"), m_x) + " " +
-                    "L Y=" + wxString::Format(wxT("%d"), m_y)
+        //Move box to converted screen position
+        this->Move(m_parent->ScreenToClient(wxPoint(mousePosConverted_x, mousePosConverted_y)));
+
+        wxLogStatus("mouseScreen X=" + wxString::Format(wxT("%d"), mouseScreen.x) + " " +
+                    "mouseScreen Y=" + wxString::Format(wxT("%d"), mouseScreen.y) + " " +
+                    "L X=" + wxString::Format(wxT("%d"), mouseLocal_x) + " " +
+                    "L Y=" + wxString::Format(wxT("%d"), mouseLocal_y)
                     );
     }
+}
+
+void ImageWidget::OnPaint(wxPaintEvent& event)
+{
+    wxPaintDC dc(this);
+    //DrawMyDocument(dc);
+    dc.DrawBitmap(*image, 0, 0, false);
+    //dc.DrawLine(wxPoint(10, 10), wxPoint(100, 100));
 }
 
 //---------------------------------------------------------------------------
@@ -150,14 +153,15 @@ bool MyApp::OnInit()
     //Create box sizer
     wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
 
-    //Create a frame and Panel
+    //Create a mainFrame and Canvas
     wxFrame* mainFrame = new wxFrame(NULL, wxID_ANY, "rCanvas", wxPoint(100,100), wxSize(854,480));
     wxStatusBar* statusBar = mainFrame->CreateStatusBar();
-    ImageCanvas* mainImageCanvas = new ImageCanvas(mainFrame, wxID_ANY, "image.jpg");
-    ImageWidget* imageWidget01 = new ImageWidget(mainImageCanvas, wxID_ANY, wxDefaultPosition, wxSize(100, 100));
+    ImageCanvas* mainImageCanvas = new ImageCanvas(mainFrame, wxID_ANY, "image2.jpg");
+
+    ImageWidget* imageWidget01 = new ImageWidget(mainImageCanvas, wxID_ANY, wxDefaultPosition, wxSize(300, 300), "image2.jpg");
 
     //Add panel to sizer, fit frame to sizer
-    sizer->Add(mainImageCanvas, 1, wxEXPAND /*| wxALL, 5*/);
+    sizer->Add(mainImageCanvas, 1, wxEXPAND | wxALL, 5);
     mainFrame->SetSizer(sizer);
     mainFrame->Show(true);
     mainFrame->Center();
