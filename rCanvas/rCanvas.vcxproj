@@ -19,9 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ImageWidget.h" />
     <ClInclude Include="rCanvas.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ImageWidget.cpp" />
     <ClCompile Include="rCanvas.cpp" />
   </ItemGroup>
   <ItemGroup>

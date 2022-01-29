@@ -9,33 +9,18 @@ public:
 class ImageCanvas : public wxScrolledWindow
 {
 private:
-    void OnDraw(wxDC& dc) override;
     void rightDown(wxMouseEvent& event);
     void rightUp(wxMouseEvent& event);
-    void inMotion(wxMouseEvent& event);
-    void leftDown(wxMouseEvent& event);
+    void OnDraw(wxDC& dc) override;
+    void open(wxKeyEvent& event);
 
 public:
     ImageCanvas(wxWindow* parent, wxWindowID id);
     ~ImageCanvas();
 };
 
-class ImageWidget : public wxPanel
+class MainFrame : public wxFrame
 {
-private:
-    bool m_IwMouseDragging{ false };
-    //wxWindow* m_IwParent = nullptr;
-    wxBitmap* m_IwImage = nullptr;
-    int m_IwMouseLocal_x{};
-    int m_IwMouseLocal_y{};
-    //int m_IwImgHeight{};
-    //int m_IwImgWidth{};
-
-    void mouseMoving(wxMouseEvent& event);
-    void leftDown(wxMouseEvent& event);
-    void OnPaint(wxPaintEvent& event);
-    void leftUp(wxMouseEvent& event);
 public:
-    ImageWidget(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize size, wxString imgPath);
-    ~ImageWidget();
+    MainFrame(wxWindow* parent, wxWindowID 	id, const wxString& title, const wxPoint& pos, const wxSize& size);
 };

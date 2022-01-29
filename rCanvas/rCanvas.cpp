@@ -1,5 +1,6 @@
 #include <wx/wx.h>
 #include "rCanvas.h"
+#include "ImageWidget.h"
 
 //---------------------------------------------------------------------------
 // ImageCanvas
@@ -14,135 +15,37 @@ ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id)
     SetScrollbars(1, 1, 1000, 1000, 0, 0);
     SetScrollRate(5, 5);
 
-    Bind(wxEVT_RIGHT_DOWN, &ImageCanvas::rightDown, this);
-    Bind(wxEVT_RIGHT_UP, &ImageCanvas::rightUp, this);
-    Bind(wxEVT_MOTION, &ImageCanvas::inMotion, this);
-    Bind(wxEVT_LEFT_DOWN, &ImageCanvas::leftDown, this);
+    //Bind(wxEVT_RIGHT_DOWN, &ImageCanvas::rightDown, this);
+    //Bind(wxEVT_RIGHT_UP, &ImageCanvas::rightUp, this);
+    //Bind(wxEVT_MOTION, &ImageCanvas::inMotion, this);
+    //Bind(wxEVT_LEFT_DOWN, &ImageCanvas::leftDown, this);
+    Bind(wxEVT_KEY_DOWN, &ImageCanvas::open, this);
 }
 
 ImageCanvas::~ImageCanvas(){}
 
 void ImageCanvas::rightDown(wxMouseEvent& event){}
 
+void ImageCanvas::open(wxKeyEvent& event) 
+{
+    wxChar key = event.GetUnicodeKey();
+    if (key == 'O')
+        wxLogStatus("you clicked Open");
+}
+
 void ImageCanvas::rightUp(wxMouseEvent& event){}
 
-void ImageCanvas::leftDown(wxMouseEvent& event)
-{
- /*   if (imageBoundingBox.Contains(event.GetPosition()) && event.LeftIsDown())
-        wxLogStatus("Clicked Inside Box");
-    else*/
-        //wxLogStatus("clicked in canvas");
-}
-
-void ImageCanvas::inMotion(wxMouseEvent& event)
-{
-    //if (event.RightIsDown())
-    //{
-        //wxPoint pos = event.GetPosition();
-        //wxLogStatus("X=" + wxString::Format(wxT("%d"), pos.x) + " " + "Y=" + wxString::Format(wxT("%d"), pos.y));
-    //}
-    //return;
-}
-
-void ImageCanvas::OnDraw(wxDC& dc)
-{
-    //dc.DrawRectangle(imageBoundingBox);
-    //dc.DrawLine(wxPoint(10, 10), wxPoint(100, 100));
-    //wxGraphicsContext* gc = wxGraphicsContext::Create(dc);
-}
-
-//---------------------------------------------------------------------------
-// ImageWidget
-//---------------------------------------------------------------------------
-
-//Need to catch capture lost event
-
-ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, const wxPoint pos, wxSize size, wxString imgPath)
-    :wxPanel(parent, id, pos, size)
-{
-    //ImageWidget::m_IwParent = parent;
-
-    //load image on heap
-    m_IwImage = new wxBitmap(imgPath, wxBITMAP_TYPE_JPEG);
-    //m_IwImgWidth = m_IwImage->GetWidth();
-    //m_IwImgHeight = m_IwImage->GetHeight();
-
-    if (!m_IwImage->IsOk())
-    {
-        wxMessageBox("There was an error loading the image.");
-        return;
-    }
-
-    this->SetBackgroundColour(wxColor(15, 68, 125));
-
-    Bind(wxEVT_LEFT_DOWN, &ImageWidget::leftDown, this);
-    Bind(wxEVT_LEFT_UP, &ImageWidget::leftUp, this);
-    Bind(wxEVT_MOTION, &ImageWidget::mouseMoving, this);
-    Bind(wxEVT_PAINT, &ImageWidget::OnPaint, this);
-
-}
-
-ImageWidget::~ImageWidget()
-{
-    delete m_IwImage;
-}
-
-void ImageWidget::leftDown(wxMouseEvent& event)
-{
-    CaptureMouse();
-
-    //Get local/client mouse position
-    m_IwMouseLocal_x = event.GetX();
-    m_IwMouseLocal_y = event.GetY();
-
-    m_IwMouseDragging = true;
-
-    Raise();
-}
-
-void ImageWidget::leftUp(wxMouseEvent& event)
-{
-    ReleaseMouse();
-    m_IwMouseDragging = false;
-}
-
-void ImageWidget::mouseMoving(wxMouseEvent& event)
-{
-    if (m_IwMouseDragging)
-    {
-        //Get screen space mouse pos
-        wxPoint mouseScreen = wxGetMousePosition();
-
-        //Subtract local mouse pos from screen pos
-        int mousePosConverted_x = mouseScreen.x - m_IwMouseLocal_x;
-        int mousePosConverted_y = mouseScreen.y - m_IwMouseLocal_y;
-
-        //Move box to converted screen position
-        //m_parent from window.h
-        this->Move(m_parent->ScreenToClient(wxPoint(mousePosConverted_x, mousePosConverted_y)));
-
-        //Need to do this otherwise dragging an ImageWidget leave artifacts
-        GetParent()->ClearBackground();
-
-        //wxLogStatus("mouseScreen X=" + wxString::Format(wxT("%d"), mouseScreen.x) + " " +
-        //            "mouseScreen Y=" + wxString::Format(wxT("%d"), mouseScreen.y) + " " +
-        //            "L X=" + wxString::Format(wxT("%d"), mouseLocal_x) + " " +
-        //            "L Y=" + wxString::Format(wxT("%d"), mouseLocal_y)
-        //            );
-    }
-}
-
-void ImageWidget::OnPaint(wxPaintEvent& event)
-{
-    wxPaintDC dc(this);
-    //DrawMyDocument(dc);
-    dc.DrawBitmap(*m_IwImage, 0, 0, false);
-    //dc.DrawLine(wxPoint(10, 10), wxPoint(100, 100));
-}
+void ImageCanvas::OnDraw(wxDC& dc){}
 
 //---------------------------------------------------------------------------
 // Main
 //---------------------------------------------------------------------------
+
+MainFrame::MainFrame(wxWindow* parent, wxWindowID 	id, const wxString& title, const wxPoint& pos, const wxSize& size)
+    : wxFrame(parent, id, title, pos, size)
+{
+
+}
 
 bool MyApp::OnInit()
 {
@@ -152,16 +55,17 @@ bool MyApp::OnInit()
     wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
 
     //Create a mainFrame and Canvas
-    wxFrame* mainFrame = new wxFrame(NULL, wxID_ANY, "rCanvas", wxPoint(100,100), wxSize(1280,720));
+    MainFrame* mainFrame = new MainFrame(NULL, wxID_ANY, "rCanvas", wxPoint(100,100), wxSize(1280,720));
+    //mainFrame->Bind(wxEVT_CHAR_HOOK, &MyFrame::OnKeyDown, this);
+
     wxStatusBar* statusBar = mainFrame->CreateStatusBar();
     ImageCanvas* mainImageCanvas = new ImageCanvas(mainFrame, wxID_ANY);
 
-    ImageWidget* imageWidget01 = new ImageWidget(mainImageCanvas, wxID_ANY, wxDefaultPosition, wxSize(250, 250), "image3.jpg");
-    ImageWidget* imageWidget02 = new ImageWidget(mainImageCanvas, wxID_ANY, wxDefaultPosition, wxSize(500, 500), "image.jpg");
-
+    ImageWidgetX* imageWidget01 = new ImageWidgetX(mainImageCanvas, wxID_ANY, wxDefaultPosition, wxSize(250, 250), "image3.jpg");
+    ImageWidgetX* imageWidget02 = new ImageWidgetX(mainImageCanvas, wxID_ANY, wxDefaultPosition, wxSize(500, 500), "image.jpg");
 
     //Add panel to sizer, fit frame to sizer
-    sizer->Add(mainImageCanvas, 1, wxEXPAND /*| wxALL, 5*/);
+    sizer->Add(mainImageCanvas, 1, wxEXPAND | wxALL, 10);
     mainFrame->SetSizer(sizer);
     mainFrame->Show(true);
     mainFrame->Center();
