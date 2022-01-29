@@ -1,6 +1,6 @@
 #include <wx/wx.h>
-#include "rCanvas.h"
 #include "ImageWidget.h"
+#include "rCanvas.h"
 
 //---------------------------------------------------------------------------
 // ImageCanvas
@@ -15,7 +15,7 @@ ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id)
     SetScrollbars(1, 1, 1000, 1000, 0, 0);
     SetScrollRate(5, 5);
 
-    //Bind(wxEVT_RIGHT_DOWN, &ImageCanvas::rightDown, this);
+    Bind(wxEVT_RIGHT_DOWN, &ImageCanvas::rightDown, this);
     //Bind(wxEVT_RIGHT_UP, &ImageCanvas::rightUp, this);
 
     //Global key bindings
@@ -41,18 +41,27 @@ wxString ImageCanvas::getImage()
 
 void ImageCanvas::onKeyOpen(wxKeyEvent& event)
 {
-    wxString fileLocation = ImageCanvas::getImage();
-
     wxChar key = event.GetUnicodeKey();
     if (key == 'O')
     {
-        wxLogStatus(fileLocation);
-        ImageWidget* imageWidget01 = new ImageWidget(this, wxID_ANY, wxDefaultPosition, wxSize(250, 250), "image3.jpg");
-    }
+        wxString fileLocation = ImageCanvas::getImage();
 
+        wxLogStatus(fileLocation);
+        ImageWidget* imageWidget = new ImageWidget(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, fileLocation);
+    }
 }
 
-void ImageCanvas::rightDown(wxMouseEvent& event) {}
+void ImageCanvas::rightDown(wxMouseEvent& event) 
+{
+    //wxLogStatus("test");
+
+    //wxWindowList canvasChildren =  GetChildren();
+
+    //for (wxWindowList::iterator itr(canvasChildren.begin()); itr != canvasChildren.end(); itr++)
+    //{
+    //    wxLogStatus(wxString::Format(wxT("%d"), itr.m_node->GetKeyInteger()));
+    //}
+}
 
 void ImageCanvas::rightUp(wxMouseEvent& event){}
 
@@ -79,7 +88,7 @@ bool MyApp::OnInit()
     MainFrame* mainFrame = new MainFrame(NULL, wxID_ANY, "rCanvas", wxPoint(100,100), wxSize(1280,720));
     ImageCanvas* mainImageCanvas = new ImageCanvas(mainFrame, wxID_ANY);
 
-    ImageWidget* imageWidget02 = new ImageWidget(mainImageCanvas, wxID_ANY, wxDefaultPosition, wxSize(500, 500), "image.jpg");
+    ImageWidget* imageWidget02 = new ImageWidget(mainImageCanvas, wxID_ANY, wxDefaultPosition, wxSize(500, 500), "image2.jpg");
     ImageWidget* imageWidget01 = new ImageWidget(mainImageCanvas, wxID_ANY, wxDefaultPosition, wxSize(250, 250), "image3.jpg");
 
     //Add panel to sizer, fit frame to sizer

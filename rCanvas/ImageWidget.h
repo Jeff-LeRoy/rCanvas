@@ -3,14 +3,15 @@
 class ImageWidget : public wxPanel
 {
 private:
-    bool m_IwMouseDragging{ false };
+    bool m_MouseDragging{ false };
     //wxWindow* m_IwParent = nullptr;
-    wxBitmap* m_IwImage = nullptr;
-    int m_IwMouseLocal_x{};
-    int m_IwMouseLocal_y{};
-    //int m_IwImgHeight{};
-    //int m_IwImgWidth{};
+    wxBitmap* m_Image = nullptr;
+    int m_MouseLocal_x{};
+    int m_MouseLocal_y{};
+    int m_ImgHeight{};
+    int m_ImgWidth{};
 
+    void OnCaptureLost(wxMouseCaptureLostEvent&);
     void mouseMoving(wxMouseEvent& event);
     void leftDown(wxMouseEvent& event);
     void OnPaint(wxPaintEvent& event);

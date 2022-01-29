@@ -5,46 +5,47 @@
 // ImageWidget
 //---------------------------------------------------------------------------
 
-//Need to catch capture lost event
-
 ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, const wxPoint pos, wxSize size, wxString imgPath)
     :wxPanel(parent, id, pos, size)
 {
+    this->SetBackgroundColour(wxColor(15, 68, 125));
     //ImageWidget::m_IwParent = parent;
 
     //load image on heap
-    m_IwImage = new wxBitmap(imgPath, wxBITMAP_TYPE_JPEG);
-    //m_IwImgWidth = m_IwImage->GetWidth();
-    //m_IwImgHeight = m_IwImage->GetHeight();
+    m_Image = new wxBitmap(imgPath, wxBITMAP_TYPE_JPEG);
 
-    if (!m_IwImage->IsOk())
+    //Set size of widget
+    m_ImgWidth = m_Image->GetWidth();
+    m_ImgHeight = m_Image->GetHeight();
+    this->SetSize(wxSize(m_ImgWidth, m_ImgHeight));
+
+    if (!m_Image->IsOk())
     {
         wxMessageBox("There was an error loading the image.");
         return;
     }
 
-    this->SetBackgroundColour(wxColor(15, 68, 125));
-
     Bind(wxEVT_LEFT_DOWN, &ImageWidget::leftDown, this);
     Bind(wxEVT_LEFT_UP, &ImageWidget::leftUp, this);
     Bind(wxEVT_MOTION, &ImageWidget::mouseMoving, this);
     Bind(wxEVT_PAINT, &ImageWidget::OnPaint, this);
+    Bind(wxEVT_MOUSE_CAPTURE_LOST, &ImageWidget::OnCaptureLost, this);
 }
 
 ImageWidget::~ImageWidget()
 {
-    delete m_IwImage;
+    delete m_Image;
 }
 
 void ImageWidget::leftDown(wxMouseEvent& event)
 {
     CaptureMouse();
-    wxSetCursor(wxCURSOR_CROSS);
+    wxSetCursor(wxCURSOR_HAND);
 
     //Get client mouse position
-    m_IwMouseLocal_x = event.GetX();
-    m_IwMouseLocal_y = event.GetY();
-    m_IwMouseDragging = true;
+    m_MouseLocal_x = event.GetX();
+    m_MouseLocal_y = event.GetY();
+    m_MouseDragging = true;
 
     //Set Z order to top
     Raise();
@@ -57,19 +58,19 @@ void ImageWidget::leftUp(wxMouseEvent& event)
         ReleaseMouse();
     }
 
-    m_IwMouseDragging = false;
+    m_MouseDragging = false;
 }
 
 void ImageWidget::mouseMoving(wxMouseEvent& event)
 {
-    if (m_IwMouseDragging)
+    if (m_MouseDragging)
     {
         //Get screen space mouse pos
         wxPoint mouseScreen = wxGetMousePosition();
 
         //Subtract local mouse pos from screen pos
-        int mousePosConverted_x = mouseScreen.x - m_IwMouseLocal_x;
-        int mousePosConverted_y = mouseScreen.y - m_IwMouseLocal_y;
+        int mousePosConverted_x = mouseScreen.x - m_MouseLocal_x;
+        int mousePosConverted_y = mouseScreen.y - m_MouseLocal_y;
 
         //Move box to converted screen position
         //m_parent from window.h
@@ -86,9 +87,19 @@ void ImageWidget::mouseMoving(wxMouseEvent& event)
     }
 }
 
+void ImageWidget::OnCaptureLost(wxMouseCaptureLostEvent&)
+{
+    wxSetCursor(wxNullCursor);
+
+    if (HasCapture())
+    {
+        ReleaseMouse();
+    }
+}
+
 void ImageWidget::OnPaint(wxPaintEvent& event)
 {
     wxPaintDC dc(this);
-    dc.DrawBitmap(*m_IwImage, 0, 0, false);
+    dc.DrawBitmap(*m_Image, 0, 0, false);
     //dc.DrawLine(wxPoint(10, 10), wxPoint(100, 100));
 }

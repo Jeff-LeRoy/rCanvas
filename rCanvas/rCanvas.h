@@ -9,7 +9,7 @@ public:
 class ImageCanvas : public wxScrolledWindow
 {
 private:
-    //wxVector<ImageWidget> vecImageWidgets{};
+    wxVector<ImageWidget> vecImageWidgets{};
     void rightDown(wxMouseEvent& event);
     void rightUp(wxMouseEvent& event);
     void onKeyOpen(wxKeyEvent& event);
