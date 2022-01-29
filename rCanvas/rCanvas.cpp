@@ -12,11 +12,12 @@ ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id)
     this->SetBackgroundColour(wxColor(34, 35, 37));
     this->SetDoubleBuffered(true);
 
-    SetScrollbars(1, 1, 1000, 1000, 0, 0);
+    SetScrollbars(1, 1, 2000, 2000, 0, 0);
     SetScrollRate(5, 5);
 
+    Bind(wxEVT_MOTION, &ImageCanvas::rightDragging, this);
     Bind(wxEVT_RIGHT_DOWN, &ImageCanvas::rightDown, this);
-    //Bind(wxEVT_RIGHT_UP, &ImageCanvas::rightUp, this);
+    Bind(wxEVT_RIGHT_UP, &ImageCanvas::rightUp, this);
 
     //Global key bindings
     Bind(wxEVT_CHAR_HOOK, &ImageCanvas::onKeyOpen, this);
@@ -53,17 +54,42 @@ void ImageCanvas::onKeyOpen(wxKeyEvent& event)
 
 void ImageCanvas::rightDown(wxMouseEvent& event) 
 {
-    //wxLogStatus("test");
-
-    //wxWindowList canvasChildren =  GetChildren();
-
-    //for (wxWindowList::iterator itr(canvasChildren.begin()); itr != canvasChildren.end(); itr++)
-    //{
-    //    wxLogStatus(wxString::Format(wxT("%d"), itr.m_node->GetKeyInteger()));
-    //}
+    rightDownPos = event.GetPosition();
+    panCanvas = true;
+    CaptureMouse();
+    wxLogStatus(wxString::Format(wxT("%d"), rightDownPos.x) + ' ' + 
+                wxString::Format(wxT("%d"), rightDownPos.y));
 }
 
-void ImageCanvas::rightUp(wxMouseEvent& event){}
+void ImageCanvas::rightDragging(wxMouseEvent& event)
+{
+    inProgressMousePos = event.GetPosition();
+
+    wxPoint test = inProgressMousePos - rightDownPos;
+    if (panCanvas)
+    {
+        SetScrollRate(1, 1);
+        this->Scroll(test);
+    }
+
+    if(event.RightIsDown())
+        wxLogStatus(wxString::Format(wxT("%d"), inProgressMousePos.x) + ' ' +
+                    wxString::Format(wxT("%d"), inProgressMousePos.y));
+}
+void ImageCanvas::rightUp(wxMouseEvent& event)
+{
+    wxLogStatus("Right Up");
+
+    if (HasCapture())
+    {
+        ReleaseMouse();
+    }
+
+    panCanvas = false;
+
+}
+
+
 
 void ImageCanvas::OnDraw(wxDC& dc){}
 
