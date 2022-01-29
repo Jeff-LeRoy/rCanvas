@@ -1,6 +1,6 @@
 #pragma once
 
-class ImageWidgetX : public wxPanel
+class ImageWidget : public wxPanel
 {
 private:
     bool m_IwMouseDragging{ false };
@@ -16,6 +16,6 @@ private:
     void OnPaint(wxPaintEvent& event);
     void leftUp(wxMouseEvent& event);
 public:
-    ImageWidgetX(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize size, wxString imgPath);
-    ~ImageWidgetX();
+    ImageWidget(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize size, wxString imgPath);
+    ~ImageWidget();
 };

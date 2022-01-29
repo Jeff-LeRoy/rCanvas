@@ -9,10 +9,12 @@ public:
 class ImageCanvas : public wxScrolledWindow
 {
 private:
+    //wxVector<ImageWidget> vecImageWidgets{};
     void rightDown(wxMouseEvent& event);
     void rightUp(wxMouseEvent& event);
+    void onKeyOpen(wxKeyEvent& event);
     void OnDraw(wxDC& dc) override;
-    void open(wxKeyEvent& event);
+    wxString getImage();
 
 public:
     ImageCanvas(wxWindow* parent, wxWindowID id);
@@ -21,6 +23,8 @@ public:
 
 class MainFrame : public wxFrame
 {
+private:
+
 public:
     MainFrame(wxWindow* parent, wxWindowID 	id, const wxString& title, const wxPoint& pos, const wxSize& size);
 };

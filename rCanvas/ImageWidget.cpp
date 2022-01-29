@@ -7,7 +7,7 @@
 
 //Need to catch capture lost event
 
-ImageWidgetX::ImageWidgetX(wxWindow* parent, wxWindowID id, const wxPoint pos, wxSize size, wxString imgPath)
+ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, const wxPoint pos, wxSize size, wxString imgPath)
     :wxPanel(parent, id, pos, size)
 {
     //ImageWidget::m_IwParent = parent;
@@ -25,41 +25,42 @@ ImageWidgetX::ImageWidgetX(wxWindow* parent, wxWindowID id, const wxPoint pos, w
 
     this->SetBackgroundColour(wxColor(15, 68, 125));
 
-    Bind(wxEVT_LEFT_DOWN, &ImageWidgetX::leftDown, this);
-    Bind(wxEVT_LEFT_UP, &ImageWidgetX::leftUp, this);
-    Bind(wxEVT_MOTION, &ImageWidgetX::mouseMoving, this);
-    Bind(wxEVT_PAINT, &ImageWidgetX::OnPaint, this);
-
+    Bind(wxEVT_LEFT_DOWN, &ImageWidget::leftDown, this);
+    Bind(wxEVT_LEFT_UP, &ImageWidget::leftUp, this);
+    Bind(wxEVT_MOTION, &ImageWidget::mouseMoving, this);
+    Bind(wxEVT_PAINT, &ImageWidget::OnPaint, this);
 }
 
-ImageWidgetX::~ImageWidgetX()
+ImageWidget::~ImageWidget()
 {
     delete m_IwImage;
 }
 
-void ImageWidgetX::leftDown(wxMouseEvent& event)
+void ImageWidget::leftDown(wxMouseEvent& event)
 {
     CaptureMouse();
-    wxSetCursor(wxCURSOR_HAND);
+    wxSetCursor(wxCURSOR_CROSS);
 
-    //Get local/client mouse position
+    //Get client mouse position
     m_IwMouseLocal_x = event.GetX();
     m_IwMouseLocal_y = event.GetY();
-
     m_IwMouseDragging = true;
 
     //Set Z order to top
     Raise();
 }
 
-void ImageWidgetX::leftUp(wxMouseEvent& event)
+void ImageWidget::leftUp(wxMouseEvent& event)
 {
-    ReleaseMouse();
+    if (HasCapture())
+    {
+        ReleaseMouse();
+    }
+
     m_IwMouseDragging = false;
-    //SetFocus(0);
 }
 
-void ImageWidgetX::mouseMoving(wxMouseEvent& event)
+void ImageWidget::mouseMoving(wxMouseEvent& event)
 {
     if (m_IwMouseDragging)
     {
@@ -85,7 +86,7 @@ void ImageWidgetX::mouseMoving(wxMouseEvent& event)
     }
 }
 
-void ImageWidgetX::OnPaint(wxPaintEvent& event)
+void ImageWidget::OnPaint(wxPaintEvent& event)
 {
     wxPaintDC dc(this);
     dc.DrawBitmap(*m_IwImage, 0, 0, false);
