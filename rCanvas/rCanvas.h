@@ -10,11 +10,12 @@ class ImageCanvas : public wxScrolledWindow
 {
 private:
     //wxVector<ImageWidget> vecImageWidgets{};
-    wxPoint rightDownPos;
-    wxPoint inProgressMousePos;
+    wxPoint startMousePos;
+    //wxPoint inProgressMousePos;
     bool panCanvas{ false };
     void rightDown(wxMouseEvent& event);
     void rightDragging(wxMouseEvent& event);
+    void procesCanvasPan(const wxPoint inProgressMousePos, wxPoint startMousePos);
     void rightUp(wxMouseEvent& event);
     void onKeyOpen(wxKeyEvent& event);
     void OnDraw(wxDC& dc) override;
