@@ -15,7 +15,7 @@ private:
     bool panCanvas{ false };
     void rightDown(wxMouseEvent& event);
     void rightDragging(wxMouseEvent& event);
-    void procesCanvasPan(const wxPoint inProgressMousePos, wxPoint startMousePos);
+    void procesCanvasPan(wxPoint inProgressMousePos, wxPoint startMousePos);
     void rightUp(wxMouseEvent& event);
     void onKeyOpen(wxKeyEvent& event);
     void OnDraw(wxDC& dc) override;

@@ -12,7 +12,7 @@ ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id)
     this->SetBackgroundColour(wxColor(34, 35, 37));
     this->SetDoubleBuffered(true);
 
-    SetScrollbars(5, 5, 2000, 2000, 0, 0);
+    SetScrollbars(5, 5, 500, 500, 0, 0);
     //SetScrollRate(5, 5);
 
     Bind(wxEVT_MOTION, &ImageCanvas::rightDragging, this);
@@ -62,35 +62,46 @@ void ImageCanvas::rightDown(wxMouseEvent& event)
     //            wxString::Format(wxT("%d"), rightDownPos.y));
 }
 
-void ImageCanvas::procesCanvasPan(const wxPoint inProgressMousePos, wxPoint startMousePos)
+void ImageCanvas::procesCanvasPan(wxPoint inProgressMousePos, wxPoint startMousePos)
 {
     wxSetCursor(wxCURSOR_CROSS);
 
     //Get position of scrollbar in scroll units
-    int currentScrollbarPosX{};
-    int currentScrollbarPosY{};
-    GetViewStart(&currentScrollbarPosX, &currentScrollbarPosY);
+    int currentScrolPosX{};
+    int currentScrolPosY{};
+    GetViewStart(&currentScrolPosX, &currentScrolPosY);
 
-    //get distance in pxels mouse has traveled from start of right click
-    int mouseTravelX{};
-    int mouseTravelY{};
-    mouseTravelX = inProgressMousePos.x - startMousePos.x;
-    mouseTravelY = inProgressMousePos.y - startMousePos.y;
+    //Get num pixels per scroll unit
+    int scrollUnitPxlsX{};
+    int scrollUnitPxlsY{};
+    GetScrollPixelsPerUnit(&scrollUnitPxlsX, &scrollUnitPxlsY);
 
-    //wxPoint unscrolledPosition{};
-    //CalcUnscrolledPosition(inProgressMousePos.x, inProgressMousePos.y, &unscrolledPosition.x, &unscrolledPosition.y);
+    //Distance in pixels mouse has traveled from start of right click
+    int mouseTravelX = (inProgressMousePos.x - startMousePos.x);
+    int mouseTravelY = (inProgressMousePos.y - startMousePos.y);
 
-    this->Scroll(currentScrollbarPosX += mouseTravelX, currentScrollbarPosX += mouseTravelY);
+    int pixelToScrollUnitX = mouseTravelX / scrollUnitPxlsX;
+    int pixelToScrollUnitY = mouseTravelY / scrollUnitPxlsY;
 
-    wxLogStatus("X travel = " + wxString::Format(wxT("%d"), mouseTravelX) + ' ' +
-                "Y travel = " + wxString::Format(wxT("%d"), mouseTravelY) + ' ' +
-                "X scroll = " + wxString::Format(wxT("%d"), currentScrollbarPosX) + ' ' +
-                "X scroll = " + wxString::Format(wxT("%d"), currentScrollbarPosY)
+    this->Scroll(inProgressMousePos.x, inProgressMousePos.y);
+
+    wxLogStatus("PixelsX = " + wxString::Format(wxT("%d"), mouseTravelX) + ' ' +
+                "PixelsY = " + wxString::Format(wxT("%d"), mouseTravelY) + ' ' +
+                "UnitX= " + wxString::Format(wxT("%d"), currentScrolPosX) + ' ' +
+                "UnitY = " + wxString::Format(wxT("%d"), currentScrolPosY)
     );
 }
 
 void ImageCanvas::rightDragging(wxMouseEvent& event)
 {
+    int ScrollbarPosX{};
+    int ScrollbarPosY{};
+    GetViewStart(&ScrollbarPosX, &ScrollbarPosY);
+
+    wxLogStatus("ScrollbarPosX" + wxString::Format(wxT("%d"), ScrollbarPosX) + ' ' +
+                "ScrollbarPosY" + wxString::Format(wxT("%d"), ScrollbarPosY)
+    );
+
     if (panCanvas && event.RightIsDown())
     {
         wxPoint inProgressMousePos = event.GetPosition();
@@ -100,8 +111,6 @@ void ImageCanvas::rightDragging(wxMouseEvent& event)
 
 void ImageCanvas::rightUp(wxMouseEvent& event)
 {
-    //wxLogStatus("Right Up");
-
     if (HasCapture())
     {
         ReleaseMouse();
@@ -134,7 +143,7 @@ bool MyApp::OnInit()
     ImageCanvas* mainImageCanvas = new ImageCanvas(mainFrame, wxID_ANY);
 
     ImageWidget* imageWidget02 = new ImageWidget(mainImageCanvas, wxID_ANY, wxDefaultPosition, wxSize(500, 500), "image2.jpg");
-    ImageWidget* imageWidget01 = new ImageWidget(mainImageCanvas, wxID_ANY, wxPoint(2200, 2200), wxSize(250, 250), "image3.jpg");
+    ImageWidget* imageWidget01 = new ImageWidget(mainImageCanvas, wxID_ANY, wxPoint(200, 200), wxSize(250, 250), "image3.jpg");
 
     //Add panel to sizer, fit frame to sizer
     sizer->Add(mainImageCanvas, 1, wxEXPAND | wxALL, 3);
