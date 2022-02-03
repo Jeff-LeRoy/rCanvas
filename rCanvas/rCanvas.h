@@ -17,6 +17,7 @@ private:
     void rightDragging(wxMouseEvent& event);
     void procesCanvasPan(wxPoint inProgressMousePos, wxPoint startMousePos);
     void rightUp(wxMouseEvent& event);
+    wxPoint processDistance(wxPoint pt, wxPoint start);
     void onKeyOpen(wxKeyEvent& event);
     void OnDraw(wxDC& dc) override;
     wxString getImage();
