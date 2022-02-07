@@ -3,7 +3,7 @@
 class ImageWidget : public wxPanel
 {
 private:
-    bool m_MouseDragging{ false };
+    bool m_WidgetDragging{ false };
     //wxWindow* m_IwParent = nullptr;
     wxBitmap* m_Image = nullptr;
     int m_MouseLocal_x{};

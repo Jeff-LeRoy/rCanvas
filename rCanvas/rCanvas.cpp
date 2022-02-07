@@ -19,7 +19,7 @@ bool MyApp::OnInit()
 
     wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
 
-    MainFrame* mainFrame = new MainFrame(NULL, wxID_ANY, "panScrollbarWithMouseDrag", wxPoint(100, 100), wxSize(1280, 720));
+    MainFrame* mainFrame = new MainFrame(NULL, wxID_ANY, "rCanvas", wxPoint(100, 100), wxSize(1280, 720));
     ImageCanvas* canvas = new ImageCanvas(mainFrame, wxID_ANY);
 
     ImageWidget* imageWidget02 = new ImageWidget(canvas, wxID_ANY, wxDefaultPosition, wxSize(500, 500), "image2.jpg");

@@ -9,7 +9,6 @@ ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, const wxPoint pos, wxS
     :wxPanel(parent, id, pos, size)
 {
     this->SetBackgroundColour(wxColor(15, 68, 125));
-    //ImageWidget::m_IwParent = parent;
 
     //load image on heap
     m_Image = new wxBitmap(imgPath, wxBITMAP_TYPE_JPEG);
@@ -26,10 +25,7 @@ ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, const wxPoint pos, wxS
     }
 
     Bind(wxEVT_LEFT_DOWN, &ImageWidget::leftDown, this);
-    Bind(wxEVT_LEFT_UP, &ImageWidget::leftUp, this);
-    Bind(wxEVT_MOTION, &ImageWidget::mouseMoving, this);
     Bind(wxEVT_PAINT, &ImageWidget::OnPaint, this);
-    Bind(wxEVT_MOUSE_CAPTURE_LOST, &ImageWidget::OnCaptureLost, this);
 }
 
 ImageWidget::~ImageWidget()
@@ -45,10 +41,14 @@ void ImageWidget::leftDown(wxMouseEvent& event)
     //Get client mouse position
     m_MouseLocal_x = event.GetX();
     m_MouseLocal_y = event.GetY();
-    m_MouseDragging = true;
+    m_WidgetDragging = true;
 
     //Set Z order to top
     Raise();
+
+    Bind(wxEVT_LEFT_UP, &ImageWidget::leftUp, this);
+    Bind(wxEVT_MOTION, &ImageWidget::mouseMoving, this);
+    Bind(wxEVT_MOUSE_CAPTURE_LOST, &ImageWidget::OnCaptureLost, this);
 }
 
 void ImageWidget::leftUp(wxMouseEvent& event)
@@ -58,12 +58,16 @@ void ImageWidget::leftUp(wxMouseEvent& event)
         ReleaseMouse();
     }
 
-    m_MouseDragging = false;
+    m_WidgetDragging = false;
+
+    Unbind(wxEVT_LEFT_UP, &ImageWidget::leftUp, this);
+    Unbind(wxEVT_MOTION, &ImageWidget::mouseMoving, this);
+    Unbind(wxEVT_MOUSE_CAPTURE_LOST, &ImageWidget::OnCaptureLost, this);
 }
 
 void ImageWidget::mouseMoving(wxMouseEvent& event)
 {
-    if (m_MouseDragging)
+    if (m_WidgetDragging)
     {
         //Get screen space mouse pos
         wxPoint mouseScreen = wxGetMousePosition();
@@ -78,12 +82,6 @@ void ImageWidget::mouseMoving(wxMouseEvent& event)
 
         //Need to do this otherwise dragging an ImageWidget leave artifacts
         GetParent()->ClearBackground();
-
-        //wxLogStatus("mouseScreen X=" + wxString::Format(wxT("%d"), mouseScreen.x) + " " +
-        //            "mouseScreen Y=" + wxString::Format(wxT("%d"), mouseScreen.y) + " " +
-        //            "L X=" + wxString::Format(wxT("%d"), mouseLocal_x) + " " +
-        //            "L Y=" + wxString::Format(wxT("%d"), mouseLocal_y)
-        //            );
     }
 }
 
@@ -101,5 +99,4 @@ void ImageWidget::OnPaint(wxPaintEvent& event)
 {
     wxPaintDC dc(this);
     dc.DrawBitmap(*m_Image, 0, 0, false);
-    //dc.DrawLine(wxPoint(10, 10), wxPoint(100, 100));
 }

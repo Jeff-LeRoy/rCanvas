@@ -4,10 +4,10 @@ class ImageCanvas : public wxScrolledWindow
 {
 private:
     //wxVector<ImageWidget> vecImageWidgets{};
-    int subgridPixelSpacing{ 200 };
-    bool panCanvas{ false };
-    wxPoint virtualSize{};
-    wxPoint startMousePos;
+    int m_subgridPixelSpacing{ 200 };
+    bool m_panCanvas{ false };
+    wxPoint m_virtualSize{};
+    wxPoint m_startMousePos;
 
     wxPoint incrimentScrollDirection(wxPoint pt, wxPoint start);
     void onCaptureLost(wxMouseCaptureLostEvent& event);
