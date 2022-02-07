@@ -4,20 +4,25 @@ class ImageCanvas : public wxScrolledWindow
 {
 private:
     //wxVector<ImageWidget> vecImageWidgets{};
-    wxPoint startMousePos;
-    //wxPoint inProgressMousePos;
+    int subgridPixelSpacing{ 200 };
     bool panCanvas{ false };
-    void rightDown(wxMouseEvent& event);
-    void rightDragging(wxMouseEvent& event);
-    void procesCanvasPan(wxPoint inProgressMousePos, wxPoint startMousePos);
-    void rightUp(wxMouseEvent& event);
-    wxPoint processDistance(wxPoint pt, wxPoint start);
+    wxPoint virtualSize{};
+    wxPoint startMousePos;
+
+    wxPoint incrimentScrollDirection(wxPoint pt, wxPoint start);
+    void onCaptureLost(wxMouseCaptureLostEvent& event);
+    void onLeaveCanvasWindow(wxMouseEvent& event);
+    void rightIsDragging(wxMouseEvent& event);
+    void rightIsDown(wxMouseEvent& event);
+    void rightIsUp(wxMouseEvent& event);
     void onKeyOpen(wxKeyEvent& event);
+    void onKeyA(wxKeyEvent& event);
     void OnDraw(wxDC& dc) override;
     wxString getImage();
 
 public:
     ImageCanvas(wxWindow* parent, wxWindowID id);
+    void centerScrollbars();
     ~ImageCanvas();
 };
 

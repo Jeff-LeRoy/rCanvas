@@ -9,15 +9,21 @@
 ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id)
     : wxScrolledWindow(parent, id)
 {
-    this->SetBackgroundColour(wxColor(34, 35, 37));
+    this->SetBackgroundColour(wxColor(37, 38, 39));
     this->SetDoubleBuffered(true);
 
-    SetScrollbars(1, 1, 2000, 1200, 0, 0);
-    //SetScrollRate(5, 5);
+    //Get users larger screen resolution (X or Y) and double it for canvas size 
+    int resolution = (wxSystemSettings::GetMetric(wxSYS_SCREEN_X) > wxSystemSettings::GetMetric(wxSYS_SCREEN_Y))
+        ? wxSystemSettings::GetMetric(wxSYS_SCREEN_X) : wxSystemSettings::GetMetric(wxSYS_SCREEN_Y);
+    SetScrollbars(1, 1, resolution * 2, resolution * 2, 0, 0);
 
-    Bind(wxEVT_MOTION, &ImageCanvas::rightDragging, this);
-    Bind(wxEVT_RIGHT_DOWN, &ImageCanvas::rightDown, this);
-    Bind(wxEVT_RIGHT_UP, &ImageCanvas::rightUp, this);
+    GetVirtualSize(&virtualSize.x, &virtualSize.y);
+
+    //Binding events
+    Bind(wxEVT_MOTION, &ImageCanvas::rightIsDragging, this);
+    Bind(wxEVT_RIGHT_DOWN, &ImageCanvas::rightIsDown, this);
+    Bind(wxEVT_KEY_DOWN, &ImageCanvas::onKeyA, this);
+    //Bind(wxEVT_MOUSEWHEEL, &ImageCanvas::mouseScrolling, this);
 
     //Global key bindings
     Bind(wxEVT_CHAR_HOOK, &ImageCanvas::onKeyOpen, this);
@@ -52,103 +58,150 @@ void ImageCanvas::onKeyOpen(wxKeyEvent& event)
     }
 }
 
-void ImageCanvas::rightDown(wxMouseEvent& event)
+void ImageCanvas::rightIsDown(wxMouseEvent& event)
 {
     startMousePos = event.GetPosition();
     panCanvas = true;
     CaptureMouse();
 
-    //wxLogStatus(wxString::Format(wxT("%d"), rightDownPos.x) + ' ' + 
-    //            wxString::Format(wxT("%d"), rightDownPos.y));
+    Bind(wxEVT_LEAVE_WINDOW, &ImageCanvas::onLeaveCanvasWindow, this);
+    Bind(wxEVT_RIGHT_UP, &ImageCanvas::rightIsUp, this);
+    Bind(wxEVT_MOUSE_CAPTURE_LOST, &ImageCanvas::onCaptureLost, this);
 }
 
-wxPoint ImageCanvas::processDistance(wxPoint current, wxPoint start)
+void ImageCanvas::rightIsDragging(wxMouseEvent& event)
 {
-    //Distance in pixels mouse has traveled from start of right click
-    int mouseTravelX = (current.x - start.x);
-    int mouseTravelY = (current.y - start.y);
+    /////////////////
+    const wxPoint pt = event.GetPosition();
 
-    startMousePos.x = current.x;
-    startMousePos.y = current.y;
+    wxPoint clientSize{}; GetClientSize(&clientSize.x, &clientSize.y);
+    wxPoint scrolledPosition{}; GetViewStart(&scrolledPosition.x, &scrolledPosition.y);
+    wxPoint windowSize{}; GetSize(&windowSize.x, &windowSize.y);
 
-    return wxPoint(-mouseTravelX, -mouseTravelY);
-}
-
-void ImageCanvas::procesCanvasPan(wxPoint inProgressMousePos, wxPoint startMousePos)
-{
-    wxSetCursor(wxCURSOR_CROSS);
-
-    //Get position of scrollbar in scroll units
-    int currentScrolPosX{};
-    int currentScrolPosY{};
-    GetViewStart(&currentScrolPosX, &currentScrolPosY);
-
-    //Get num pixels per scroll unit
-    //int scrollUnitPxlsX{};
-    //int scrollUnitPxlsY{};
-    //GetScrollPixelsPerUnit(&scrollUnitPxlsX, &scrollUnitPxlsY);
-
-    //currentScrolPosX = currentScrolPosX / scrollUnitPxlsX;
-    //currentScrolPosY = currentScrolPosY / scrollUnitPxlsY;
-
-    //Distance in pixels mouse has traveled from start of right click
-    int mouseTravelX = (inProgressMousePos.x - startMousePos.x);
-    int mouseTravelY = (inProgressMousePos.y - startMousePos.y);
-
-    int pixelToScrollUnitX = mouseTravelX;
-    int pixelToScrollUnitY = mouseTravelY;
-
-    this->Scroll(inProgressMousePos.x, inProgressMousePos.y);
-
-    wxLogStatus("PixelsX = " + wxString::Format(wxT("%d"), inProgressMousePos.x) + ' ' +
-        "PixelsY = " + wxString::Format(wxT("%d"), inProgressMousePos.y) + ' ' +
-        "currentScrolPosX= " + wxString::Format(wxT("%d"), currentScrolPosX) + ' ' +
-        "currentScrolPosY = " + wxString::Format(wxT("%d"), currentScrolPosY)
+    wxLogStatus(" clientX=" + wxString::Format(wxT("%d"), clientSize.x) + ' ' +
+        " clientY=" + wxString::Format(wxT("%d"), clientSize.y) + ' ' +
+        " virtX=" + wxString::Format(wxT("%d"), virtualSize.x) + ' ' +
+        " virtY=" + wxString::Format(wxT("%d"), virtualSize.y) + ' ' +
+        " mousePos=" + wxString::Format(wxT("%d"), pt.x) + ' ' +
+        " mousePos=" + wxString::Format(wxT("%d"), pt.y) + ' ' +
+        " scrollPosX=" + wxString::Format(wxT("%d"), scrolledPosition.x) + ' ' +
+        " scrollPosY=" + wxString::Format(wxT("%d"), scrolledPosition.y) + ' ' +
+        " winSizeX=" + wxString::Format(wxT("%d"), windowSize.x) + ' ' +
+        " winSizeY=" + wxString::Format(wxT("%d"), windowSize.y)
     );
-}
-
-void ImageCanvas::rightDragging(wxMouseEvent& event)
-{
-    int virtualSizeX{};
-    int virtualSizeY{};
-    GetVirtualSize(&virtualSizeX, &virtualSizeY);
-    int currentScrolPosX{};
-    int currentScrolPosY{};
-    GetViewStart(&currentScrolPosX, &currentScrolPosY);
-
-    //wxLogStatus("virtualSizeX" + wxString::Format(wxT("%d"), virtualSizeX) + ' ' +
-    //            "virtualSizeY" + wxString::Format(wxT("%d"), virtualSizeY) + ' ' +
-    //            "currentScrolPosX" + wxString::Format(wxT("%d"), currentScrolPosX) + ' ' +
-    //            "currentScrolPosY" + wxString::Format(wxT("%d"), currentScrolPosY)
-    //);
-
+    /////////////////
 
     wxPoint direction{};
-    if (panCanvas && event.RightIsDown())
-    {
+    if (panCanvas) {
+        wxSetCursor(wxCURSOR_CROSS);
+
         //Get position of scrollbar in scroll units
-        int currentScrolPosX{};
-        int currentScrolPosY{};
-        GetViewStart(&currentScrolPosX, &currentScrolPosY);
+        wxPoint scrolledPosition{};
+        GetViewStart(&scrolledPosition.x, &scrolledPosition.y);
 
         wxPoint inProgressMousePos = event.GetPosition();
-        direction = processDistance(event.GetPosition(), startMousePos);
-        //ImageCanvas::procesCanvasPan(inProgressMousePos, startMousePos);
-        this->Scroll(currentScrolPosX += direction.x, currentScrolPosY += direction.y);
-        wxLogStatus("directionX" + wxString::Format(wxT("%d"), direction.x) + ' ' +
-            "directionY" + wxString::Format(wxT("%d"), direction.y)
-        );
+        direction = incrimentScrollDirection(event.GetPosition(), startMousePos);
+        this->Scroll(scrolledPosition.x += direction.x, scrolledPosition.y += direction.y);
+        //ScreenToClient(wxPoint(mousePosConverted_x, mousePosConverted_y));
     }
 }
 
-void ImageCanvas::rightUp(wxMouseEvent& event)
+wxPoint ImageCanvas::incrimentScrollDirection(wxPoint current, wxPoint start)
 {
-    if (HasCapture())
-    {
+    //This should return a 1 or -1 in x and y when dragging
+    //the mouse, the pan should feel like a 1:1 ratio for pixels
+    //traveled on screen and pixels the canvas has moved/scrolled
+    wxPoint mouseTravel{};
+
+    //Get x/y direction mouse has traveled
+    mouseTravel.x = (current.x - start.x);
+    mouseTravel.y = (current.y - start.y);
+
+    //Reset starting position so movement is 1:1
+    startMousePos.x = current.x;
+    startMousePos.y = current.y;
+
+    //this->GetParent()->ScreenToClient(mouseTravel);
+
+    return -mouseTravel;
+}
+
+void ImageCanvas::rightIsUp(wxMouseEvent& event)
+{
+    if (HasCapture()) {
+        ReleaseMouse();
+    }
+
+    panCanvas = false;
+
+    Unbind(wxEVT_LEAVE_WINDOW, &ImageCanvas::onLeaveCanvasWindow, this);
+    Unbind(wxEVT_RIGHT_UP, &ImageCanvas::rightIsUp, this);
+    Unbind(wxEVT_MOUSE_CAPTURE_LOST, &ImageCanvas::onCaptureLost, this);
+}
+
+void ImageCanvas::OnDraw(wxDC& dc)
+{
+    //Draw subgrid
+    dc.SetPen(wxPen(wxColor(41, 41, 41), 2));
+
+    //Horizontal - middle and down -Y (0,1750),(3500,0)
+    for (int i{ virtualSize.y / 2 }; i < virtualSize.y; i += subgridPixelSpacing) {
+        dc.DrawLine(wxPoint(0, i), wxPoint(virtualSize.x, i));
+    }
+    //Horizontal - middle and up +Y (0,1750),(3500,0)
+    for (int i{ virtualSize.y / 2 }; i > 0; i -= subgridPixelSpacing) {
+        dc.DrawLine(wxPoint(0, i), wxPoint(virtualSize.x, i));
+    }
+    //Vertical - middle and right to +X (1750,0),(0,3500)
+    for (int i{ virtualSize.x / 2 }; i < virtualSize.x; i += subgridPixelSpacing) {
+        dc.DrawLine(wxPoint(i, 0), wxPoint(i, virtualSize.y));
+    }
+    //Vertical - middle and left to -X (1750,0),(0,3500)
+    for (int i{ virtualSize.x / 2 }; i > 0; i -= subgridPixelSpacing) {
+        dc.DrawLine(wxPoint(i, 0), wxPoint(i, virtualSize.y));
+    }
+
+    //Draw axis lines X and Y
+    dc.SetPen(wxPen(wxColor(45, 45, 45), 4));//45
+    dc.DrawLine(wxPoint(0, virtualSize.y / 2), wxPoint(virtualSize.x, virtualSize.y / 2));//H
+    dc.DrawLine(wxPoint(virtualSize.x / 2, 0), wxPoint(virtualSize.x / 2, virtualSize.y));//V
+
+    //Draw origin crosshair
+    dc.SetPen(wxPen(wxColor(95, 55, 55), 2));//45
+    dc.DrawLine(wxPoint((virtualSize.x / 2) - 30, virtualSize.y / 2), wxPoint((virtualSize.x / 2) + 30, virtualSize.y / 2)); //H
+    dc.DrawLine(wxPoint(virtualSize.x / 2, (virtualSize.y / 2) - 30), wxPoint(virtualSize.x / 2, (virtualSize.y / 2) + 30));//V
+}
+
+void ImageCanvas::onCaptureLost(wxMouseCaptureLostEvent& event)
+{
+    if (HasCapture()) {
         ReleaseMouse();
     }
 
     panCanvas = false;
 }
 
-void ImageCanvas::OnDraw(wxDC& dc) {}
+void ImageCanvas::onKeyA(wxKeyEvent& event)
+{
+    if (event.GetUnicodeKey() == 'A')
+    {
+        centerScrollbars();
+    }
+}
+
+void ImageCanvas::onLeaveCanvasWindow(wxMouseEvent& event)
+{
+    //By just having this event handler here, when panning and the mouse 
+    //the leaves program window it eliminates jitters in the canvas movement
+
+    //wxLogStatus("Left the window!");
+}
+
+void ImageCanvas::centerScrollbars()
+{
+    wxPoint clientSize{};
+    GetClientSize(&clientSize.x, &clientSize.y);
+    Scroll(((virtualSize.x - clientSize.x) / 2), ((virtualSize.y - clientSize.y) / 2));
+}
+
+//void Canvas::mouseScrolling(wxMouseEvent& event){}

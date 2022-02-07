@@ -17,20 +17,19 @@ bool MyApp::OnInit()
 {
     wxInitAllImageHandlers();
 
-    //Create box sizer
     wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
 
-    //Create a mainFrame and mainImageCanvas
-    MainFrame* mainFrame = new MainFrame(NULL, wxID_ANY, "rCanvas", wxPoint(100,100), wxSize(1280,720));
-    ImageCanvas* mainImageCanvas = new ImageCanvas(mainFrame, wxID_ANY);
+    MainFrame* mainFrame = new MainFrame(NULL, wxID_ANY, "panScrollbarWithMouseDrag", wxPoint(100, 100), wxSize(1280, 720));
+    ImageCanvas* canvas = new ImageCanvas(mainFrame, wxID_ANY);
 
-    ImageWidget* imageWidget02 = new ImageWidget(mainImageCanvas, wxID_ANY, wxDefaultPosition, wxSize(500, 500), "image2.jpg");
-    ImageWidget* imageWidget01 = new ImageWidget(mainImageCanvas, wxID_ANY, wxPoint(200, 200), wxSize(250, 250), "image3.jpg");
+    ImageWidget* imageWidget02 = new ImageWidget(canvas, wxID_ANY, wxDefaultPosition, wxSize(500, 500), "image2.jpg");
+    ImageWidget* imageWidget01 = new ImageWidget(canvas, wxID_ANY, wxPoint(200, 200), wxSize(250, 250), "image3.jpg");
 
-    //Add panel to sizer, fit frame to sizer
-    sizer->Add(mainImageCanvas, 1, wxEXPAND | wxALL, 3);
+    sizer->Add(canvas, 1, wxEXPAND);
     mainFrame->SetSizer(sizer);
     mainFrame->Show(true);
+
+    canvas->centerScrollbars();
     mainFrame->Center();
 
     return true;
