@@ -15,14 +15,16 @@ private:
     void rightIsDragging(wxMouseEvent& event);
     void rightIsDown(wxMouseEvent& event);
     void rightIsUp(wxMouseEvent& event);
-    void onKeyOpen(wxKeyEvent& event);
-    void onKeyA(wxKeyEvent& event);
+    void onKey_O(wxKeyEvent& event);
+    void onKey_A(wxKeyEvent& event);
     void OnDraw(wxDC& dc) override;
     wxString getImage();
 
 public:
     ImageCanvas(wxWindow* parent, wxWindowID id);
-    void centerScrollbars();
     ~ImageCanvas();
+
+    void centerScrollbars();
+    wxPoint getCanvasCenter();
 };
 

@@ -8,22 +8,23 @@
 ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, const wxPoint pos, wxSize size, wxString imgPath)
     :wxPanel(parent, id, pos, size)
 {
-    this->SetBackgroundColour(wxColor(15, 68, 125));
+    //this->SetBackgroundColour(wxColor(15, 68, 125));
 
     //load image on heap
     m_Image = new wxBitmap(imgPath, wxBITMAP_TYPE_JPEG);
-
-    //Set size of widget
-    m_ImgWidth = m_Image->GetWidth();
-    m_ImgHeight = m_Image->GetHeight();
-    this->SetSize(wxSize(m_ImgWidth, m_ImgHeight));
-
+    
     if (!m_Image->IsOk())
     {
         wxMessageBox("There was an error loading the image.");
         return;
     }
 
+    //Set size of widget
+    m_ImgWidth = m_Image->GetWidth();
+    m_ImgHeight = m_Image->GetHeight();
+    this->SetSize(wxSize(m_ImgWidth, m_ImgHeight));
+
+    //Bind Shortcuts
     Bind(wxEVT_LEFT_DOWN, &ImageWidget::leftDown, this);
     Bind(wxEVT_PAINT, &ImageWidget::OnPaint, this);
 }
@@ -81,7 +82,7 @@ void ImageWidget::mouseMoving(wxMouseEvent& event)
         this->Move(m_parent->ScreenToClient(wxPoint(mousePosConverted_x, mousePosConverted_y)));
 
         //Need to do this otherwise dragging an ImageWidget leave artifacts
-        GetParent()->ClearBackground();
+        //GetParent()->ClearBackground();
     }
 }
 
@@ -100,3 +101,5 @@ void ImageWidget::OnPaint(wxPaintEvent& event)
     wxPaintDC dc(this);
     dc.DrawBitmap(*m_Image, 0, 0, false);
 }
+
+
