@@ -22,8 +22,8 @@ bool MyApp::OnInit()
     MainFrame* mainFrame = new MainFrame(NULL, wxID_ANY, "rCanvas", wxPoint(100, 100), wxSize(1280, 720));
     ImageCanvas* canvas = new ImageCanvas(mainFrame, wxID_ANY);
 
-    ImageWidget* imageWidget02 = new ImageWidget(canvas, wxID_ANY, wxDefaultPosition, wxSize(500, 500), "image2.jpg");
-    ImageWidget* imageWidget01 = new ImageWidget(canvas, wxID_ANY, wxPoint(1920, 1920), wxSize(250, 250), "image3.jpg");
+    //ImageWidget* imageWidget02 = new ImageWidget(canvas, wxID_ANY, wxDefaultPosition, wxSize(500, 500), "image2.jpg");
+    //ImageWidget* imageWidget01 = new ImageWidget(canvas, wxID_ANY, wxPoint(1920, 1920), wxSize(250, 250), "image3.jpg");
 
     sizer->Add(canvas, 1, wxEXPAND);
     mainFrame->SetSizer(sizer);
