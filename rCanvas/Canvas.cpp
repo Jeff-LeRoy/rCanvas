@@ -1,6 +1,6 @@
 #include <wx/wx.h>
 #include "ImageWidget.h"
-#include "ImageCanvas.h"
+#include "Canvas.h"
 
 //---------------------------------------------------------------------------
 // ImageCanvas

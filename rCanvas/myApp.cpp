@@ -1,7 +1,7 @@
 #include <wx/wx.h>
 #include "ImageWidget.h"
-#include "ImageCanvas.h"
-#include "rCanvas.h"
+#include "Canvas.h"
+#include "myApp.h"
 
 //---------------------------------------------------------------------------
 // MainFrame

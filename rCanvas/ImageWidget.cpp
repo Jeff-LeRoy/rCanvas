@@ -77,8 +77,7 @@ void ImageWidget::mouseMoving(wxMouseEvent& event)
         int mousePosConverted_x = mouseScreen.x - m_MouseLocal_x;
         int mousePosConverted_y = mouseScreen.y - m_MouseLocal_y;
 
-        //Move box to converted screen position
-        //m_parent from window.h
+        //Move box to converted screen position (m_parent var is from window.h)
         this->Move(m_parent->ScreenToClient(wxPoint(mousePosConverted_x, mousePosConverted_y)));
 
         //Need to do this otherwise dragging an ImageWidget leave artifacts
