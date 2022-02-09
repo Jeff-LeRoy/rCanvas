@@ -22,6 +22,8 @@ ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize si
     m_ImgHeight = m_Image->GetHeight();
     this->SetSize(wxSize(m_ImgWidth, m_ImgHeight));
 
+    Raise();
+
     //Bind Shortcuts
     Bind(wxEVT_LEFT_DOWN, &ImageWidget::leftDown, this);
     Bind(wxEVT_PAINT, &ImageWidget::OnPaint, this);
