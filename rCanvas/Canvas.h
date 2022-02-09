@@ -11,6 +11,7 @@ private:
 
     wxPoint incrimentScrollDirection(wxPoint pt, wxPoint start);
     void onCaptureLost(wxMouseCaptureLostEvent& event);
+    bool ShouldScrollToChildOnFocus(wxWindow* child);
     void onLeaveCanvasWindow(wxMouseEvent& event);
     void rightIsDragging(wxMouseEvent& event);
     void rightIsDown(wxMouseEvent& event);

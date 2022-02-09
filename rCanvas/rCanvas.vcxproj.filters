@@ -37,13 +37,19 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="image.jpg">
+    <Image Include="Images\image_5.jpg">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="image3.jpg">
+    <Image Include="Images\image_1.jpg">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="image2.jpg">
+    <Image Include="Images\image_2.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\image_3.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\image_4.jpg">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

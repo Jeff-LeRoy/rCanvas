@@ -5,11 +5,9 @@
 // ImageWidget
 //---------------------------------------------------------------------------
 
-ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, const wxPoint pos, wxSize size, wxString imgPath)
+ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize size, wxString imgPath)
     :wxPanel(parent, id, pos, size)
 {
-    //this->SetBackgroundColour(wxColor(15, 68, 125));
-
     //load image on heap
     m_Image = new wxBitmap(imgPath, wxBITMAP_TYPE_JPEG);
     
@@ -40,8 +38,8 @@ void ImageWidget::leftDown(wxMouseEvent& event)
     wxSetCursor(wxCURSOR_HAND);
 
     //Get client mouse position
-    m_MouseLocal_x = event.GetX();
-    m_MouseLocal_y = event.GetY();
+    m_imageWidgetClickPos.x = event.GetX();
+    m_imageWidgetClickPos.y = event.GetY();
     m_WidgetDragging = true;
 
     //Set Z order to top
@@ -70,15 +68,19 @@ void ImageWidget::mouseMoving(wxMouseEvent& event)
 {
     if (m_WidgetDragging)
     {
-        //Get screen space mouse pos
-        wxPoint mouseScreen = wxGetMousePosition();
+        //When you click inside an ImageWidget LeftDown() will store a mouse position relative 
+        //to the inside of that widget. Positioning an ImageWidget/wxPanel relies on its top left 
+        //corner, so to get those coordinates we will get the SCREEN position of the mouse then  
+        //subtract the offset from inside the widget, now we have the top left corner. Then we just
+        //need to convert from SCREEN coordinates to client window coordinates
 
-        //Subtract local mouse pos from screen pos
-        int mousePosConverted_x = mouseScreen.x - m_MouseLocal_x;
-        int mousePosConverted_y = mouseScreen.y - m_MouseLocal_y;
+        wxPoint screenMousePos = wxGetMousePosition();
+
+        int TopLeftCorner_x = screenMousePos.x - m_imageWidgetClickPos.x;
+        int TopLeftCorner_y = screenMousePos.y - m_imageWidgetClickPos.y;
 
         //Move box to converted screen position (m_parent var is from window.h)
-        this->Move(m_parent->ScreenToClient(wxPoint(mousePosConverted_x, mousePosConverted_y)));
+        this->Move(m_parent->ScreenToClient(wxPoint(TopLeftCorner_x, TopLeftCorner_y)));
 
         //Need to do this otherwise dragging an ImageWidget leave artifacts
         //GetParent()->ClearBackground();

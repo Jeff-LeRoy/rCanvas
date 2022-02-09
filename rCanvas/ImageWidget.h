@@ -5,8 +5,7 @@ class ImageWidget : public wxPanel
 private:
     bool m_WidgetDragging{ false };
     wxBitmap* m_Image = nullptr;
-    int m_MouseLocal_x{};
-    int m_MouseLocal_y{};
+    wxPoint m_imageWidgetClickPos{};
     int m_ImgHeight{};
     int m_ImgWidth{};
 

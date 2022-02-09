@@ -1,4 +1,5 @@
 #include <wx/wx.h>
+#include <wx/graphics.h>
 #include "ImageWidget.h"
 #include "Canvas.h"
 
@@ -12,6 +13,7 @@ ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id)
 {
     this->SetBackgroundColour(wxColor(37, 38, 39));
     this->SetDoubleBuffered(true);
+    
 
     //Get users larger screen resolution (X or Y) and double it for canvas size 
     int resolution = (wxSystemSettings::GetMetric(wxSYS_SCREEN_X) > wxSystemSettings::GetMetric(wxSYS_SCREEN_Y))
@@ -62,8 +64,7 @@ wxPoint ImageCanvas::incrimentScrollDirection(wxPoint current, wxPoint start)
     m_startMousePos.x = current.x;
     m_startMousePos.y = current.y;
 
-    //this->GetParent()->ScreenToClient(mouseTravel);
-
+    //Returning negative causes canvas to drag with mouse direction
     return -mouseTravel;
 }
 
@@ -113,8 +114,6 @@ void ImageCanvas::onLeaveCanvasWindow(wxMouseEvent& event)
 {
     //By just having this event handler here, when panning and the mouse 
     //the leaves program window it eliminates jitters in the canvas movement
-
-    //wxLogStatus("Left the window!");
 }
 
 void ImageCanvas::centerScrollbars()
@@ -143,12 +142,34 @@ wxPoint ImageCanvas::getMousePos()
     return mPos;
 }
 
+bool ImageCanvas::ShouldScrollToChildOnFocus(wxWindow* child)
+{
+    //Overriding this member function because we dont want the canvas
+    //to auto scroll to the currently focused child. if we dont override this 
+    //when adding a ImageWidget while the curently focused child is off screen
+    //the canvas will auto scroll to focus that ImageWidget THEN add the new
+    //ImageWidget we created, which will cause it to be placed incorrectly on
+    //the canvas.
+    return false;
+}
+
 //---------------------------------------------------------------------------
 //Shortcut keys / mouse handlers
 //---------------------------------------------------------------------------
 
 void ImageCanvas::onKey_A(wxKeyEvent& event)
 {
+    //List children of Canvas
+    //wxChar key = event.GetUnicodeKey();
+    //if (key == 'A')
+    // {
+    //    wxWindowList children = GetChildren();
+    //    for (auto itr{ children.begin() }; itr != children.end(); itr++)
+    //    {
+    //        wxLogMessage(GetName());
+    //    }
+    // }
+
     wxChar key = event.GetUnicodeKey();
     if (key == 'A')
     {
@@ -161,8 +182,9 @@ void ImageCanvas::onKey_A(wxKeyEvent& event)
 void ImageCanvas::onKey_O(wxKeyEvent& event)
 {
     wxChar key = event.GetKeyCode();
+
     wxPoint mPos = getMousePos();
-    ScreenToClient(mPos);
+
     if (key == 'O')
     {
         wxString fileLocation = ImageCanvas::getImage();
@@ -186,24 +208,36 @@ void ImageCanvas::rightIsDown(wxMouseEvent& event)
 
 void ImageCanvas::rightIsDragging(wxMouseEvent& event)
 {
-    /////////////////
+    //---------------------------------------------------------------------------
+    //---------------------------------------------------------------------------
     const wxPoint pt = event.GetPosition();
     wxPoint clientSize{}; GetClientSize(&clientSize.x, &clientSize.y);
     wxPoint scrolledPosition{}; GetViewStart(&scrolledPosition.x, &scrolledPosition.y);
     wxPoint windowSize{}; GetSize(&windowSize.x, &windowSize.y);
+    wxPoint mPos = getMousePos();
+    wxPoint screenToClient = ScreenToClient(mPos);
+    wxPoint clientToScreen = ClientToScreen(mPos);
+    wxPoint mainScrnMPos = wxGetMousePosition();
 
-    wxLogStatus(" clientX=" + wxString::Format(wxT("%d"), clientSize.x) + ' ' +
+    wxLogStatus(/*" clientX=" + wxString::Format(wxT("%d"), clientSize.x) + ' ' +
                 " clientY=" + wxString::Format(wxT("%d"), clientSize.y) + ' ' +
                 " virtX=" + wxString::Format(wxT("%d"), m_virtualSize.x) + ' ' +
                 " virtY=" + wxString::Format(wxT("%d"), m_virtualSize.y) + ' ' +
-                " mousePos=" + wxString::Format(wxT("%d"), pt.x) + ' ' +
-                " mousePos=" + wxString::Format(wxT("%d"), pt.y) + ' ' +
+                " evtMPosX=" + wxString::Format(wxT("%d"), pt.x) + ' ' +
+                " evtMPosY=" + wxString::Format(wxT("%d"), pt.y) + ' ' +
                 " scrollPosX=" + wxString::Format(wxT("%d"), scrolledPosition.x) + ' ' +
-                " scrollPosY=" + wxString::Format(wxT("%d"), scrolledPosition.y) + ' ' +
-                " winSizeX=" + wxString::Format(wxT("%d"), windowSize.x) + ' ' +
-                " winSizeY=" + wxString::Format(wxT("%d"), windowSize.y)
+                " scrollPosY=" + wxString::Format(wxT("%d"), scrolledPosition.y) + ' ' +*/
+                " mPosX=" + wxString::Format(wxT("%d"), mPos.x) + ' ' +
+                " mPosY=" + wxString::Format(wxT("%d"), mPos.y) + ' ' +
+                " screenToClientX=" + wxString::Format(wxT("%d"), screenToClient.x) + ' ' +
+                " screenToClientY=" + wxString::Format(wxT("%d"), screenToClient.y) + ' ' +
+                " clientToScreenX=" + wxString::Format(wxT("%d"), clientToScreen.x) + ' ' +
+                " clientToScreenY=" + wxString::Format(wxT("%d"), clientToScreen.y) + ' ' +
+                " mainScrnMPos=" + wxString::Format(wxT("%d"), mainScrnMPos.x) + ' ' +
+                " mainScrnMPos=" + wxString::Format(wxT("%d"), mainScrnMPos.y)
     );
-    /////////////////
+    //---------------------------------------------------------------------------
+    //---------------------------------------------------------------------------
 
     wxPoint direction{};
     if (m_panCanvas) {
