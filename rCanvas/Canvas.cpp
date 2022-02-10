@@ -68,6 +68,47 @@ wxPoint ImageCanvas::incrimentScrollDirection(wxPoint current, wxPoint start)
     return -mouseTravel;
 }
 
+void ImageCanvas::centerScrollbars()
+{
+    wxPoint clientSize{};
+    GetClientSize(&clientSize.x, &clientSize.y);
+    Scroll(((m_virtualSize.x - clientSize.x) / 2), ((m_virtualSize.y - clientSize.y) / 2));
+}
+
+wxPoint ImageCanvas::getCanvasCenter()
+{
+    wxPoint center{};
+    center.x = m_virtualSize.x / 2;
+    center.y = m_virtualSize.y / 2;
+    return center;
+}
+
+wxPoint ImageCanvas::getMousePos()
+{
+    //Get screen mouse pos
+    const wxPoint pt = wxGetMousePosition();
+
+    //Subtract corner of top left window to get client/local pos
+    wxPoint mPos{ pt.x - this->GetScreenPosition().x, pt.y - this->GetScreenPosition().y };
+
+    return mPos;
+}
+
+//---------------------------------------------------------------------------
+//Override functions
+//---------------------------------------------------------------------------
+
+bool ImageCanvas::ShouldScrollToChildOnFocus(wxWindow* child)
+{
+    //Overriding this member function because we dont want the canvas
+    //to auto scroll to the currently focused child. if we dont override this 
+    //when adding a ImageWidget while the curently focused child is off screen
+    //the canvas will auto scroll to focus that ImageWidget THEN add the new
+    //ImageWidget we created, which will cause it to be placed incorrectly on
+    //the canvas.
+    return false;
+}
+
 void ImageCanvas::OnDraw(wxDC& dc)
 {
     //Draw subgrid
@@ -101,60 +142,8 @@ void ImageCanvas::OnDraw(wxDC& dc)
     dc.DrawLine(wxPoint(m_virtualSize.x / 2, (m_virtualSize.y / 2) - 30), wxPoint(m_virtualSize.x / 2, (m_virtualSize.y / 2) + 30));//V
 }
 
-void ImageCanvas::onCaptureLost(wxMouseCaptureLostEvent& event)
-{
-    if (HasCapture()) {
-        ReleaseMouse();
-    }
-
-    m_panCanvas = false;
-}
-
-void ImageCanvas::onLeaveCanvasWindow(wxMouseEvent& event)
-{
-    //By just having this event handler here, when panning and the mouse 
-    //the leaves program window it eliminates jitters in the canvas movement
-}
-
-void ImageCanvas::centerScrollbars()
-{
-    wxPoint clientSize{};
-    GetClientSize(&clientSize.x, &clientSize.y);
-    Scroll(((m_virtualSize.x - clientSize.x) / 2), ((m_virtualSize.y - clientSize.y) / 2));
-}
-
-wxPoint ImageCanvas::getCanvasCenter()
-{
-    wxPoint center{};
-    center.x = m_virtualSize.x / 2;
-    center.y = m_virtualSize.y / 2;
-    return center;
-}
-
-wxPoint ImageCanvas::getMousePos()
-{
-    //Get screen mouse pos
-    const wxPoint pt = wxGetMousePosition();
-
-    //Subtract corner of top left window to get client/local pos
-    wxPoint mPos{ pt.x - this->GetScreenPosition().x, pt.y - this->GetScreenPosition().y };
-
-    return mPos;
-}
-
-bool ImageCanvas::ShouldScrollToChildOnFocus(wxWindow* child)
-{
-    //Overriding this member function because we dont want the canvas
-    //to auto scroll to the currently focused child. if we dont override this 
-    //when adding a ImageWidget while the curently focused child is off screen
-    //the canvas will auto scroll to focus that ImageWidget THEN add the new
-    //ImageWidget we created, which will cause it to be placed incorrectly on
-    //the canvas.
-    return false;
-}
-
 //---------------------------------------------------------------------------
-//Shortcut keys / mouse handlers
+//Shortcut key handlers
 //---------------------------------------------------------------------------
 
 void ImageCanvas::onKey_A(wxKeyEvent& event)
@@ -194,6 +183,10 @@ void ImageCanvas::onKey_O(wxKeyEvent& event)
 
     event.Skip();
 }
+
+//---------------------------------------------------------------------------
+//mouse handlers
+//---------------------------------------------------------------------------
 
 void ImageCanvas::rightIsDown(wxMouseEvent& event)
 {
@@ -266,4 +259,20 @@ void ImageCanvas::rightIsUp(wxMouseEvent& event)
     Unbind(wxEVT_RIGHT_UP, &ImageCanvas::rightIsUp, this);
     Unbind(wxEVT_MOUSE_CAPTURE_LOST, &ImageCanvas::onCaptureLost, this);
 }
+
+void ImageCanvas::onCaptureLost(wxMouseCaptureLostEvent& event)
+{
+    if (HasCapture()) {
+        ReleaseMouse();
+    }
+
+    m_panCanvas = false;
+}
+
+void ImageCanvas::onLeaveCanvasWindow(wxMouseEvent& event)
+{
+    //By just having this event handler here, when panning and the mouse 
+    //the leaves program window it eliminates jitters in the canvas movement
+}
+
 
