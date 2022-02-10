@@ -111,6 +111,11 @@ bool ImageCanvas::ShouldScrollToChildOnFocus(wxWindow* child)
 
 void ImageCanvas::OnDraw(wxDC& dc)
 {
+    render(dc);
+}
+
+void ImageCanvas::render(wxDC& dc)
+{
     //Draw subgrid
     dc.SetPen(wxPen(wxColor(41, 41, 41), 2));
 

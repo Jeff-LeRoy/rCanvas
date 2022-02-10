@@ -9,17 +9,18 @@ ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize si
     :wxPanel(parent, id, pos, size)
 {
     //load image on heap
-    m_Image = new wxBitmap(imgPath, wxBITMAP_TYPE_JPEG);
-    
-    if (!m_Image->IsOk())
+    m_image = new wxImage();
+    m_image->LoadFile(imgPath, wxBITMAP_TYPE_JPEG);
+
+    if(!m_image->IsOk())
     {
         wxMessageBox("There was an error loading the image.");
         return;
     }
 
     //Set size of widget
-    m_ImgWidth = m_Image->GetWidth();
-    m_ImgHeight = m_Image->GetHeight();
+    m_ImgWidth = m_image->GetWidth();
+    m_ImgHeight = m_image->GetHeight();
     this->SetSize(wxSize(m_ImgWidth, m_ImgHeight));
 
     Raise();
@@ -31,7 +32,7 @@ ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize si
 
 ImageWidget::~ImageWidget()
 {
-    delete m_Image;
+    delete m_image;
 }
 
 void ImageWidget::leftDown(wxMouseEvent& event)
@@ -102,7 +103,17 @@ void ImageWidget::OnCaptureLost(wxMouseCaptureLostEvent&)
 void ImageWidget::OnPaint(wxPaintEvent& event)
 {
     wxPaintDC dc(this);
-    dc.DrawBitmap(*m_Image, 0, 0, false);
+
+    //SCALE
+    //wxBitmap* m_bitmap = new wxBitmap(m_image->Scale(128,128));
+
+    //Convert wxImage to wxBitmap for drawing
+    wxBitmap* m_bitmap = new wxBitmap(*m_image);
+
+    dc.DrawBitmap(*m_bitmap, 0, 0, true);
+
+    //Delete drawing bitmap 
+    delete m_bitmap;
 }
 
 

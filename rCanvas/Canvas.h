@@ -19,6 +19,7 @@ private:
     void onKey_O(wxKeyEvent& event);
     void onKey_A(wxKeyEvent& event);
     void OnDraw(wxDC& dc) override;
+    void render(wxDC& dc);
     wxPoint getMousePos();
     wxString getImage();
 
