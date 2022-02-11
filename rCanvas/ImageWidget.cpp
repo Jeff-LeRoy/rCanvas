@@ -19,9 +19,12 @@ ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize si
     }
 
     //Set size of widget
-    m_scale.x = m_image->GetWidth();
-    m_scale.y = m_image->GetHeight();
-    this->SetSize(wxSize(m_scale.x, m_scale.y));
+    m_scale.m_x = m_image->GetWidth();
+    m_scale.m_y = m_image->GetHeight();
+    this->SetSize(wxSize(m_scale.m_x, m_scale.m_y));
+
+    originalDimensions.x = m_image->GetWidth();
+    originalDimensions.y = m_image->GetHeight();
 
     Raise();
 
@@ -29,12 +32,24 @@ ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize si
     Bind(wxEVT_LEFT_DOWN, &ImageWidget::leftDown, this);
     Bind(wxEVT_PAINT, &ImageWidget::OnPaint, this);
     Bind(wxEVT_MOUSEWHEEL, &ImageWidget::mouseScrolling, this);
+    Bind(wxEVT_MOTION, &ImageWidget::hoverPrinting, this);
 
 }
 
 ImageWidget::~ImageWidget()
 {
     delete m_image;
+}
+
+void ImageWidget::hoverPrinting(wxMouseEvent& event)
+{
+    wxLogStatus(" X=" + wxString::Format(wxT("%lf"), m_scale.m_x) + ' ' +
+                " Y=" + wxString::Format(wxT("%lf"), m_scale.m_y) + ' ' +
+                " Percent=" + wxString::Format(wxT("%lf"), m_scaleIncrimentor) + ' ' +
+                " aspect=" + wxString::Format(wxT("%lf"), aspect) + ' ' +
+                " OrigX=" + wxString::Format(wxT("%d"), originalDimensions.x) + ' ' +
+                " OrigY=" + wxString::Format(wxT("%d"), originalDimensions.y)
+    );
 }
 
 void ImageWidget::leftDown(wxMouseEvent& event)
@@ -71,12 +86,6 @@ void ImageWidget::leftUp(wxMouseEvent& event)
 
 void ImageWidget::mouseMoving(wxMouseEvent& event)
 {
-
-    //wxLogStatus("X= " + wxString::Format(wxT("%d"), m_scale.x) + ' ' +
-    //    "Y= " + wxString::Format(wxT("%d"), m_scale.y));
-    wxLogStatus("X= " + wxString::Format(wxT("%lf"), percent));
-
-
     if (m_WidgetDragging)
     {
         //When you click inside an ImageWidget LeftDown() will store a mouse position relative 
@@ -112,11 +121,8 @@ void ImageWidget::OnPaint(wxPaintEvent& event)
 {
     wxPaintDC dc(this);
 
-    //SCALE
-    //wxBitmap* m_bitmap = new wxBitmap(m_image->Scale(128,128));
-
     //Convert wxImage to wxBitmap for drawing
-    wxBitmap* m_bitmap = new wxBitmap(m_image->Scale(m_scale.x, m_scale.y));
+    wxBitmap* m_bitmap = new wxBitmap(m_image->Scale(m_scale.m_x, m_scale.m_y));
 
     dc.DrawBitmap(*m_bitmap, 0, 0, true);
 
@@ -127,23 +133,24 @@ void ImageWidget::OnPaint(wxPaintEvent& event)
 void ImageWidget::mouseScrolling(wxMouseEvent& event) 
 {
     //Width = Original Width * ( Percentage / 100 )
+    //Aspect ratio formula -> (org. height / org. width) x new width = new height
 
     int rot = event.GetWheelRotation();
     int delta = event.GetWheelDelta();
     
-    wxPoint oldScale = m_scale;
+    //incriment scale
+    m_scaleIncrimentor = 100;
+    m_scaleIncrimentor += m_scaleMultiplier * (rot / delta);
 
-    //m_scale.x += percent * (rot / delta);
-    //m_scale.y += percent * (rot / delta);
-    
-    percent = 100;
-    percent +=  (rot / delta);
+    //Retain aspect ratio and calculate new width then height
+    wxPoint2DDouble oldScale = m_scale;
+    //Calculate width
+    m_scale.m_x = oldScale.m_x * (m_scaleIncrimentor / 100.0);
+    //Calculate new height
+    aspect = (oldScale.m_y / oldScale.m_x);
+    m_scale.m_y = aspect * m_scale.m_x;
 
-    m_scale.x = oldScale.x * (percent / 100.0);
-    m_scale.y = oldScale.y * (percent / 100.0);
-
-
-    this->SetSize(wxSize(m_scale.x, m_scale.y));
+    this->SetSize(wxSize(m_scale.m_x, m_scale.m_y));
 }
 
 
