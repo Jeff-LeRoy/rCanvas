@@ -9,12 +9,12 @@ private:
     bool m_WidgetDragging{ false };
     wxPoint originalDimensions{};
     wxImage* m_image = nullptr;
-    int m_scaleMultiplier{ 1 };
+    int m_scaleMultiplier{ 6 };
     wxDouble aspect{}; //Can move this to local
 
 
     void OnCaptureLost(wxMouseCaptureLostEvent&);
-    void mouseScrolling(wxMouseEvent& event);
+    void scrollwheelZoom(wxMouseEvent& event);
     void mouseMoving(wxMouseEvent& event);
     void leftDown(wxMouseEvent& event);
     void OnPaint(wxPaintEvent& event);
