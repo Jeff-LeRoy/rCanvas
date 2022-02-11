@@ -31,7 +31,7 @@ ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize si
     //Bind Shortcuts
     Bind(wxEVT_LEFT_DOWN, &ImageWidget::leftDown, this);
     Bind(wxEVT_PAINT, &ImageWidget::OnPaint, this);
-    Bind(wxEVT_MOUSEWHEEL, &ImageWidget::scrollwheelZoom, this);
+    Bind(wxEVT_MOUSEWHEEL, &ImageWidget::scrollWheelZoom, this);
     Bind(wxEVT_MOTION, &ImageWidget::hoverPrinting, this);
 
 }
@@ -130,7 +130,7 @@ void ImageWidget::OnPaint(wxPaintEvent& event)
     delete m_bitmap;
 }
 
-void ImageWidget::scrollwheelZoom(wxMouseEvent& event) 
+void ImageWidget::scrollWheelZoom(wxMouseEvent& event) 
 {
     //Width = Original Width * ( Percentage / 100 )
     //Aspect ratio formula -> (org. height / org. width) x new width = new height
@@ -151,6 +151,8 @@ void ImageWidget::scrollwheelZoom(wxMouseEvent& event)
     m_scale.m_y = aspect * m_scale.m_x;
 
     this->SetSize(wxSize(m_scale.m_x, m_scale.m_y));
+
+    Refresh();
 }
 
 

@@ -14,7 +14,7 @@ private:
 
 
     void OnCaptureLost(wxMouseCaptureLostEvent&);
-    void scrollwheelZoom(wxMouseEvent& event);
+    void scrollWheelZoom(wxMouseEvent& event);
     void mouseMoving(wxMouseEvent& event);
     void leftDown(wxMouseEvent& event);
     void OnPaint(wxPaintEvent& event);
