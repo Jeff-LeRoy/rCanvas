@@ -3,14 +3,15 @@
 class ImageWidget : public wxPanel
 {
 private:
-    bool m_WidgetDragging{ false };
-    //wxBitmap m_bitmap;
-    wxImage* m_image = nullptr;
     wxPoint m_imageWidgetClickPos{};
-    int m_ImgHeight{};
-    int m_ImgWidth{};
+    bool m_WidgetDragging{ false };
+    wxImage* m_image = nullptr;
+    wxPoint m_scale{ 1,1 };
+    double percent{ 100.0 };
+
 
     void OnCaptureLost(wxMouseCaptureLostEvent&);
+    void mouseScrolling(wxMouseEvent& event);
     void mouseMoving(wxMouseEvent& event);
     void leftDown(wxMouseEvent& event);
     void OnPaint(wxPaintEvent& event);

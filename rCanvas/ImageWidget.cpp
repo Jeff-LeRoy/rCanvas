@@ -19,15 +19,17 @@ ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize si
     }
 
     //Set size of widget
-    m_ImgWidth = m_image->GetWidth();
-    m_ImgHeight = m_image->GetHeight();
-    this->SetSize(wxSize(m_ImgWidth, m_ImgHeight));
+    m_scale.x = m_image->GetWidth();
+    m_scale.y = m_image->GetHeight();
+    this->SetSize(wxSize(m_scale.x, m_scale.y));
 
     Raise();
 
     //Bind Shortcuts
     Bind(wxEVT_LEFT_DOWN, &ImageWidget::leftDown, this);
     Bind(wxEVT_PAINT, &ImageWidget::OnPaint, this);
+    Bind(wxEVT_MOUSEWHEEL, &ImageWidget::mouseScrolling, this);
+
 }
 
 ImageWidget::~ImageWidget()
@@ -69,6 +71,12 @@ void ImageWidget::leftUp(wxMouseEvent& event)
 
 void ImageWidget::mouseMoving(wxMouseEvent& event)
 {
+
+    //wxLogStatus("X= " + wxString::Format(wxT("%d"), m_scale.x) + ' ' +
+    //    "Y= " + wxString::Format(wxT("%d"), m_scale.y));
+    wxLogStatus("X= " + wxString::Format(wxT("%lf"), percent));
+
+
     if (m_WidgetDragging)
     {
         //When you click inside an ImageWidget LeftDown() will store a mouse position relative 
@@ -108,12 +116,34 @@ void ImageWidget::OnPaint(wxPaintEvent& event)
     //wxBitmap* m_bitmap = new wxBitmap(m_image->Scale(128,128));
 
     //Convert wxImage to wxBitmap for drawing
-    wxBitmap* m_bitmap = new wxBitmap(*m_image);
+    wxBitmap* m_bitmap = new wxBitmap(m_image->Scale(m_scale.x, m_scale.y));
 
     dc.DrawBitmap(*m_bitmap, 0, 0, true);
 
     //Delete drawing bitmap 
     delete m_bitmap;
+}
+
+void ImageWidget::mouseScrolling(wxMouseEvent& event) 
+{
+    //Width = Original Width * ( Percentage / 100 )
+
+    int rot = event.GetWheelRotation();
+    int delta = event.GetWheelDelta();
+    
+    wxPoint oldScale = m_scale;
+
+    //m_scale.x += percent * (rot / delta);
+    //m_scale.y += percent * (rot / delta);
+    
+    percent = 100;
+    percent +=  (rot / delta);
+
+    m_scale.x = oldScale.x * (percent / 100.0);
+    m_scale.y = oldScale.y * (percent / 100.0);
+
+
+    this->SetSize(wxSize(m_scale.x, m_scale.y));
 }
 
 
