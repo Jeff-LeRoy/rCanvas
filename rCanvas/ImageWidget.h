@@ -9,17 +9,18 @@ private:
     bool m_WidgetDragging{ false };
     wxPoint originalDimensions{};
     wxImage* m_image = nullptr;
-    int m_scaleMultiplier{ 6 };
-    wxDouble aspect{}; //Can move this to local
+    int m_scaleMultiplier{ 1 };
+    wxDouble m_aspect{}; //Can move this to local
 
 
     void OnCaptureLost(wxMouseCaptureLostEvent&);
     void scrollWheelZoom(wxMouseEvent& event);
-    void mouseMoving(wxMouseEvent& event);
-    void leftDown(wxMouseEvent& event);
+    void leftIsDragging(wxMouseEvent& event);
+    void rightIsDown(wxMouseEvent& event);
+    void leftIsDown(wxMouseEvent& event);
     void OnPaint(wxPaintEvent& event);
-    void leftUp(wxMouseEvent& event);
-    void hoverPrinting(wxMouseEvent& event);
+    void leftIsUp(wxMouseEvent& event);
+    void hoverPrinting(wxMouseEvent& event);//Remove later
 
 public:
     ImageWidget(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize size, wxString imgPath);

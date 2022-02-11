@@ -1,5 +1,5 @@
 #include <wx/wx.h>
-#include <wx/graphics.h>
+//#include <wx/graphics.h>
 #include "ImageWidget.h"
 #include "Canvas.h"
 
@@ -13,7 +13,6 @@ ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id)
 {
     this->SetBackgroundColour(wxColor(37, 38, 39));
     this->SetDoubleBuffered(true);
-    
 
     //Get users larger screen resolution (X or Y) and double it for canvas size 
     int resolution = (wxSystemSettings::GetMetric(wxSYS_SCREEN_X) > wxSystemSettings::GetMetric(wxSYS_SCREEN_Y))
@@ -25,6 +24,7 @@ ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id)
     //Binding events
     Bind(wxEVT_MOTION, &ImageCanvas::rightIsDragging, this);
     Bind(wxEVT_RIGHT_DOWN, &ImageCanvas::rightIsDown, this);
+    Bind(wxEVT_MOTION, &ImageCanvas::hoverPrinting, this);//Remove later
     //Bind(wxEVT_MOUSEWHEEL, &ImageCanvas::mouseScrolling, this);
 
     //Global key bindings
@@ -193,21 +193,8 @@ void ImageCanvas::onKey_O(wxKeyEvent& event)
 //mouse handlers
 //---------------------------------------------------------------------------
 
-void ImageCanvas::rightIsDown(wxMouseEvent& event)
+void ImageCanvas::hoverPrinting(wxMouseEvent& event)//Remove later
 {
-    m_startMousePos = event.GetPosition();
-    m_panCanvas = true;
-    CaptureMouse();
-
-    Bind(wxEVT_LEAVE_WINDOW, &ImageCanvas::onLeaveCanvasWindow, this);
-    Bind(wxEVT_RIGHT_UP, &ImageCanvas::rightIsUp, this);
-    Bind(wxEVT_MOUSE_CAPTURE_LOST, &ImageCanvas::onCaptureLost, this);
-}
-
-void ImageCanvas::rightIsDragging(wxMouseEvent& event)
-{
-    //---------------------------------------------------------------------------
-    //---------------------------------------------------------------------------
     const wxPoint pt = event.GetPosition();
     wxPoint clientSize{}; GetClientSize(&clientSize.x, &clientSize.y);
     wxPoint scrolledPosition{}; GetViewStart(&scrolledPosition.x, &scrolledPosition.y);
@@ -225,18 +212,37 @@ void ImageCanvas::rightIsDragging(wxMouseEvent& event)
                 " evtMPosY=" + wxString::Format(wxT("%d"), pt.y) + ' ' +
                 " scrollPosX=" + wxString::Format(wxT("%d"), scrolledPosition.x) + ' ' +
                 " scrollPosY=" + wxString::Format(wxT("%d"), scrolledPosition.y) + ' ' +*/
-                " mPosX=" + wxString::Format(wxT("%d"), mPos.x) + ' ' +
-                " mPosY=" + wxString::Format(wxT("%d"), mPos.y) + ' ' +
-                " screenToClientX=" + wxString::Format(wxT("%d"), screenToClient.x) + ' ' +
-                " screenToClientY=" + wxString::Format(wxT("%d"), screenToClient.y) + ' ' +
-                " clientToScreenX=" + wxString::Format(wxT("%d"), clientToScreen.x) + ' ' +
-                " clientToScreenY=" + wxString::Format(wxT("%d"), clientToScreen.y) + ' ' +
-                " mainScrnMPos=" + wxString::Format(wxT("%d"), mainScrnMPos.x) + ' ' +
-                " mainScrnMPos=" + wxString::Format(wxT("%d"), mainScrnMPos.y)
+        " mPosX=" + wxString::Format(wxT("%d"), mPos.x) + ' ' +
+        " mPosY=" + wxString::Format(wxT("%d"), mPos.y) + ' ' +
+        " screenToClientX=" + wxString::Format(wxT("%d"), screenToClient.x) + ' ' +
+        " screenToClientY=" + wxString::Format(wxT("%d"), screenToClient.y) + ' ' +
+        " clientToScreenX=" + wxString::Format(wxT("%d"), clientToScreen.x) + ' ' +
+        " clientToScreenY=" + wxString::Format(wxT("%d"), clientToScreen.y) + ' ' +
+        " mainScrnMPos=" + wxString::Format(wxT("%d"), mainScrnMPos.x) + ' ' +
+        " mainScrnMPos=" + wxString::Format(wxT("%d"), mainScrnMPos.y)
     );
-    //---------------------------------------------------------------------------
-    //---------------------------------------------------------------------------
 
+    event.Skip();
+}
+
+void ImageCanvas::rightIsDown(wxMouseEvent& event)
+{
+    m_startMousePos = event.GetPosition();
+    m_panCanvas = true;
+    CaptureMouse();
+
+    Bind(wxEVT_LEAVE_WINDOW, &ImageCanvas::onLeaveCanvasWindow, this);
+    Bind(wxEVT_RIGHT_UP, &ImageCanvas::rightIsUp, this);
+    Bind(wxEVT_MOUSE_CAPTURE_LOST, &ImageCanvas::onCaptureLost, this);
+
+    wxLogStatus(
+        " eventX=" + wxString::Format(wxT("%d"), event.m_x) + ' ' +
+        " eventY=" + wxString::Format(wxT("%d"), event.m_y)
+    );
+}
+
+void ImageCanvas::rightIsDragging(wxMouseEvent& event)
+{
     wxPoint direction{};
     if (m_panCanvas) {
         wxSetCursor(wxCURSOR_CROSS);
@@ -279,5 +285,3 @@ void ImageCanvas::onLeaveCanvasWindow(wxMouseEvent& event)
     //By just having this event handler here, when panning and the mouse 
     //the leaves program window it eliminates jitters in the canvas movement
 }
-
-

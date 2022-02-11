@@ -23,17 +23,18 @@ ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize si
     m_scale.m_y = m_image->GetHeight();
     this->SetSize(wxSize(m_scale.m_x, m_scale.m_y));
 
+    //Store original dimensions of image
     originalDimensions.x = m_image->GetWidth();
     originalDimensions.y = m_image->GetHeight();
 
     Raise();
 
     //Bind Shortcuts
-    Bind(wxEVT_LEFT_DOWN, &ImageWidget::leftDown, this);
-    Bind(wxEVT_PAINT, &ImageWidget::OnPaint, this);
     Bind(wxEVT_MOUSEWHEEL, &ImageWidget::scrollWheelZoom, this);
-    Bind(wxEVT_MOTION, &ImageWidget::hoverPrinting, this);
-
+    Bind(wxEVT_RIGHT_DOWN, &ImageWidget::rightIsDown, this);
+    Bind(wxEVT_LEFT_DOWN, &ImageWidget::leftIsDown, this);
+    Bind(wxEVT_PAINT, &ImageWidget::OnPaint, this);
+    Bind(wxEVT_MOTION, &ImageWidget::hoverPrinting, this);//Remove later
 }
 
 ImageWidget::~ImageWidget()
@@ -41,18 +42,29 @@ ImageWidget::~ImageWidget()
     delete m_image;
 }
 
-void ImageWidget::hoverPrinting(wxMouseEvent& event)
+void ImageWidget::hoverPrinting(wxMouseEvent& event)//Remove later
 {
-    wxLogStatus(" X=" + wxString::Format(wxT("%lf"), m_scale.m_x) + ' ' +
+    wxPoint pos = wxGetMousePosition();
+
+    int x = pos.x;
+    int y = pos.y;
+
+    wxPoint scrn = m_parent->ScreenToClient(wxPoint(x, y));
+
+    wxLogStatus(/*" X=" + wxString::Format(wxT("%lf"), m_scale.m_x) + ' ' +
                 " Y=" + wxString::Format(wxT("%lf"), m_scale.m_y) + ' ' +
                 " Percent=" + wxString::Format(wxT("%lf"), m_scaleIncrimentor) + ' ' +
                 " aspect=" + wxString::Format(wxT("%lf"), aspect) + ' ' +
                 " OrigX=" + wxString::Format(wxT("%d"), originalDimensions.x) + ' ' +
-                " OrigY=" + wxString::Format(wxT("%d"), originalDimensions.y)
+                " OrigY=" + wxString::Format(wxT("%d"), originalDimensions.y) + ' ' +*/
+                " mainScrnMPosX=" + wxString::Format(wxT("%d"), pos.x) + ' ' +
+                " mainScrnMPosY=" + wxString::Format(wxT("%d"), pos.y) + ' ' +
+                " scrnX=" + wxString::Format(wxT("%d"), scrn.x) + ' ' +
+                " scrnY=" + wxString::Format(wxT("%d"), scrn.y)
     );
 }
 
-void ImageWidget::leftDown(wxMouseEvent& event)
+void ImageWidget::leftIsDown(wxMouseEvent& event)
 {
     CaptureMouse();
     wxSetCursor(wxCURSOR_HAND);
@@ -65,12 +77,12 @@ void ImageWidget::leftDown(wxMouseEvent& event)
     //Set Z order to top
     Raise();
 
-    Bind(wxEVT_LEFT_UP, &ImageWidget::leftUp, this);
-    Bind(wxEVT_MOTION, &ImageWidget::mouseMoving, this);
+    Bind(wxEVT_LEFT_UP, &ImageWidget::leftIsUp, this);
+    Bind(wxEVT_MOTION, &ImageWidget::leftIsDragging, this);
     Bind(wxEVT_MOUSE_CAPTURE_LOST, &ImageWidget::OnCaptureLost, this);
 }
 
-void ImageWidget::leftUp(wxMouseEvent& event)
+void ImageWidget::leftIsUp(wxMouseEvent& event)
 {
     if (HasCapture())
     {
@@ -79,12 +91,12 @@ void ImageWidget::leftUp(wxMouseEvent& event)
 
     m_WidgetDragging = false;
 
-    Unbind(wxEVT_LEFT_UP, &ImageWidget::leftUp, this);
-    Unbind(wxEVT_MOTION, &ImageWidget::mouseMoving, this);
+    Unbind(wxEVT_LEFT_UP, &ImageWidget::leftIsUp, this);
+    Unbind(wxEVT_MOTION, &ImageWidget::leftIsDragging, this);
     Unbind(wxEVT_MOUSE_CAPTURE_LOST, &ImageWidget::OnCaptureLost, this);
 }
 
-void ImageWidget::mouseMoving(wxMouseEvent& event)
+void ImageWidget::leftIsDragging(wxMouseEvent& event)
 {
     if (m_WidgetDragging)
     {
@@ -147,12 +159,29 @@ void ImageWidget::scrollWheelZoom(wxMouseEvent& event)
     //Calculate width
     m_scale.m_x = oldScale.m_x * (m_scaleIncrimentor / 100.0);
     //Calculate new height
-    aspect = (oldScale.m_y / oldScale.m_x);
-    m_scale.m_y = aspect * m_scale.m_x;
+    m_aspect = (oldScale.m_y / oldScale.m_x);
+    m_scale.m_y = m_aspect * m_scale.m_x;
 
     this->SetSize(wxSize(m_scale.m_x, m_scale.m_y));
 
     Refresh();
 }
+
+void ImageWidget::rightIsDown(wxMouseEvent& event)
+{
+    //Get SCREEN mouse pos and convert to client
+    wxPoint pos = wxGetMousePosition();
+    wxPoint scrn = m_parent->ScreenToClient(wxPoint(pos.x, pos.y));
+
+    //Assign converted position to mouse event otherwise it is coordinates 
+    //relative to top corner of the ImageWidget
+    event.m_x = scrn.x;
+    event.m_y = scrn.y;
+
+    //Pass event to the parent handler
+    wxPostEvent(GetParent(), event);
+}
+
+
 
 
