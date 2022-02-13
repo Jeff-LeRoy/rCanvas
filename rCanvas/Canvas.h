@@ -16,6 +16,7 @@ private:
     void rightIsDragging(wxMouseEvent& event);
     void hoverPrinting(wxMouseEvent& event);//Remove later
     void rightIsDown(wxMouseEvent& event);
+    void mouseScrollWheel(wxMouseEvent& event);
     void rightIsUp(wxMouseEvent& event);
     void onKey_O(wxKeyEvent& event);
     void onKey_A(wxKeyEvent& event);

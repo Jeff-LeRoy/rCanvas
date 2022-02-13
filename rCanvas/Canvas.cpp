@@ -5,7 +5,6 @@
 
 //---------------------------------------------------------------------------
 // ImageCanvas
-//void Canvas::mouseScrolling(wxMouseEvent& event){}
 //---------------------------------------------------------------------------
 
 ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id)
@@ -25,7 +24,7 @@ ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id)
     Bind(wxEVT_MOTION, &ImageCanvas::rightIsDragging, this);
     Bind(wxEVT_RIGHT_DOWN, &ImageCanvas::rightIsDown, this);
     Bind(wxEVT_MOTION, &ImageCanvas::hoverPrinting, this);//Remove later
-    //Bind(wxEVT_MOUSEWHEEL, &ImageCanvas::mouseScrolling, this);
+    Bind(wxEVT_MOUSEWHEEL, &ImageCanvas::mouseScrollWheel, this);
 
     //Global key bindings
     Bind(wxEVT_CHAR_HOOK, &ImageCanvas::onKey_O, this);
@@ -190,7 +189,7 @@ void ImageCanvas::onKey_O(wxKeyEvent& event)
 }
 
 //---------------------------------------------------------------------------
-//mouse handlers
+//Mouse handlers
 //---------------------------------------------------------------------------
 
 void ImageCanvas::hoverPrinting(wxMouseEvent& event)//Remove later
@@ -284,4 +283,9 @@ void ImageCanvas::onLeaveCanvasWindow(wxMouseEvent& event)
 {
     //By just having this event handler here, when panning and the mouse 
     //the leaves program window it eliminates jitters in the canvas movement
+}
+
+void ImageCanvas::mouseScrollWheel(wxMouseEvent& event)
+{
+    wxLogStatus("mousescrolling");
 }
