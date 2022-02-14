@@ -24,7 +24,7 @@ ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id)
     Bind(wxEVT_MOTION, &ImageCanvas::rightIsDragging, this);
     Bind(wxEVT_RIGHT_DOWN, &ImageCanvas::rightIsDown, this);
     Bind(wxEVT_MOTION, &ImageCanvas::hoverPrinting, this);//Remove later
-    Bind(wxEVT_MOUSEWHEEL, &ImageCanvas::mouseScrollWheel, this);
+    //Bind(wxEVT_MOUSEWHEEL, &ImageCanvas::mouseScrollWheel, this);
 
     //Global key bindings
     Bind(wxEVT_CHAR_HOOK, &ImageCanvas::onKey_O, this);
@@ -48,7 +48,7 @@ wxString ImageCanvas::getImage()
     return fileLocation;
 }
 
-wxPoint ImageCanvas::incrimentScrollDirection(wxPoint current, wxPoint start)
+wxPoint ImageCanvas::incrimentScrollDirection(wxPoint current, wxPoint start, wxMouseEvent& event)
 {
     //This should return a 1 or -1 in x and y when dragging
     //the mouse, the pan should feel like a 1:1 ratio for pixels
@@ -63,8 +63,14 @@ wxPoint ImageCanvas::incrimentScrollDirection(wxPoint current, wxPoint start)
     m_startMousePos.x = current.x;
     m_startMousePos.y = current.y;
 
+    //Speed up dragging if CTRL is down
+    if (event.ControlDown())
+        m_dragMultiplier = 4;
+    else
+        m_dragMultiplier = 1;
+
     //Returning negative causes canvas to drag with mouse direction
-    return -mouseTravel;
+    return -mouseTravel * m_dragMultiplier;
 }
 
 void ImageCanvas::centerScrollbars()
@@ -223,6 +229,8 @@ void ImageCanvas::rightIsDown(wxMouseEvent& event)
 
 void ImageCanvas::rightIsDragging(wxMouseEvent& event)
 {
+
+
     wxPoint direction{};
     if (m_panCanvas) {
         wxSetCursor(wxCURSOR_CROSS);
@@ -232,7 +240,7 @@ void ImageCanvas::rightIsDragging(wxMouseEvent& event)
         GetViewStart(&scrolledPosition.x, &scrolledPosition.y);
 
         wxPoint inProgressMousePos = event.GetPosition();
-        direction = incrimentScrollDirection(event.GetPosition(), m_startMousePos);
+        direction = incrimentScrollDirection(event.GetPosition(), m_startMousePos, event);
         this->Scroll(scrolledPosition.x += direction.x, scrolledPosition.y += direction.y);
         //ScreenToClient(wxPoint(mousePosConverted_x, mousePosConverted_y));
     }
@@ -266,27 +274,27 @@ void ImageCanvas::onLeaveCanvasWindow(wxMouseEvent& event)
     //the leaves program window it eliminates jitters in the canvas movement
 }
 
-void ImageCanvas::mouseScrollWheel(wxMouseEvent& event)
-{
-    wxLogStatus("mousescrolling");
-
-
-    wxWindowList& children = GetChildren();
-    for (wxWindowList::Node* node = children.GetFirst(); node; node = node->GetNext())
-    {
-        ImageWidget* current = (ImageWidget*)node->GetData();
-        current->setGlobalScale();
-    }
-
-
-    //List children of Canvas
-    //wxChar key = event.GetUnicodeKey();
-    //if (key == 'A')
-    // {
-    //    wxWindowList children = GetChildren();
-    //    for (auto itr{ children.begin() }; itr != children.end(); itr++)
-    //    {
-    //        wxLogMessage(GetName());
-    //    }
-    // }
-}
+//void ImageCanvas::mouseScrollWheel(wxMouseEvent& event)
+//{
+//    wxLogStatus("mousescrolling");
+//
+//
+//    wxWindowList& children = GetChildren();
+//    for (wxWindowList::Node* node = children.GetFirst(); node; node = node->GetNext())
+//    {
+//        ImageWidget* current = (ImageWidget*)node->GetData();
+//        current->setGlobalScale();
+//    }
+//
+//
+//    //List children of Canvas
+//    //wxChar key = event.GetUnicodeKey();
+//    //if (key == 'A')
+//    // {
+//    //    wxWindowList children = GetChildren();
+//    //    for (auto itr{ children.begin() }; itr != children.end(); itr++)
+//    //    {
+//    //        wxLogMessage(GetName());
+//    //    }
+//    // }
+//}

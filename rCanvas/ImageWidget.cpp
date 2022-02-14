@@ -85,7 +85,11 @@ void ImageWidget::setGlobalScale()
 
 void ImageWidget::scrollWheelZoom(wxMouseEvent& event)
 {
-
+    //Speed up scaling if CTRL is down
+    if (event.ControlDown())
+        m_scaleMultiplier = 8;
+    else
+        m_scaleMultiplier = 1;
 
     int rot = event.GetWheelRotation();
     int delta = event.GetWheelDelta();
