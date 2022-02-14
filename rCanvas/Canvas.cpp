@@ -74,14 +74,6 @@ void ImageCanvas::centerScrollbars()
     Scroll(((m_virtualSize.x - clientSize.x) / 2), ((m_virtualSize.y - clientSize.y) / 2));
 }
 
-wxPoint ImageCanvas::getCanvasCenter()
-{
-    wxPoint center{};
-    center.x = m_virtualSize.x / 2;
-    center.y = m_virtualSize.y / 2;
-    return center;
-}
-
 wxPoint ImageCanvas::getMousePos()
 {
     //Get screen mouse pos
@@ -152,17 +144,6 @@ void ImageCanvas::render(wxDC& dc)
 
 void ImageCanvas::onKey_A(wxKeyEvent& event)
 {
-    //List children of Canvas
-    //wxChar key = event.GetUnicodeKey();
-    //if (key == 'A')
-    // {
-    //    wxWindowList children = GetChildren();
-    //    for (auto itr{ children.begin() }; itr != children.end(); itr++)
-    //    {
-    //        wxLogMessage(GetName());
-    //    }
-    // }
-
     wxChar key = event.GetUnicodeKey();
     if (key == 'A')
     {
@@ -204,10 +185,10 @@ void ImageCanvas::hoverPrinting(wxMouseEvent& event)//Remove later
     wxPoint mainScrnMPos = wxGetMousePosition();
 
     wxLogStatus(/*" clientX=" + wxString::Format(wxT("%d"), clientSize.x) + ' ' +
-                " clientY=" + wxString::Format(wxT("%d"), clientSize.y) + ' ' +
+                " clientY=" + wxString::Format(wxT("%d"), clientSize.y) + ' ' +*/
                 " virtX=" + wxString::Format(wxT("%d"), m_virtualSize.x) + ' ' +
                 " virtY=" + wxString::Format(wxT("%d"), m_virtualSize.y) + ' ' +
-                " evtMPosX=" + wxString::Format(wxT("%d"), pt.x) + ' ' +
+                /*" evtMPosX=" + wxString::Format(wxT("%d"), pt.x) + ' ' +
                 " evtMPosY=" + wxString::Format(wxT("%d"), pt.y) + ' ' +
                 " scrollPosX=" + wxString::Format(wxT("%d"), scrolledPosition.x) + ' ' +
                 " scrollPosY=" + wxString::Format(wxT("%d"), scrolledPosition.y) + ' ' +*/
@@ -288,4 +269,24 @@ void ImageCanvas::onLeaveCanvasWindow(wxMouseEvent& event)
 void ImageCanvas::mouseScrollWheel(wxMouseEvent& event)
 {
     wxLogStatus("mousescrolling");
+
+
+    wxWindowList& children = GetChildren();
+    for (wxWindowList::Node* node = children.GetFirst(); node; node = node->GetNext())
+    {
+        ImageWidget* current = (ImageWidget*)node->GetData();
+        current->setGlobalScale();
+    }
+
+
+    //List children of Canvas
+    //wxChar key = event.GetUnicodeKey();
+    //if (key == 'A')
+    // {
+    //    wxWindowList children = GetChildren();
+    //    for (auto itr{ children.begin() }; itr != children.end(); itr++)
+    //    {
+    //        wxLogMessage(GetName());
+    //    }
+    // }
 }

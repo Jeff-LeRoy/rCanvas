@@ -30,6 +30,5 @@ public:
     ~ImageCanvas();
 
     void centerScrollbars();
-    wxPoint getCanvasCenter();
 };
 

@@ -24,8 +24,8 @@ ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize si
     this->SetSize(wxSize(m_scale.m_x, m_scale.m_y));
 
     //Store original dimensions of image
-    originalDimensions.x = m_image->GetWidth();
-    originalDimensions.y = m_image->GetHeight();
+    m_originalDimensions.x = m_image->GetWidth();
+    m_originalDimensions.y = m_image->GetHeight();
 
     Raise();
 
@@ -42,6 +42,80 @@ ImageWidget::~ImageWidget()
     delete m_image;
 }
 
+void ImageWidget::OnPaint(wxPaintEvent& event)
+{
+    wxPaintDC dc(this);
+
+    //Convert wxImage to wxBitmap for drawing
+    wxBitmap* m_bitmap = new wxBitmap(m_image->Scale(m_scale.m_x, m_scale.m_y));
+
+    dc.DrawBitmap(*m_bitmap, 0, 0, true);
+
+    //Delete drawing bitmap 
+    delete m_bitmap;
+}
+
+void ImageWidget::calculateAspectRatio()
+{
+    //Rescale formula -> Width = Original Width * ( Percentage / 100 )
+    //Aspect ratio formula -> (org. height / org. width) x new width = new height
+
+    //Retain aspect ratio and calculate new width then height
+    wxPoint2DDouble oldScale = m_scale;
+    //Calculate width
+    m_scale.m_x = oldScale.m_x * (m_scaleIncrimentor / 100.0);
+
+    //Calculate new height
+    m_aspectRatio = (oldScale.m_y / oldScale.m_x);
+    m_scale.m_y = m_aspectRatio * m_scale.m_x;
+}
+
+void ImageWidget::setGlobalScale()
+{
+    //baseOffset + (pivot * height) = finalPos
+
+    m_scale.m_x = 256;
+    m_scale.m_y = 256;
+    this->SetSize(wxSize(m_scale.m_x, m_scale.m_y));
+}
+
+//---------------------------------------------------------------------------
+// Mouse Handlers
+//---------------------------------------------------------------------------
+
+void ImageWidget::scrollWheelZoom(wxMouseEvent& event)
+{
+
+
+    int rot = event.GetWheelRotation();
+    int delta = event.GetWheelDelta();
+
+    //incriment scale
+    m_scaleIncrimentor = 100;
+    m_scaleIncrimentor += (double)m_scaleMultiplier * (rot / delta);
+
+    calculateAspectRatio();
+
+    this->SetSize(wxSize(m_scale.m_x, m_scale.m_y));
+
+    Refresh();
+}
+
+void ImageWidget::rightIsDown(wxMouseEvent& event)
+{
+    //Get SCREEN mouse pos and convert to client
+    wxPoint pos = wxGetMousePosition();
+    wxPoint scrn = m_parent->ScreenToClient(wxPoint(pos.x, pos.y));
+
+    //Assign converted position to mouse event otherwise it is coordinates 
+    //relative to top corner of the ImageWidget
+    event.m_x = scrn.x;
+    event.m_y = scrn.y;
+
+    //Pass event to the parent handler
+    wxPostEvent(GetParent(), event);
+}
+
 void ImageWidget::hoverPrinting(wxMouseEvent& event)//Remove later
 {
     wxPoint pos = wxGetMousePosition();
@@ -54,13 +128,13 @@ void ImageWidget::hoverPrinting(wxMouseEvent& event)//Remove later
     wxLogStatus(/*" X=" + wxString::Format(wxT("%lf"), m_scale.m_x) + ' ' +
                 " Y=" + wxString::Format(wxT("%lf"), m_scale.m_y) + ' ' +
                 " Percent=" + wxString::Format(wxT("%lf"), m_scaleIncrimentor) + ' ' +
-                " aspect=" + wxString::Format(wxT("%lf"), aspect) + ' ' +
                 " OrigX=" + wxString::Format(wxT("%d"), originalDimensions.x) + ' ' +
                 " OrigY=" + wxString::Format(wxT("%d"), originalDimensions.y) + ' ' +*/
-                " mainScrnMPosX=" + wxString::Format(wxT("%d"), pos.x) + ' ' +
-                " mainScrnMPosY=" + wxString::Format(wxT("%d"), pos.y) + ' ' +
-                " scrnX=" + wxString::Format(wxT("%d"), scrn.x) + ' ' +
-                " scrnY=" + wxString::Format(wxT("%d"), scrn.y)
+        " aspect=" + wxString::Format(wxT("%lf"), m_aspectRatio) + ' ' +
+        " mainScrnMPosX=" + wxString::Format(wxT("%d"), pos.x) + ' ' +
+        " mainScrnMPosY=" + wxString::Format(wxT("%d"), pos.y) + ' ' +
+        " scrnX=" + wxString::Format(wxT("%d"), scrn.x) + ' ' +
+        " scrnY=" + wxString::Format(wxT("%d"), scrn.y)
     );
 }
 
@@ -72,7 +146,7 @@ void ImageWidget::leftIsDown(wxMouseEvent& event)
     //Get client mouse position
     m_imageWidgetClickPos.x = event.GetX();
     m_imageWidgetClickPos.y = event.GetY();
-    m_WidgetDragging = true;
+    m_widgetDragging = true;
 
     //Set Z order to top
     Raise();
@@ -89,7 +163,7 @@ void ImageWidget::leftIsUp(wxMouseEvent& event)
         ReleaseMouse();
     }
 
-    m_WidgetDragging = false;
+    m_widgetDragging = false;
 
     Unbind(wxEVT_LEFT_UP, &ImageWidget::leftIsUp, this);
     Unbind(wxEVT_MOTION, &ImageWidget::leftIsDragging, this);
@@ -98,7 +172,7 @@ void ImageWidget::leftIsUp(wxMouseEvent& event)
 
 void ImageWidget::leftIsDragging(wxMouseEvent& event)
 {
-    if (m_WidgetDragging)
+    if (m_widgetDragging)
     {
         //When you click inside an ImageWidget LeftDown() will store a mouse position relative 
         //to the inside of that widget. Positioning an ImageWidget/wxPanel relies on its top left 
@@ -127,59 +201,6 @@ void ImageWidget::OnCaptureLost(wxMouseCaptureLostEvent&)
     {
         ReleaseMouse();
     }
-}
-
-void ImageWidget::OnPaint(wxPaintEvent& event)
-{
-    wxPaintDC dc(this);
-
-    //Convert wxImage to wxBitmap for drawing
-    wxBitmap* m_bitmap = new wxBitmap(m_image->Scale(m_scale.m_x, m_scale.m_y));
-
-    dc.DrawBitmap(*m_bitmap, 0, 0, true);
-
-    //Delete drawing bitmap 
-    delete m_bitmap;
-}
-
-void ImageWidget::scrollWheelZoom(wxMouseEvent& event) 
-{
-    //Width = Original Width * ( Percentage / 100 )
-    //Aspect ratio formula -> (org. height / org. width) x new width = new height
-
-    int rot = event.GetWheelRotation();
-    int delta = event.GetWheelDelta();
-    
-    //incriment scale
-    m_scaleIncrimentor = 100;
-    m_scaleIncrimentor += static_cast<wxDouble>(m_scaleMultiplier) * (rot / delta);
-
-    //Retain aspect ratio and calculate new width then height
-    wxPoint2DDouble oldScale = m_scale;
-    //Calculate width
-    m_scale.m_x = oldScale.m_x * (m_scaleIncrimentor / 100.0);
-    //Calculate new height
-    m_aspect = (oldScale.m_y / oldScale.m_x);
-    m_scale.m_y = m_aspect * m_scale.m_x;
-
-    this->SetSize(wxSize(m_scale.m_x, m_scale.m_y));
-
-    Refresh();
-}
-
-void ImageWidget::rightIsDown(wxMouseEvent& event)
-{
-    //Get SCREEN mouse pos and convert to client
-    wxPoint pos = wxGetMousePosition();
-    wxPoint scrn = m_parent->ScreenToClient(wxPoint(pos.x, pos.y));
-
-    //Assign converted position to mouse event otherwise it is coordinates 
-    //relative to top corner of the ImageWidget
-    event.m_x = scrn.x;
-    event.m_y = scrn.y;
-
-    //Pass event to the parent handler
-    wxPostEvent(GetParent(), event);
 }
 
 
