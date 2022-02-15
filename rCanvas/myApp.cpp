@@ -13,6 +13,10 @@ MainFrame::MainFrame(wxWindow* parent, wxWindowID 	id, const wxString& title, co
     CreateStatusBar();
 }
 
+//---------------------------------------------------------------------------
+// Application
+//---------------------------------------------------------------------------
+
 bool MyApp::OnInit()
 {
     wxInitAllImageHandlers();

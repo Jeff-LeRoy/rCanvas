@@ -19,6 +19,7 @@ private:
     void leftIsDown(wxMouseEvent& event);
     void OnPaint(wxPaintEvent& event);
     void leftIsUp(wxMouseEvent& event);
+    void onKey_T(wxKeyEvent& event);
     void hoverPrinting(wxMouseEvent& event);//Remove later
     void calculateAspectRatio(); //Might not need seperate member for this 
 

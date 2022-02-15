@@ -35,6 +35,7 @@ ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize si
     Bind(wxEVT_LEFT_DOWN, &ImageWidget::leftIsDown, this);
     Bind(wxEVT_PAINT, &ImageWidget::OnPaint, this);
     Bind(wxEVT_MOTION, &ImageWidget::hoverPrinting, this);//Remove later
+    Bind(wxEVT_CHAR_HOOK, &ImageWidget::onKey_T, this);//For testing
 }
 
 ImageWidget::~ImageWidget()
@@ -45,6 +46,8 @@ ImageWidget::~ImageWidget()
 void ImageWidget::OnPaint(wxPaintEvent& event)
 {
     wxPaintDC dc(this);
+
+    //wxImage* m_imageCropped = new wxImage(m_image->GetSubImage(wxRect(wxPoint(10, 10), wxSize(512, 512))));
 
     //Convert wxImage to wxBitmap for drawing
     wxBitmap* m_bitmap = new wxBitmap(m_image->Scale(m_scale.m_x, m_scale.m_y));
@@ -205,6 +208,16 @@ void ImageWidget::OnCaptureLost(wxMouseCaptureLostEvent&)
     {
         ReleaseMouse();
     }
+}
+
+void ImageWidget::onKey_T(wxKeyEvent& event)
+{
+    //wxChar key = event.GetUnicodeKey();
+    //if (key == 'T')
+    //{
+    //    m_image->GetSubImage(wxRect(wxPoint(10,10),wxSize(512,512)));
+    //}
+    event.Skip();
 }
 
 
