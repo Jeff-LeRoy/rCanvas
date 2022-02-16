@@ -52,31 +52,33 @@ void ImageWidget::OnPaint(wxPaintEvent& event)
 
     if (m_scalingImage)
     {
-        //Convert bitmap to wxImage 
-        m_image = new wxImage();
-        m_image->LoadFile(m_imgPath, wxBITMAP_TYPE_JPEG);
-
-        //Convert wxImage to wxBitmap for drawing
-        *m_bitmap = wxBitmap(m_image->Scale(m_scale.m_x, m_scale.m_y));
-
-        delete m_image;
-
-        m_scalingImage = false;
-
-        Refresh();
+        renderScaled(dc);
     }
+    else
+        render(dc);
 
-    dc.DrawBitmap(*m_bitmap, 0, 0, true);
 }
 
 void ImageWidget::render(wxDC& dc)
 {
-
+    wxLogStatus("render");
+    dc.DrawBitmap(*m_bitmap, 0, 0, true);
 }
 
 void ImageWidget::renderScaled(wxDC& dc)
 {
+    wxLogStatus("renderScaled");
+    //Convert bitmap to wxImage for scaling
+    m_image = new wxImage();
+    m_image->LoadFile(m_imgPath, wxBITMAP_TYPE_JPEG);
 
+    //Convert wxImage to wxBitmap for drawing
+    *m_bitmap = wxBitmap(m_image->Scale(m_scale.m_x, m_scale.m_y));
+    delete m_image;
+
+    m_scalingImage = false;
+
+    dc.DrawBitmap(*m_bitmap, 0, 0, true);
 }
 
 void ImageWidget::calculateAspectRatio()
@@ -120,25 +122,29 @@ void ImageWidget::onKey_T(wxKeyEvent& event)
 
 void ImageWidget::scrollWheelZoom(wxMouseEvent& event)
 {
-    m_scalingImage = true;
+    if (event.AltDown())
+    {
+        m_scalingImage = true;
 
-    //Speed up scaling if CTRL is down
-    if (event.ControlDown())
-        m_scaleMultiplier = 8;
+        //Speed up scaling if CTRL is down
+        if (event.ControlDown())
+            m_scaleMultiplier = 8;
+        else
+            m_scaleMultiplier = 1;
+
+        int rot = event.GetWheelRotation();
+        int delta = event.GetWheelDelta();
+
+        //incriment scale
+        m_scaleIncrimentor = 100;
+        m_scaleIncrimentor += (double)m_scaleMultiplier * (rot / delta);
+
+        calculateAspectRatio();
+
+        this->SetSize(wxSize(m_scale.m_x, m_scale.m_y));
+    }
     else
-        m_scaleMultiplier = 1;
-
-    int rot = event.GetWheelRotation();
-    int delta = event.GetWheelDelta();
-
-    //incriment scale
-    m_scaleIncrimentor = 100;
-    m_scaleIncrimentor += (double)m_scaleMultiplier * (rot / delta);
-
-    calculateAspectRatio();
-
-    this->SetSize(wxSize(m_scale.m_x, m_scale.m_y));
-    //Refresh();
+        m_scalingImage = false;
 }
 
 void ImageWidget::rightIsDown(wxMouseEvent& event)
