@@ -9,8 +9,11 @@ private:
     bool m_widgetDragging{ false };
     wxPoint m_originalDimensions{};
     wxImage* m_image = nullptr;
+    wxBitmap* m_bitmap = nullptr;
     int m_scaleMultiplier{ 1 };
     wxDouble m_aspectRatio{}; //Can move this to local
+    wxString m_imgPath{};
+    bool m_scalingImage{};
 
     void OnCaptureLost(wxMouseCaptureLostEvent&);
     void scrollWheelZoom(wxMouseEvent& event);

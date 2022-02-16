@@ -8,24 +8,27 @@
 ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize size, wxString imgPath)
     :wxPanel(parent, id, pos, size)
 {
-    //load image on heap
-    m_image = new wxImage();
-    m_image->LoadFile(imgPath, wxBITMAP_TYPE_JPEG);
+    this->SetBackgroundColour(wxColor(77, 38, 39));
 
-    if(!m_image->IsOk())
+    m_imgPath = imgPath;
+
+    //load image to heap
+    m_bitmap = new wxBitmap(imgPath, wxBITMAP_TYPE_JPEG);
+
+    if(!m_bitmap->IsOk())
     {
         wxMessageBox("There was an error loading the image.");
         return;
     }
 
     //Set size of widget
-    m_scale.m_x = m_image->GetWidth();
-    m_scale.m_y = m_image->GetHeight();
+    m_scale.m_x = m_bitmap->GetWidth();
+    m_scale.m_y = m_bitmap->GetHeight();
     this->SetSize(wxSize(m_scale.m_x, m_scale.m_y));
 
     //Store original dimensions of image
-    m_originalDimensions.x = m_image->GetWidth();
-    m_originalDimensions.y = m_image->GetHeight();
+    m_originalDimensions.x = m_bitmap->GetWidth();
+    m_originalDimensions.y = m_bitmap->GetHeight();
 
     Raise();
 
@@ -40,22 +43,30 @@ ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize si
 
 ImageWidget::~ImageWidget()
 {
-    delete m_image;
+    delete m_bitmap;
 }
 
 void ImageWidget::OnPaint(wxPaintEvent& event)
 {
     wxPaintDC dc(this);
 
-    //wxImage* m_imageCropped = new wxImage(m_image->GetSubImage(wxRect(wxPoint(10, 10), wxSize(512, 512))));
+    if (m_scalingImage)
+    {
+        //Convert bitmap to wxImage 
+        m_image = new wxImage();
+        m_image->LoadFile(m_imgPath, wxBITMAP_TYPE_JPEG);
 
-    //Convert wxImage to wxBitmap for drawing
-    wxBitmap* m_bitmap = new wxBitmap(m_image->Scale(m_scale.m_x, m_scale.m_y));
+        //Convert wxImage to wxBitmap for drawing
+        m_bitmap = new wxBitmap(m_image->Scale(m_scale.m_x, m_scale.m_y));
+
+        delete m_image;
+
+        m_scalingImage = false;
+
+        Refresh();
+    }
 
     dc.DrawBitmap(*m_bitmap, 0, 0, true);
-
-    //Delete drawing bitmap 
-    delete m_bitmap;
 }
 
 void ImageWidget::calculateAspectRatio()
@@ -86,8 +97,21 @@ void ImageWidget::setGlobalScale()
 // Mouse Handlers
 //---------------------------------------------------------------------------
 
+void ImageWidget::onKey_T(wxKeyEvent& event)
+{
+    wxChar key = event.GetUnicodeKey();
+    if (key == 'T')
+    {
+        wxLogStatus("fjfjfjfjfj");
+        //m_image->GetSubImage(wxRect(wxPoint(10,10),wxSize(512,512)));
+    }
+    event.Skip();
+}
+
 void ImageWidget::scrollWheelZoom(wxMouseEvent& event)
 {
+    m_scalingImage = true;
+
     //Speed up scaling if CTRL is down
     if (event.ControlDown())
         m_scaleMultiplier = 8;
@@ -104,8 +128,7 @@ void ImageWidget::scrollWheelZoom(wxMouseEvent& event)
     calculateAspectRatio();
 
     this->SetSize(wxSize(m_scale.m_x, m_scale.m_y));
-
-    Refresh();
+    //Refresh();
 }
 
 void ImageWidget::rightIsDown(wxMouseEvent& event)
@@ -210,15 +233,6 @@ void ImageWidget::OnCaptureLost(wxMouseCaptureLostEvent&)
     }
 }
 
-void ImageWidget::onKey_T(wxKeyEvent& event)
-{
-    //wxChar key = event.GetUnicodeKey();
-    //if (key == 'T')
-    //{
-    //    m_image->GetSubImage(wxRect(wxPoint(10,10),wxSize(512,512)));
-    //}
-    event.Skip();
-}
 
 
 
