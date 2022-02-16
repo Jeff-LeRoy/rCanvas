@@ -57,7 +57,7 @@ void ImageWidget::OnPaint(wxPaintEvent& event)
         m_image->LoadFile(m_imgPath, wxBITMAP_TYPE_JPEG);
 
         //Convert wxImage to wxBitmap for drawing
-        m_bitmap = new wxBitmap(m_image->Scale(m_scale.m_x, m_scale.m_y));
+        *m_bitmap = wxBitmap(m_image->Scale(m_scale.m_x, m_scale.m_y));
 
         delete m_image;
 
@@ -67,6 +67,16 @@ void ImageWidget::OnPaint(wxPaintEvent& event)
     }
 
     dc.DrawBitmap(*m_bitmap, 0, 0, true);
+}
+
+void ImageWidget::render(wxDC& dc)
+{
+
+}
+
+void ImageWidget::renderScaled(wxDC& dc)
+{
+
 }
 
 void ImageWidget::calculateAspectRatio()
