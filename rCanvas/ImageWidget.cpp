@@ -1,3 +1,12 @@
+/////////////////////////////////////////////////////////////////////////////
+// Application Name:    rCanvas    
+// File Name:           ImageWidget.cpp
+// Purpose:             Handle transforming and manipulating images on canvas
+// Author:              Jeffrey C. LeRoy
+// Created:             01/17/2022
+// Copyright:           (c) Jeffrey C. LeRoy
+/////////////////////////////////////////////////////////////////////////////
+
 #include <wx/wx.h>
 #include "ImageWidget.h"
 

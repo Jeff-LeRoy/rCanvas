@@ -1,3 +1,12 @@
+/////////////////////////////////////////////////////////////////////////////
+// Application Name:    rCanvas    
+// File Name:           Canvas.cpp
+// Purpose:             Panning canvas/images, instantiate ImageWidgets
+// Author:              Jeffrey C. LeRoy
+// Created:             01/17/2022
+// Copyright:           (c) Jeffrey C. LeRoy
+/////////////////////////////////////////////////////////////////////////////
+
 #include <wx/wx.h>
 //#include <wx/graphics.h>
 #include "ImageWidget.h"
