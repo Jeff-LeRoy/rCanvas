@@ -27,6 +27,7 @@ private:
     void calculateAspectRatio(); //Might not need seperate member for this 
     void renderScaled(wxDC& dc);
     void render(wxDC& dc);
+    void onRightDClick(wxMouseEvent& event);
 
 public:
     ImageWidget(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize size, wxString imgPath);

@@ -8,7 +8,6 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include <wx/wx.h>
-//#include <wx/graphics.h>
 #include "ImageWidget.h"
 #include "Canvas.h"
 
@@ -26,6 +25,7 @@ ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id)
     int resolution = (wxSystemSettings::GetMetric(wxSYS_SCREEN_X) > wxSystemSettings::GetMetric(wxSYS_SCREEN_Y))
         ? wxSystemSettings::GetMetric(wxSYS_SCREEN_X) : wxSystemSettings::GetMetric(wxSYS_SCREEN_Y);
     SetScrollbars(1, 1, resolution * 2, resolution * 2, 0, 0);
+    ShowScrollbars(wxSHOW_SB_NEVER, wxSHOW_SB_NEVER);
 
     GetVirtualSize(&m_virtualSize.x, &m_virtualSize.y);
 
@@ -288,22 +288,22 @@ void ImageCanvas::onLeaveCanvasWindow(wxMouseEvent& event)
 //    wxLogStatus("mousescrolling");
 //
 //
-//    wxWindowList& children = GetChildren();
-//    for (wxWindowList::Node* node = children.GetFirst(); node; node = node->GetNext())
-//    {
-//        ImageWidget* current = (ImageWidget*)node->GetData();
-//        current->setGlobalScale();
-//    }
+//    //wxWindowList& children = GetChildren();
+//    //for (wxWindowList::Node* node = children.GetFirst(); node; node = node->GetNext())
+//    //{
+//    //    ImageWidget* current = (ImageWidget*)node->GetData();
+//    //    current->setGlobalScale();
+//    //}
 //
 //
 //    //List children of Canvas
 //    //wxChar key = event.GetUnicodeKey();
 //    //if (key == 'A')
 //    // {
-//    //    wxWindowList children = GetChildren();
-//    //    for (auto itr{ children.begin() }; itr != children.end(); itr++)
-//    //    {
-//    //        wxLogMessage(GetName());
-//    //    }
-//    // }
+//        //wxWindowList children = GetChildren();
+//        //for (auto itr{ children.begin() }; itr != children.end(); itr++)
+//        //{
+//        //    wxLogMessage(GetName());
+//        //}
+//     //}
 //}
