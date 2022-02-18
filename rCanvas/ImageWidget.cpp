@@ -198,25 +198,28 @@ void ImageWidget::onKey_F(wxKeyEvent& event)
 
 void ImageWidget::scrollWheelZoom(wxMouseEvent& event)
 {
-    m_scalingImage = true;
+    if (!m_widgetDragging) 
+    {
+        m_scalingImage = true;
 
-    //Speed up scaling if CTRL is down
-    if (event.ControlDown())
-        m_scaleMultiplier = 8;
-    else
-        m_scaleMultiplier = 1;
+        //Speed up scaling if CTRL is down
+        if (event.ControlDown())
+            m_scaleMultiplier = 8;
+        else
+            m_scaleMultiplier = 1;
 
-    int rot = event.GetWheelRotation();
-    int delta = event.GetWheelDelta();
+        int rot = event.GetWheelRotation();
+        int delta = event.GetWheelDelta();
 
-    //incriment scale
-    m_scaleIncrimentor = 100;
-    m_scaleIncrimentor += (double)m_scaleMultiplier * (rot / delta);
+        //incriment scale
+        m_scaleIncrimentor = 100;
+        m_scaleIncrimentor += (double)m_scaleMultiplier * (rot / delta);
 
-    calculateAspectRatio();
+        calculateAspectRatio();
 
-    //Set size of ImageWidget wxPanel
-    this->SetSize(wxSize(m_scale.m_x, m_scale.m_y));
+        //Set size of ImageWidget wxPanel
+        this->SetSize(wxSize(m_scale.m_x, m_scale.m_y));
+    }
 }
 
 void ImageWidget::rightIsDown(wxMouseEvent& event)
