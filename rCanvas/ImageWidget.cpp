@@ -59,6 +59,7 @@ ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize si
     Bind(wxEVT_PAINT, &ImageWidget::OnPaint, this);
     //Bind Keyboard events
     Bind(wxEVT_CHAR_HOOK, &ImageWidget::onKey_F, this);//For testing
+    Bind(wxEVT_CHAR_HOOK, &ImageWidget::onKey_D, this);//For testing
     //Bind(wxEVT_LEFT_DCLICK, &ImageWidget::onRightDClick, this);
 }
 
@@ -198,6 +199,30 @@ void ImageWidget::onKey_F(wxKeyEvent& event)
         Refresh();
     }
     event.Skip();
+}
+
+void ImageWidget::onKey_D(wxKeyEvent& event)
+{
+    wxChar key = event.GetUnicodeKey();
+    if (key == 'D')
+    {
+        wxCloseEvent* close = new wxCloseEvent(wxEVT_CLOSE_WINDOW);
+        close->SetCanVeto(true);
+
+        if (close->CanVeto())
+        {
+            if (wxMessageBox("Delete this image ?",
+                "Please confirm",
+                wxICON_QUESTION | wxYES_NO) != wxYES)
+            {
+                close->Veto();
+                return;
+            }
+        }
+        Destroy();
+    }
+    else
+        event.Skip();
 }
 
 void ImageWidget::scrollWheelZoom(wxMouseEvent& event)

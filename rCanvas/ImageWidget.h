@@ -28,6 +28,7 @@ private:
     void calculateAspectRatio(int max);
     void leftIsUp(wxMouseEvent& event);
     void OnPaint(wxPaintEvent& event);
+    void onKey_D(wxKeyEvent& event);
     void onKey_F(wxKeyEvent& event);
     void calculateAspectRatio(); //Might not need seperate member for this 
     void renderScaled(wxDC& dc);
