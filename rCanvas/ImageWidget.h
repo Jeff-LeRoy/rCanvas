@@ -8,29 +8,32 @@ private:
     wxPoint m_imageWidgetClickPos{};
     bool m_widgetDragging{ false };
     wxPoint m_originalDimensions{};
-    wxImage* m_image = nullptr;
     wxBitmap* m_bitmap = nullptr;
+    wxImage* m_image = nullptr;
     int m_scaleMultiplier{ 1 };
     wxDouble m_aspectRatio{}; //Can move this to local
-    wxString m_imgPath{};
     bool m_scalingImage{};
+    wxString m_imgPath{};
 
     void OnCaptureLost(wxMouseCaptureLostEvent&);
+    void rescaleImage(wxBitmap* bitmap, int max);
     void scrollWheelZoom(wxMouseEvent& event);
+    //void onRightDClick(wxMouseEvent& event);
     void leftIsDragging(wxMouseEvent& event);
+    void hoverPrinting(wxMouseEvent& event);//Remove later
     void rightIsDown(wxMouseEvent& event);
     void leftIsDown(wxMouseEvent& event);
-    void OnPaint(wxPaintEvent& event);
+    void calculateAspectRatio(int max);
     void leftIsUp(wxMouseEvent& event);
+    void OnPaint(wxPaintEvent& event);
     void onKey_T(wxKeyEvent& event);
-    void hoverPrinting(wxMouseEvent& event);//Remove later
     void calculateAspectRatio(); //Might not need seperate member for this 
     void renderScaled(wxDC& dc);
     void render(wxDC& dc);
-    void onRightDClick(wxMouseEvent& event);
 
 public:
     ImageWidget(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize size, wxString imgPath);
     ~ImageWidget();
+
     void setGlobalScale();
 };

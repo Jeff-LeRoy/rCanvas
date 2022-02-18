@@ -11,7 +11,7 @@
 #include "ImageWidget.h"
 
 //---------------------------------------------------------------------------
-// ImageWidget
+// Constructor / Destructor
 //---------------------------------------------------------------------------
 
 ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize size, wxString imgPath)
@@ -23,12 +23,17 @@ ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize si
 
     //load image to heap
     m_bitmap = new wxBitmap(imgPath, wxBITMAP_TYPE_JPEG);
-
     if(!m_bitmap->IsOk())
     {
         wxMessageBox("There was an error loading the image.");
         return;
     }
+
+    //If image is larger than client Y, Scale it
+    wxPoint clientSize{}; 
+    GetParent()->GetClientSize(&clientSize.x, &clientSize.y);
+    if (m_bitmap->GetHeight() >= clientSize.y)
+        rescaleImage(m_bitmap, clientSize.y);
 
     //Set size of widget
     m_scale.m_x = m_bitmap->GetWidth();
@@ -48,7 +53,7 @@ ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize si
     Bind(wxEVT_PAINT, &ImageWidget::OnPaint, this);
     Bind(wxEVT_MOTION, &ImageWidget::hoverPrinting, this);//Remove later
     Bind(wxEVT_CHAR_HOOK, &ImageWidget::onKey_T, this);//For testing
-    Bind(wxEVT_LEFT_DCLICK, &ImageWidget::onRightDClick, this);
+    //Bind(wxEVT_LEFT_DCLICK, &ImageWidget::onRightDClick, this);
 }
 
 ImageWidget::~ImageWidget()
@@ -56,22 +61,23 @@ ImageWidget::~ImageWidget()
     delete m_bitmap;
 }
 
+//---------------------------------------------------------------------------
+// Paint / Render / Misc
+//---------------------------------------------------------------------------
+
 void ImageWidget::OnPaint(wxPaintEvent& event)
 {
     wxPaintDC dc(this);
-
     if (m_scalingImage)
     {
         renderScaled(dc);
     }
     else
         render(dc);
-
 }
 
 void ImageWidget::render(wxDC& dc)
 {
-    //wxLogStatus("render");
     dc.DrawBitmap(*m_bitmap, 0, 0, true);
 }
 
@@ -95,7 +101,6 @@ void ImageWidget::renderScaled(wxDC& dc)
     //dc.DrawLine(wxPoint(0, m_scale.m_y), wxPoint(m_scale.m_x, m_scale.m_y));
  
     m_scalingImage = false;
-
     //Refresh();
 }
 
@@ -114,30 +119,70 @@ void ImageWidget::calculateAspectRatio()
     m_scale.m_y = m_aspectRatio * m_scale.m_x;
 }
 
+void ImageWidget::calculateAspectRatio(int height)
+{
+    //Solve width while having new height
+    //height * (old width / old Height)
+    m_scale.m_y = (double)height;
+
+    double oldWidth = m_bitmap->GetWidth();
+    double oldHeight = m_bitmap->GetHeight();
+    double wh = (oldWidth / oldHeight);
+    m_scale.m_x = ((double)height * wh);
+}
+
+void ImageWidget::rescaleImage(wxBitmap* bitmap, int max)
+{
+    //Convert bitmap to wxImage for scaling
+    m_image = new wxImage();
+    m_image->LoadFile(m_imgPath, wxBITMAP_TYPE_JPEG);
+
+    calculateAspectRatio(max);
+
+    //Convert wxImage to wxBitmap for drawing
+    *m_bitmap = wxBitmap(m_image->Scale(m_scale.m_x, m_scale.m_y));
+    delete m_image;
+}
+
 void ImageWidget::setGlobalScale()
 {
     //baseOffset + (pivot * height) = finalPos
-
     m_scale.m_x = 256;
     m_scale.m_y = 256;
     this->SetSize(wxSize(m_scale.m_x, m_scale.m_y));
 }
 
 //---------------------------------------------------------------------------
-// Mouse Handlers
+// Mouse / Keyboard Handlers
 //---------------------------------------------------------------------------
+
+void ImageWidget::hoverPrinting(wxMouseEvent& event)//Remove later
+{
+    //wxPoint pos = wxGetMousePosition();
+
+    //int x = pos.x;
+    //int y = pos.y;
+
+    //wxPoint scrn = m_parent->ScreenToClient(wxPoint(x, y));
+
+    //wxLogStatus(/*" X=" + wxString::Format(wxT("%lf"), m_scale.m_x) + ' ' +
+    //            " Y=" + wxString::Format(wxT("%lf"), m_scale.m_y) + ' ' +
+    //            " Percent=" + wxString::Format(wxT("%lf"), m_scaleIncrimentor) + ' ' +
+    //            " OrigX=" + wxString::Format(wxT("%d"), originalDimensions.x) + ' ' +
+    //            " OrigY=" + wxString::Format(wxT("%d"), originalDimensions.y) + ' ' +*/
+    //    " aspect=" + wxString::Format(wxT("%lf"), m_aspectRatio) + ' ' +
+    //    " mainScrnMPosX=" + wxString::Format(wxT("%d"), pos.x) + ' ' +
+    //    " mainScrnMPosY=" + wxString::Format(wxT("%d"), pos.y) + ' ' +
+    //    " scrnX=" + wxString::Format(wxT("%d"), scrn.x) + ' ' +
+    //    " scrnY=" + wxString::Format(wxT("%d"), scrn.y)
+    //);
+}
 
 void ImageWidget::onKey_T(wxKeyEvent& event)
 {
     //wxChar key = event.GetUnicodeKey();
     //if (key == 'T')
     //{
-    //    wxLogStatus("fjfjfjfjfj");
-    //    m_scale.m_x = 256;
-    //    m_scale.m_y = 256;
-    //    m_scalingImage = true;
-    //    Refresh();
-    //    //m_image->GetSubImage(wxRect(wxPoint(10,10),wxSize(512,512)));
     //}
     //event.Skip();
 }
@@ -161,6 +206,7 @@ void ImageWidget::scrollWheelZoom(wxMouseEvent& event)
 
     calculateAspectRatio();
 
+    //Set size of ImageWidget wxPanel
     this->SetSize(wxSize(m_scale.m_x, m_scale.m_y));
 }
 
@@ -177,28 +223,6 @@ void ImageWidget::rightIsDown(wxMouseEvent& event)
 
     //Pass event to the parent handler
     wxPostEvent(GetParent(), event);
-}
-
-void ImageWidget::hoverPrinting(wxMouseEvent& event)//Remove later
-{
-    //wxPoint pos = wxGetMousePosition();
-
-    //int x = pos.x;
-    //int y = pos.y;
-
-    //wxPoint scrn = m_parent->ScreenToClient(wxPoint(x, y));
-
-    //wxLogStatus(/*" X=" + wxString::Format(wxT("%lf"), m_scale.m_x) + ' ' +
-    //            " Y=" + wxString::Format(wxT("%lf"), m_scale.m_y) + ' ' +
-    //            " Percent=" + wxString::Format(wxT("%lf"), m_scaleIncrimentor) + ' ' +
-    //            " OrigX=" + wxString::Format(wxT("%d"), originalDimensions.x) + ' ' +
-    //            " OrigY=" + wxString::Format(wxT("%d"), originalDimensions.y) + ' ' +*/
-    //    " aspect=" + wxString::Format(wxT("%lf"), m_aspectRatio) + ' ' +
-    //    " mainScrnMPosX=" + wxString::Format(wxT("%d"), pos.x) + ' ' +
-    //    " mainScrnMPosY=" + wxString::Format(wxT("%d"), pos.y) + ' ' +
-    //    " scrnX=" + wxString::Format(wxT("%d"), scrn.x) + ' ' +
-    //    " scrnY=" + wxString::Format(wxT("%d"), scrn.y)
-    //);
 }
 
 void ImageWidget::leftIsDown(wxMouseEvent& event)
@@ -266,11 +290,11 @@ void ImageWidget::OnCaptureLost(wxMouseCaptureLostEvent&)
     }
 }
 
-void ImageWidget::onRightDClick(wxMouseEvent& event)
-{
-    SetFocus();
-    m_scalingImage = true;
-}
+//void ImageWidget::onRightDClick(wxMouseEvent& event)
+//{
+//    SetFocus();
+//    m_scalingImage = true;
+//}
 
 
 

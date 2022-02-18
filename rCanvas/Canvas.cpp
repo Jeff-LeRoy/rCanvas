@@ -12,7 +12,7 @@
 #include "Canvas.h"
 
 //---------------------------------------------------------------------------
-// ImageCanvas
+// Constructor / Destructor
 //---------------------------------------------------------------------------
 
 ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id)
@@ -24,6 +24,7 @@ ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id)
     //Get users larger screen resolution (X or Y) and double it for canvas size 
     int resolution = (wxSystemSettings::GetMetric(wxSYS_SCREEN_X) > wxSystemSettings::GetMetric(wxSYS_SCREEN_Y))
         ? wxSystemSettings::GetMetric(wxSYS_SCREEN_X) : wxSystemSettings::GetMetric(wxSYS_SCREEN_Y);
+    
     SetScrollbars(1, 1, resolution * 2, resolution * 2, 0, 0);
     ShowScrollbars(wxSHOW_SB_NEVER, wxSHOW_SB_NEVER);
 
@@ -164,14 +165,12 @@ void ImageCanvas::onKey_A(wxKeyEvent& event)
     {
         centerScrollbars();
     }
-
     event.Skip();
 }
 
 void ImageCanvas::onKey_O(wxKeyEvent& event)
 {
     wxChar key = event.GetKeyCode();
-
     wxPoint mPos = getMousePos();
 
     if (key == 'O')
@@ -180,7 +179,6 @@ void ImageCanvas::onKey_O(wxKeyEvent& event)
 
         ImageWidget* imageWidget = new ImageWidget(this, wxID_ANY, mPos, wxDefaultSize, fileLocation);
     }
-
     event.Skip();
 }
 
@@ -199,8 +197,8 @@ void ImageCanvas::hoverPrinting(wxMouseEvent& event)//Remove later
     wxPoint clientToScreen = ClientToScreen(mPos);
     wxPoint mainScrnMPos = wxGetMousePosition();
 
-    wxLogStatus(/*" clientX=" + wxString::Format(wxT("%d"), clientSize.x) + ' ' +
-                " clientY=" + wxString::Format(wxT("%d"), clientSize.y) + ' ' +*/
+    wxLogStatus(" clientX=" + wxString::Format(wxT("%d"), clientSize.x) + ' ' +
+                " clientY=" + wxString::Format(wxT("%d"), clientSize.y) + ' ' +
                 " virtX=" + wxString::Format(wxT("%d"), m_virtualSize.x) + ' ' +
                 " virtY=" + wxString::Format(wxT("%d"), m_virtualSize.y) + ' ' +
                 /*" evtMPosX=" + wxString::Format(wxT("%d"), pt.x) + ' ' +
@@ -216,7 +214,6 @@ void ImageCanvas::hoverPrinting(wxMouseEvent& event)//Remove later
         " mainScrnMPos=" + wxString::Format(wxT("%d"), mainScrnMPos.x) + ' ' +
         " mainScrnMPos=" + wxString::Format(wxT("%d"), mainScrnMPos.y)
     );
-
     event.Skip();
 }
 
@@ -229,17 +226,10 @@ void ImageCanvas::rightIsDown(wxMouseEvent& event)
     Bind(wxEVT_LEAVE_WINDOW, &ImageCanvas::onLeaveCanvasWindow, this);
     Bind(wxEVT_RIGHT_UP, &ImageCanvas::rightIsUp, this);
     Bind(wxEVT_MOUSE_CAPTURE_LOST, &ImageCanvas::onCaptureLost, this);
-
-    wxLogStatus(
-        " eventX=" + wxString::Format(wxT("%d"), event.m_x) + ' ' +
-        " eventY=" + wxString::Format(wxT("%d"), event.m_y)
-    );
 }
 
 void ImageCanvas::rightIsDragging(wxMouseEvent& event)
 {
-
-
     wxPoint direction{};
     if (m_panCanvas) {
         wxSetCursor(wxCURSOR_CROSS);
@@ -273,7 +263,6 @@ void ImageCanvas::onCaptureLost(wxMouseCaptureLostEvent& event)
     if (HasCapture()) {
         ReleaseMouse();
     }
-
     m_panCanvas = false;
 }
 
