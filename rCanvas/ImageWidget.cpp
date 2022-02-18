@@ -53,14 +53,11 @@ ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize si
     Bind(wxEVT_RIGHT_DOWN, &ImageWidget::rightIsDown, this);
     Bind(wxEVT_LEFT_DOWN, &ImageWidget::leftIsDown, this);
     Bind(wxEVT_ENTER_WINDOW, &ImageWidget::enterWindow, this);
-    //Bind(wxEVT_LEAVE_WINDOW, &ImageWidget::evt_leaveWindow, this);
+    Bind(wxEVT_LEAVE_WINDOW, &ImageWidget::exitWindow, this);
     Bind(wxEVT_MOTION, &ImageWidget::hoverPrinting, this);//Remove later
     //Bind Paint
     Bind(wxEVT_PAINT, &ImageWidget::OnPaint, this);
-    //Bind Keyboard events
-    Bind(wxEVT_CHAR_HOOK, &ImageWidget::onKey_F, this);//For testing
-    Bind(wxEVT_CHAR_HOOK, &ImageWidget::onKey_D, this);//For testing
-    //Bind(wxEVT_LEFT_DCLICK, &ImageWidget::onRightDClick, this);
+
 }
 
 ImageWidget::~ImageWidget()
@@ -102,20 +99,20 @@ void ImageWidget::renderScaled(wxDC& dc)
 
     //Draw border around image
     dc.SetPen(wxPen(wxColor(245, 55, 55), 3));
-    dc.DrawLine(wxPoint(0, 0), wxPoint(m_scale.m_x, 0));
-    dc.DrawLine(wxPoint(0, 0), wxPoint(0, m_scale.m_y));
-    dc.DrawLine(wxPoint(m_scale.m_x, 0), wxPoint(m_scale.m_x, m_scale.m_y));
-    dc.DrawLine(wxPoint(0, m_scale.m_y), wxPoint(m_scale.m_x, m_scale.m_y));
+    //dc.DrawLine(wxPoint(0, 0), wxPoint(m_scale.m_x, 0));
+    //dc.DrawLine(wxPoint(0, 0), wxPoint(0, m_scale.m_y));
+    //dc.DrawLine(wxPoint(m_scale.m_x, 0), wxPoint(m_scale.m_x, m_scale.m_y));
+    //dc.DrawLine(wxPoint(0, m_scale.m_y), wxPoint(m_scale.m_x, m_scale.m_y));
  
     m_scalingImage = false;
 }
 
 void ImageWidget::calculateAspectRatio()
 {
+    //Retain aspect ratio and calculate new width then height
     //Rescale formula -> Width = Original Width * ( Percentage / 100 )
     //Aspect ratio formula -> (org. height / org. width) x new width = new height
 
-    //Retain aspect ratio and calculate new width then height
     wxPoint2DDouble oldScale = m_scale;
     //Calculate width
     m_scale.m_x = oldScale.m_x * (m_scaleIncrimentor / 100.0);
@@ -129,7 +126,7 @@ void ImageWidget::calculateAspectRatio(int height)
 {
     //Solve width while having new height
     //height * (old width / old Height)
-    m_scale.m_y = (double)height;
+    m_scale.m_y = (double)height - 20;
 
     double oldWidth = m_bitmap->GetWidth();
     double oldHeight = m_bitmap->GetHeight();
@@ -204,7 +201,7 @@ void ImageWidget::onKey_F(wxKeyEvent& event)
 void ImageWidget::onKey_D(wxKeyEvent& event)
 {
     wxChar key = event.GetUnicodeKey();
-    if (key == 'D')
+    if (key == 'D' && m_canDelete)
     {
         wxCloseEvent* close = new wxCloseEvent(wxEVT_CLOSE_WINDOW);
         close->SetCanVeto(true);
@@ -324,25 +321,23 @@ void ImageWidget::leftIsDragging(wxMouseEvent& event)
 void ImageWidget::enterWindow(wxMouseEvent& event)
 {
     SetFocus();
+    Bind(wxEVT_CHAR_HOOK, &ImageWidget::onKey_F, this);
+    Bind(wxEVT_CHAR_HOOK, &ImageWidget::onKey_D, this);
+    m_canDelete = true;
+}
+
+void ImageWidget::exitWindow(wxMouseEvent& event)
+{
+    Unbind(wxEVT_CHAR_HOOK, &ImageWidget::onKey_F, this);
+    Unbind(wxEVT_CHAR_HOOK, &ImageWidget::onKey_D, this);
+    m_canDelete = false;
 }
 
 void ImageWidget::OnCaptureLost(wxMouseCaptureLostEvent&)
 {
     wxSetCursor(wxNullCursor);
-
     if (HasCapture())
     {
         ReleaseMouse();
     }
 }
-
-//void ImageWidget::onRightDClick(wxMouseEvent& event)
-//{
-//    SetFocus();
-//    m_scalingImage = true;
-//}
-
-
-
-
-
