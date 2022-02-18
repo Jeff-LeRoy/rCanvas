@@ -14,12 +14,14 @@
 // Constructor / Destructor
 //---------------------------------------------------------------------------
 
-ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize size, wxString imgPath)
+ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize size, wxString imgPath, const bool& m_panCanvas)
     :wxPanel(parent, id, pos, size)
 {
     this->SetBackgroundColour(wxColor(77, 38, 39));
 
+    //Get info from Canvas
     m_imgPath = imgPath;
+    m_isCanvasPanning = &m_panCanvas;
 
     //load image to heap
     m_bitmap = new wxBitmap(imgPath, wxBITMAP_TYPE_JPEG);
@@ -161,6 +163,8 @@ void ImageWidget::setGlobalScale()
 
 void ImageWidget::hoverPrinting(wxMouseEvent& event)//Remove later
 {
+    //wxLogStatus(wxString::Format(wxT("%d"), *m_isCanvasPanning));
+
     //wxPoint pos = wxGetMousePosition();
 
     //int x = pos.x;
@@ -198,7 +202,7 @@ void ImageWidget::onKey_F(wxKeyEvent& event)
 
 void ImageWidget::scrollWheelZoom(wxMouseEvent& event)
 {
-    if (!m_widgetDragging) 
+    if (!m_widgetDragging && !*m_isCanvasPanning)
     {
         m_scalingImage = true;
 

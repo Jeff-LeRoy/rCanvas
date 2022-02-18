@@ -6,6 +6,7 @@ private:
     wxDouble m_scaleIncrimentor{ 100.0 };
     wxPoint2DDouble m_scale{ 1.0, 1.0 };
     wxPoint m_imageWidgetClickPos{};
+    const bool* m_isCanvasPanning{};
     bool m_widgetDragging{ false };
     wxPoint m_originalDimensions{};
     wxBitmap* m_bitmap = nullptr;
@@ -33,7 +34,7 @@ private:
     void render(wxDC& dc);
 
 public:
-    ImageWidget(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize size, wxString imgPath);
+    ImageWidget(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize size, wxString imgPath, const bool& m_panCanvas);
     ~ImageWidget();
 
     void setGlobalScale();
