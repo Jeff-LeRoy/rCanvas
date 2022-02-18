@@ -22,11 +22,12 @@ private:
     void leftIsDragging(wxMouseEvent& event);
     void hoverPrinting(wxMouseEvent& event);//Remove later
     void rightIsDown(wxMouseEvent& event);
+    void enterWindow(wxMouseEvent& event);
     void leftIsDown(wxMouseEvent& event);
     void calculateAspectRatio(int max);
     void leftIsUp(wxMouseEvent& event);
     void OnPaint(wxPaintEvent& event);
-    void onKey_T(wxKeyEvent& event);
+    void onKey_F(wxKeyEvent& event);
     void calculateAspectRatio(); //Might not need seperate member for this 
     void renderScaled(wxDC& dc);
     void render(wxDC& dc);

@@ -29,6 +29,10 @@ ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize si
         return;
     }
 
+    //Store original dimensions of image
+    m_originalDimensions.x = m_bitmap->GetWidth();
+    m_originalDimensions.y = m_bitmap->GetHeight();
+
     //If image is larger than client Y, Scale it
     wxPoint clientSize{}; 
     GetParent()->GetClientSize(&clientSize.x, &clientSize.y);
@@ -40,19 +44,19 @@ ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize si
     m_scale.m_y = m_bitmap->GetHeight();
     this->SetSize(wxSize(m_scale.m_x, m_scale.m_y));
 
-    //Store original dimensions of image
-    m_originalDimensions.x = m_bitmap->GetWidth();
-    m_originalDimensions.y = m_bitmap->GetHeight();
-
     Raise();
 
-    //Bind Shortcuts
+    //Bind Mouse Events
     Bind(wxEVT_MOUSEWHEEL, &ImageWidget::scrollWheelZoom, this);
     Bind(wxEVT_RIGHT_DOWN, &ImageWidget::rightIsDown, this);
     Bind(wxEVT_LEFT_DOWN, &ImageWidget::leftIsDown, this);
-    Bind(wxEVT_PAINT, &ImageWidget::OnPaint, this);
+    Bind(wxEVT_ENTER_WINDOW, &ImageWidget::enterWindow, this);
+    //Bind(wxEVT_LEAVE_WINDOW, &ImageWidget::evt_leaveWindow, this);
     Bind(wxEVT_MOTION, &ImageWidget::hoverPrinting, this);//Remove later
-    Bind(wxEVT_CHAR_HOOK, &ImageWidget::onKey_T, this);//For testing
+    //Bind Paint
+    Bind(wxEVT_PAINT, &ImageWidget::OnPaint, this);
+    //Bind Keyboard events
+    Bind(wxEVT_CHAR_HOOK, &ImageWidget::onKey_F, this);//For testing
     //Bind(wxEVT_LEFT_DCLICK, &ImageWidget::onRightDClick, this);
 }
 
@@ -94,14 +98,13 @@ void ImageWidget::renderScaled(wxDC& dc)
     dc.DrawBitmap(*m_bitmap, 0, 0, true);
 
     //Draw border around image
-    //dc.SetPen(wxPen(wxColor(245, 55, 55), 5));
-    //dc.DrawLine(wxPoint(0, 0), wxPoint(m_scale.m_x, 0));
-    //dc.DrawLine(wxPoint(0, 0), wxPoint(0, m_scale.m_y));
-    //dc.DrawLine(wxPoint(m_scale.m_x, 0), wxPoint(m_scale.m_x, m_scale.m_y));
-    //dc.DrawLine(wxPoint(0, m_scale.m_y), wxPoint(m_scale.m_x, m_scale.m_y));
+    dc.SetPen(wxPen(wxColor(245, 55, 55), 3));
+    dc.DrawLine(wxPoint(0, 0), wxPoint(m_scale.m_x, 0));
+    dc.DrawLine(wxPoint(0, 0), wxPoint(0, m_scale.m_y));
+    dc.DrawLine(wxPoint(m_scale.m_x, 0), wxPoint(m_scale.m_x, m_scale.m_y));
+    dc.DrawLine(wxPoint(0, m_scale.m_y), wxPoint(m_scale.m_x, m_scale.m_y));
  
     m_scalingImage = false;
-    //Refresh();
 }
 
 void ImageWidget::calculateAspectRatio()
@@ -178,13 +181,19 @@ void ImageWidget::hoverPrinting(wxMouseEvent& event)//Remove later
     //);
 }
 
-void ImageWidget::onKey_T(wxKeyEvent& event)
+void ImageWidget::onKey_F(wxKeyEvent& event)
 {
-    //wxChar key = event.GetUnicodeKey();
-    //if (key == 'T')
-    //{
-    //}
-    //event.Skip();
+    //Rescales image to its original dimensions
+    wxChar key = event.GetUnicodeKey();
+    if (key == 'F')
+    {
+        m_scale.m_x = m_originalDimensions.x;
+        m_scale.m_y = m_originalDimensions.y;
+        this->SetSize(wxSize(m_scale.m_x, m_scale.m_y));
+        m_scalingImage = true;
+        Refresh();
+    }
+    event.Skip();
 }
 
 void ImageWidget::scrollWheelZoom(wxMouseEvent& event)
@@ -278,6 +287,11 @@ void ImageWidget::leftIsDragging(wxMouseEvent& event)
         //Need to do this otherwise dragging an ImageWidget leave artifacts
         //GetParent()->ClearBackground();
     }
+}
+
+void ImageWidget::enterWindow(wxMouseEvent& event)
+{
+    SetFocus();
 }
 
 void ImageWidget::OnCaptureLost(wxMouseCaptureLostEvent&)
