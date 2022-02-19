@@ -274,7 +274,8 @@ void ImageWidget::leftIsDown(wxMouseEvent& event)
     m_widgetDragging = true;
 
     //Set Z order to top
-    Raise();
+    if(!event.AltDown())
+        Raise();
 
     Bind(wxEVT_LEFT_UP, &ImageWidget::leftIsUp, this);
     Bind(wxEVT_MOTION, &ImageWidget::leftIsDragging, this);
