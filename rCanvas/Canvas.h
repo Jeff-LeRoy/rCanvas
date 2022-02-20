@@ -9,6 +9,7 @@ private:
     int m_dragMultiplier{ 1 };
     wxPoint m_virtualSize{};
     wxPoint m_startMousePos;
+    wxStatusBar* m_statusBar;//From mainFrame
 
     wxPoint incrimentScrollDirection(wxPoint pt, wxPoint start, wxMouseEvent& event);
     void onCaptureLost(wxMouseCaptureLostEvent& event);
@@ -27,7 +28,7 @@ private:
     wxString getImage();
 
 public:
-    ImageCanvas(wxWindow* parent, wxWindowID id);
+    ImageCanvas(wxWindow* parent, wxWindowID id, wxStatusBar& statusBar);
     ~ImageCanvas();
 
     void centerScrollbars();

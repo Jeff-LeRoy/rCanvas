@@ -19,7 +19,6 @@
 MainFrame::MainFrame(wxWindow* parent, wxWindowID 	id, const wxString& title, const wxPoint& pos, const wxSize& size)
     : wxFrame(parent, id, title, pos, size)
 {
-    CreateStatusBar();
 }
 
 //---------------------------------------------------------------------------
@@ -33,10 +32,8 @@ bool MyApp::OnInit()
     wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
 
     MainFrame* mainFrame = new MainFrame(NULL, wxID_ANY, "rCanvas", wxPoint(100, 100), wxSize(1280, 900));
-    ImageCanvas* canvas = new ImageCanvas(mainFrame, wxID_ANY);
-
-    //ImageWidget* imageWidget02 = new ImageWidget(canvas, wxID_ANY, wxDefaultPosition, wxSize(500, 500), "image2.jpg");
-    //ImageWidget* imageWidget01 = new ImageWidget(canvas, wxID_ANY, wxPoint(1920, 1920), wxSize(250, 250), "Images/image_1.jpg");
+    wxStatusBar* statusBar = mainFrame->CreateStatusBar();
+    ImageCanvas* canvas = new ImageCanvas(mainFrame, wxID_ANY, *statusBar);
 
     sizer->Add(canvas, 1, wxEXPAND);
     mainFrame->SetSizer(sizer);

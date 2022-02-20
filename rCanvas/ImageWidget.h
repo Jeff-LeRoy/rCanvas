@@ -16,6 +16,7 @@ private:
     bool m_scalingImage{};
     wxString m_imgPath{};
     bool m_canDelete = false;
+    wxStatusBar* m_statusBar;//From mainFrame
 
     void OnCaptureLost(wxMouseCaptureLostEvent&);
     void rescaleImage(wxBitmap* bitmap, int max);
@@ -36,7 +37,13 @@ private:
     void render(wxDC& dc);
 
 public:
-    ImageWidget(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize size, wxString imgPath, const bool& m_panCanvas);
+    ImageWidget(wxWindow* parent, 
+        wxWindowID id, 
+        wxPoint pos, 
+        wxSize size, 
+        wxString imgPath, 
+        const bool& m_panCanvas, 
+        wxStatusBar& statusBar);
     ~ImageWidget();
 
     void setGlobalScale();

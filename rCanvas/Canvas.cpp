@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
 // Application Name:    rCanvas    
 // File Name:           Canvas.cpp
-// Purpose:             Panning canvas/images, instantiate ImageWidgets
+// Purpose:             Pan canvas/images, instance ImageWidgets
 // Author:              Jeffrey C. LeRoy
 // Created:             01/17/2022
 // Copyright:           (c) Jeffrey C. LeRoy
@@ -15,9 +15,11 @@
 // Constructor / Destructor
 //---------------------------------------------------------------------------
 
-ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id)
+ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id, wxStatusBar& statusBar)
     : wxScrolledWindow(parent, id)
 {
+    m_statusBar = &statusBar;
+
     this->SetBackgroundColour(wxColor(37, 38, 39));
     this->SetDoubleBuffered(true);
 
@@ -177,7 +179,7 @@ void ImageCanvas::onKey_O(wxKeyEvent& event)
     {
         wxString fileLocation = ImageCanvas::getImage();
 
-        ImageWidget* imageWidget = new ImageWidget(this, wxID_ANY, mPos, wxDefaultSize, fileLocation, m_panCanvas);
+        ImageWidget* imageWidget = new ImageWidget(this, wxID_ANY, mPos, wxDefaultSize, fileLocation, m_panCanvas, *m_statusBar);
     }
     event.Skip();
 }

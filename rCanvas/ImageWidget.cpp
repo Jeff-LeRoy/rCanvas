@@ -14,14 +14,21 @@
 // Constructor / Destructor
 //---------------------------------------------------------------------------
 
-ImageWidget::ImageWidget(wxWindow* parent, wxWindowID id, wxPoint pos, wxSize size, wxString imgPath, const bool& m_panCanvas)
-    :wxPanel(parent, id, pos, size)
+ImageWidget::ImageWidget(wxWindow* parent, 
+                        wxWindowID id, 
+                        wxPoint pos, 
+                        wxSize size, 
+                        wxString imgPath, 
+                        const bool& m_panCanvas, 
+                        wxStatusBar& statusBar)
+:wxPanel(parent, id, pos, size)
 {
     this->SetBackgroundColour(wxColor(77, 38, 39));
 
     //Get info from Canvas
     m_imgPath = imgPath;
     m_isCanvasPanning = &m_panCanvas;
+    m_statusBar = &statusBar;
 
     //load image to heap
     m_bitmap = new wxBitmap(imgPath, wxBITMAP_TYPE_JPEG);
@@ -161,6 +168,10 @@ void ImageWidget::setGlobalScale()
 
 void ImageWidget::hoverPrinting(wxMouseEvent& event)//Remove later
 {
+    m_statusBar->SetStatusText("Right click + drag to pan canvas \
+| Left click + drag to move image \
+| F - Restore original image size");
+        
     //wxLogStatus(wxString::Format(wxT("%d"), *m_isCanvasPanning));
 
     //wxPoint pos = wxGetMousePosition();
