@@ -10,6 +10,7 @@ private:
     wxPoint m_virtualSize{};
     wxPoint m_startMousePos;
     wxStatusBar* m_statusBar;//From mainFrame
+    int m_border{ 50 };
 
     wxPoint incrimentScrollDirection(wxPoint pt, wxPoint start, wxMouseEvent& event);
     void onCaptureLost(wxMouseCaptureLostEvent& event);

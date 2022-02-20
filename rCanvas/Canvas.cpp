@@ -130,25 +130,25 @@ void ImageCanvas::render(wxDC& dc)
 
     //Horizontal - middle and down -Y (0,1750),(3500,0)
     for (int i{ m_virtualSize.y / 2 }; i < m_virtualSize.y; i += m_subgridPixelSpacing) {
-        dc.DrawLine(wxPoint(0, i), wxPoint(m_virtualSize.x, i));
+        dc.DrawLine(wxPoint(0 + m_border, i), wxPoint(m_virtualSize.x - m_border, i));
     }
     //Horizontal - middle and up +Y (0,1750),(3500,0)
     for (int i{ m_virtualSize.y / 2 }; i > 0; i -= m_subgridPixelSpacing) {
-        dc.DrawLine(wxPoint(0, i), wxPoint(m_virtualSize.x, i));
+        dc.DrawLine(wxPoint(0 + m_border, i), wxPoint(m_virtualSize.x - m_border, i));
     }
     //Vertical - middle and right to +X (1750,0),(0,3500)
     for (int i{ m_virtualSize.x / 2 }; i < m_virtualSize.x; i += m_subgridPixelSpacing) {
-        dc.DrawLine(wxPoint(i, 0), wxPoint(i, m_virtualSize.y));
+        dc.DrawLine(wxPoint(i, 0 + m_border), wxPoint(i, m_virtualSize.y - m_border));
     }
     //Vertical - middle and left to -X (1750,0),(0,3500)
     for (int i{ m_virtualSize.x / 2 }; i > 0; i -= m_subgridPixelSpacing) {
-        dc.DrawLine(wxPoint(i, 0), wxPoint(i, m_virtualSize.y));
+        dc.DrawLine(wxPoint(i, 0 + m_border), wxPoint(i, m_virtualSize.y - m_border));
     }
 
     //Draw axis lines X and Y
     dc.SetPen(wxPen(wxColor(45, 45, 45), 4));
-    dc.DrawLine(wxPoint(0, m_virtualSize.y / 2), wxPoint(m_virtualSize.x, m_virtualSize.y / 2));//H
-    dc.DrawLine(wxPoint(m_virtualSize.x / 2, 0), wxPoint(m_virtualSize.x / 2, m_virtualSize.y));//V
+    dc.DrawLine(wxPoint(0 + m_border, m_virtualSize.y / 2), wxPoint(m_virtualSize.x - m_border, m_virtualSize.y / 2));//H
+    dc.DrawLine(wxPoint(m_virtualSize.x / 2, 0 + m_border), wxPoint(m_virtualSize.x / 2, m_virtualSize.y - m_border));//V
 
     //Draw origin crosshair
     dc.SetPen(wxPen(wxColor(95, 55, 55), 2));
@@ -157,10 +157,10 @@ void ImageCanvas::render(wxDC& dc)
 
     //Draw canvas boundry
     dc.SetPen(wxPen(wxColor(95, 55, 55), 3));
-    dc.DrawLine(wxPoint(50, 50), wxPoint(m_virtualSize.x - 50, 50)); //H-top
-    dc.DrawLine(wxPoint(m_virtualSize.x - 50, 50), wxPoint(m_virtualSize.x - 50, m_virtualSize.y - 50)); //V-right
-    dc.DrawLine(wxPoint(50, m_virtualSize.y - 50), wxPoint(m_virtualSize.x - 50, m_virtualSize.y - 50)); //H-bottom
-    dc.DrawLine(wxPoint(50, 50), wxPoint(50, m_virtualSize.y - 50)); //V-left
+    dc.DrawLine(wxPoint(m_border, m_border), wxPoint(m_virtualSize.x - m_border, m_border)); //H-top
+    dc.DrawLine(wxPoint(m_virtualSize.x - m_border, m_border), wxPoint(m_virtualSize.x - m_border, m_virtualSize.y - m_border)); //V-right
+    dc.DrawLine(wxPoint(m_border, m_virtualSize.y - m_border), wxPoint(m_virtualSize.x - m_border, m_virtualSize.y - m_border)); //H-bottom
+    dc.DrawLine(wxPoint(m_border, m_border), wxPoint(m_border, m_virtualSize.y - m_border)); //V-left
 }
 
 //---------------------------------------------------------------------------
