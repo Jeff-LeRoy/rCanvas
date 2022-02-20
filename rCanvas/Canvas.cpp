@@ -27,7 +27,7 @@ ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id, wxStatusBar& statusBar
     int resolution = (wxSystemSettings::GetMetric(wxSYS_SCREEN_X) > wxSystemSettings::GetMetric(wxSYS_SCREEN_Y))
         ? wxSystemSettings::GetMetric(wxSYS_SCREEN_X) : wxSystemSettings::GetMetric(wxSYS_SCREEN_Y);
     
-    SetScrollbars(1, 1, resolution * 2, resolution * 2, 0, 0);
+    SetScrollbars(1, 1, resolution * 3, resolution * 3, 0, 0);
     ShowScrollbars(wxSHOW_SB_NEVER, wxSHOW_SB_NEVER);
 
     GetVirtualSize(&m_virtualSize.x, &m_virtualSize.y);
@@ -146,14 +146,21 @@ void ImageCanvas::render(wxDC& dc)
     }
 
     //Draw axis lines X and Y
-    dc.SetPen(wxPen(wxColor(45, 45, 45), 4));//45
+    dc.SetPen(wxPen(wxColor(45, 45, 45), 4));
     dc.DrawLine(wxPoint(0, m_virtualSize.y / 2), wxPoint(m_virtualSize.x, m_virtualSize.y / 2));//H
     dc.DrawLine(wxPoint(m_virtualSize.x / 2, 0), wxPoint(m_virtualSize.x / 2, m_virtualSize.y));//V
 
     //Draw origin crosshair
-    dc.SetPen(wxPen(wxColor(95, 55, 55), 2));//45
+    dc.SetPen(wxPen(wxColor(95, 55, 55), 2));
     dc.DrawLine(wxPoint((m_virtualSize.x / 2) - 30, m_virtualSize.y / 2), wxPoint((m_virtualSize.x / 2) + 30, m_virtualSize.y / 2)); //H
     dc.DrawLine(wxPoint(m_virtualSize.x / 2, (m_virtualSize.y / 2) - 30), wxPoint(m_virtualSize.x / 2, (m_virtualSize.y / 2) + 30));//V
+
+    //Draw canvas boundry
+    dc.SetPen(wxPen(wxColor(95, 55, 55), 3));
+    dc.DrawLine(wxPoint(50, 50), wxPoint(m_virtualSize.x - 50, 50)); //H-top
+    dc.DrawLine(wxPoint(m_virtualSize.x - 50, 50), wxPoint(m_virtualSize.x - 50, m_virtualSize.y - 50)); //V-right
+    dc.DrawLine(wxPoint(50, m_virtualSize.y - 50), wxPoint(m_virtualSize.x - 50, m_virtualSize.y - 50)); //H-bottom
+    dc.DrawLine(wxPoint(50, 50), wxPoint(50, m_virtualSize.y - 50)); //V-left
 }
 
 //---------------------------------------------------------------------------
