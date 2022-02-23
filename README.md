@@ -9,7 +9,7 @@ A few examples with placeholder images, imagine it with real reference images.
 * Load .jpg images
 * Scale and translate images on canvas
 * Delete images from canvas
-* Restore original dimensions of images (it is scaled to not be larger than viewable canvas on import)
+* Restore original dimensions of images ( it is scaled to not be larger than viewable canvas on import )
 ### Imminent Features
 * Support for other image formats
 * Save/load canvas configurations
@@ -22,7 +22,7 @@ A few examples with placeholder images, imagine it with real reference images.
 * **a** - Center canvas 
 * **o** - Open a new image
 
-### ImageWidget Shortcut Keys i.e. mouse is hovering over a loaded image on the canvas
+### ImageWidget Shortcut Keys ( mouse is hovering over a loaded image on the canvas )
 * **Mouse Scrollwheel** - Scale image up / down
 * **CTRL + Mouse Scrollwheel** - Accelerate Scaling speed
 * **d** - Delete an ImageWidget
