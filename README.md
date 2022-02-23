@@ -24,7 +24,7 @@ A few examples with placeholder images, imagine it with real reference images.
 
 ### ImageWidget Shortcut Keys i.e. mouse is hovering over a loaded image on the canvas
 * **Mouse Scrollwheel** - Scale image up / down
-* **CTRL + Mouse Scrollwheel** - Increrase Scaling speed
+* **CTRL + Mouse Scrollwheel** - Accelerate Scaling speed
 * **d** - Delete an ImageWidget
 * **Left Mouse + Drag** - Move image widget
 * **Alt + Left Mouse + Drag** - Move image widget without changing z-order
