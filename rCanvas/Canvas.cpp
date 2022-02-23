@@ -186,7 +186,8 @@ void ImageCanvas::onKey_O(wxKeyEvent& event)
     {
         wxString fileLocation = ImageCanvas::getImage();
 
-        ImageWidget* imageWidget = new ImageWidget(this, wxID_ANY, mPos, wxDefaultSize, fileLocation, m_panCanvas, *m_statusBar);
+        if(fileLocation != wxEmptyString)
+            ImageWidget* imageWidget = new ImageWidget(this, wxID_ANY, mPos, wxDefaultSize, fileLocation, m_panCanvas, *m_statusBar);
     }
     event.Skip();
 }
