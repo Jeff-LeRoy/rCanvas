@@ -40,6 +40,9 @@ bool MyApp::OnInit()
     mainFrame->Show(true);
 
     canvas->centerScrollbars();
+    
+    ImageWidget* img = new ImageWidget(canvas, wxID_ANY, wxPoint(200, 200), wxDefaultSize, "Images/image_grid.jpg", canvas->m_panCanvas, *statusBar);
+
     mainFrame->Center();
 
     return true;

@@ -172,26 +172,32 @@ void ImageWidget::hoverPrinting(wxMouseEvent& event)//Remove later
 //| Left click + drag to move image \
 //| F - Restore original image size");
         
-    //wxLogStatus(wxString::Format(wxT("%d"), *m_isCanvasPanning));
 
-    //wxPoint pos = wxGetMousePosition();
 
-    //int x = pos.x;
-    //int y = pos.y;
+    wxPoint pos = wxGetMousePosition();
 
-    //wxPoint scrn = m_parent->ScreenToClient(wxPoint(x, y));
+    int x = pos.x;
+    int y = pos.y;
 
-    //wxLogStatus(/*" X=" + wxString::Format(wxT("%lf"), m_scale.m_x) + ' ' +
-    //            " Y=" + wxString::Format(wxT("%lf"), m_scale.m_y) + ' ' +
-    //            " Percent=" + wxString::Format(wxT("%lf"), m_scaleIncrimentor) + ' ' +
-    //            " OrigX=" + wxString::Format(wxT("%d"), originalDimensions.x) + ' ' +
-    //            " OrigY=" + wxString::Format(wxT("%d"), originalDimensions.y) + ' ' +*/
-    //    " aspect=" + wxString::Format(wxT("%lf"), m_aspectRatio) + ' ' +
-    //    " mainScrnMPosX=" + wxString::Format(wxT("%d"), pos.x) + ' ' +
-    //    " mainScrnMPosY=" + wxString::Format(wxT("%d"), pos.y) + ' ' +
-    //    " scrnX=" + wxString::Format(wxT("%d"), scrn.x) + ' ' +
-    //    " scrnY=" + wxString::Format(wxT("%d"), scrn.y)
-    //);
+    //wxPoint scrn = event.GetPosition();
+    wxPoint scrn = m_parent->ScreenToClient(wxPoint(x, y));
+    wxPoint client = m_parent->ClientToScreen(wxPoint(x, y));
+
+
+    wxLogStatus(/*" X=" + wxString::Format(wxT("%lf"), m_scale.m_x) + ' ' +
+                " Y=" + wxString::Format(wxT("%lf"), m_scale.m_y) + ' ' +
+                " Percent=" + wxString::Format(wxT("%lf"), m_scaleIncrimentor) + ' ' +
+                " OrigX=" + wxString::Format(wxT("%d"), originalDimensions.x) + ' ' +
+                " OrigY=" + wxString::Format(wxT("%d"), originalDimensions.y) + ' ' +*/
+        " mousePosPreZoomX=" + wxString::Format(wxT("%d"), mousePosPreZoom.x) + ' ' +
+        " mousePosPreZoomY=" + wxString::Format(wxT("%d"), mousePosPreZoom.y) + ' ' +
+        " m_offsetX=" + wxString::Format(wxT("%lf"), m_offsetX) + ' ' +
+        " m_offsetY=" + wxString::Format(wxT("%lf"), m_offsetY) + ' ' +
+        " sizeBeforeScaleX=" + wxString::Format(wxT("%lf"), sizeBeforeScale.m_x) + ' ' +
+        " sizeBeforeScaleY=" + wxString::Format(wxT("%lf"), sizeBeforeScale.m_y) + ' ' +
+        " sizeAfterScaleX=" + wxString::Format(wxT("%lf"), sizeAfterScale.m_x) + ' ' +
+        " sizeAfterScaleY=" + wxString::Format(wxT("%lf"), sizeAfterScale.m_y)
+    );
 }
 
 void ImageWidget::onKey_F(wxKeyEvent& event)
@@ -235,6 +241,10 @@ void ImageWidget::onKey_D(wxKeyEvent& event)
 
 void ImageWidget::scrollWheelZoom(wxMouseEvent& event)
 {
+    //GET PRE ZOOM POSITION
+    mousePosPreZoom = event.GetPosition();
+    sizeBeforeScale = m_scale;
+
     if (!m_widgetDragging && !*m_isCanvasPanning)
     {
         m_scalingImage = true;
@@ -256,7 +266,26 @@ void ImageWidget::scrollWheelZoom(wxMouseEvent& event)
 
         //Set size of ImageWidget wxPanel
         this->SetSize(wxSize(m_scale.m_x, m_scale.m_y));
+
     }
+    mousePosPostZoom = event.GetPosition();
+    sizeAfterScale = m_scale;
+
+    wxPoint2DDouble blah = sizeBeforeScale / mousePosPreZoom;
+    wxPoint2DDouble test = sizeAfterScale - sizeBeforeScale;
+
+    m_offsetX = test.m_x / blah.m_x;
+    m_offsetY = test.m_y / blah.m_y;
+
+    //this->Move(wxPoint(m_offsetX, m_offsetY));
+    wxPoint screenMousePos = wxGetMousePosition();
+
+    int TopLeftCorner_x = (screenMousePos.x - m_imageWidgetClickPos.x) + m_offsetX;
+    int TopLeftCorner_y = (screenMousePos.y - m_imageWidgetClickPos.y) + m_offsetY;
+
+    wxPoint pos = this->GetPosition();
+
+    this->Move((wxPoint(pos.x - m_offsetX, pos.y - m_offsetY)));
 }
 
 void ImageWidget::leftIsDown(wxMouseEvent& event)
@@ -282,11 +311,11 @@ void ImageWidget::leftIsDragging(wxMouseEvent& event)
 {
     if (m_widgetDragging)
     {
-        moveWidget();
+        moveWidget(0,0);
     }
 }
 
-void ImageWidget::moveWidget()
+void ImageWidget::moveWidget(double offsetX, double offsetY)
 {
     //When you click inside an ImageWidget LeftDown() will store a mouse position relative 
     //to the inside of that widget. Positioning an ImageWidget/wxPanel relies on its top left 
@@ -300,10 +329,11 @@ void ImageWidget::moveWidget()
     int TopLeftCorner_y = screenMousePos.y - m_imageWidgetClickPos.y;
 
     //Move box to converted screen position (m_parent var is from window.h)
-    this->Move(m_parent->ScreenToClient(wxPoint(TopLeftCorner_x, TopLeftCorner_y)));
+    this->Move(m_parent->ScreenToClient(wxPoint(TopLeftCorner_x + (int)offsetX, TopLeftCorner_y + (int)offsetY)));
 
     //Need to do this otherwise dragging an ImageWidget leave artifacts
     //GetParent()->ClearBackground();
+    Refresh();
 }
 
 void ImageWidget::leftIsUp(wxMouseEvent& event)
