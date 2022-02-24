@@ -17,6 +17,8 @@ private:
     wxString m_imgPath{};
     bool m_canDelete = false;
     wxStatusBar* m_statusBar;//From mainFrame
+    int m_offsetX{ 0 };
+    int m_offsetY{ 0 };
 
     void OnCaptureLost(wxMouseCaptureLostEvent&);
     void rescaleImage(wxBitmap* bitmap, int max);
@@ -35,6 +37,7 @@ private:
     void calculateAspectRatio(); //Might not need seperate member for this 
     void renderScaled(wxDC& dc);
     void render(wxDC& dc);
+    void moveWidget();
 
 public:
     ImageWidget(wxWindow* parent, 

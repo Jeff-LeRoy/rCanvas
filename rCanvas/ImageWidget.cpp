@@ -168,9 +168,9 @@ void ImageWidget::setGlobalScale()
 
 void ImageWidget::hoverPrinting(wxMouseEvent& event)//Remove later
 {
-    m_statusBar->SetStatusText("Right click + drag to pan canvas \
-| Left click + drag to move image \
-| F - Restore original image size");
+//    m_statusBar->SetStatusText("Right click + drag to pan canvas \
+//| Left click + drag to move image \
+//| F - Restore original image size");
         
     //wxLogStatus(wxString::Format(wxT("%d"), *m_isCanvasPanning));
 
@@ -259,21 +259,6 @@ void ImageWidget::scrollWheelZoom(wxMouseEvent& event)
     }
 }
 
-void ImageWidget::rightIsDown(wxMouseEvent& event)
-{
-    //Get SCREEN mouse pos and convert to client
-    wxPoint pos = wxGetMousePosition();
-    wxPoint scrn = m_parent->ScreenToClient(wxPoint(pos.x, pos.y));
-
-    //Assign converted position to mouse event otherwise it is coordinates 
-    //relative to top corner of the ImageWidget
-    event.m_x = scrn.x;
-    event.m_y = scrn.y;
-
-    //Pass event to the parent handler
-    wxPostEvent(GetParent(), event);
-}
-
 void ImageWidget::leftIsDown(wxMouseEvent& event)
 {
     CaptureMouse();
@@ -293,6 +278,34 @@ void ImageWidget::leftIsDown(wxMouseEvent& event)
     Bind(wxEVT_MOUSE_CAPTURE_LOST, &ImageWidget::OnCaptureLost, this);
 }
 
+void ImageWidget::leftIsDragging(wxMouseEvent& event)
+{
+    if (m_widgetDragging)
+    {
+        moveWidget();
+    }
+}
+
+void ImageWidget::moveWidget()
+{
+    //When you click inside an ImageWidget LeftDown() will store a mouse position relative 
+    //to the inside of that widget. Positioning an ImageWidget/wxPanel relies on its top left 
+    //corner, so to get those coordinates we will get the SCREEN position of the mouse then  
+    //subtract the offset from inside the widget, now we have the top left corner. Then we just
+    //need to convert from SCREEN coordinates to client window coordinates
+
+    wxPoint screenMousePos = wxGetMousePosition();
+
+    int TopLeftCorner_x = screenMousePos.x - m_imageWidgetClickPos.x;
+    int TopLeftCorner_y = screenMousePos.y - m_imageWidgetClickPos.y;
+
+    //Move box to converted screen position (m_parent var is from window.h)
+    this->Move(m_parent->ScreenToClient(wxPoint(TopLeftCorner_x, TopLeftCorner_y)));
+
+    //Need to do this otherwise dragging an ImageWidget leave artifacts
+    //GetParent()->ClearBackground();
+}
+
 void ImageWidget::leftIsUp(wxMouseEvent& event)
 {
     if (HasCapture())
@@ -305,29 +318,6 @@ void ImageWidget::leftIsUp(wxMouseEvent& event)
     Unbind(wxEVT_LEFT_UP, &ImageWidget::leftIsUp, this);
     Unbind(wxEVT_MOTION, &ImageWidget::leftIsDragging, this);
     Unbind(wxEVT_MOUSE_CAPTURE_LOST, &ImageWidget::OnCaptureLost, this);
-}
-
-void ImageWidget::leftIsDragging(wxMouseEvent& event)
-{
-    if (m_widgetDragging)
-    {
-        //When you click inside an ImageWidget LeftDown() will store a mouse position relative 
-        //to the inside of that widget. Positioning an ImageWidget/wxPanel relies on its top left 
-        //corner, so to get those coordinates we will get the SCREEN position of the mouse then  
-        //subtract the offset from inside the widget, now we have the top left corner. Then we just
-        //need to convert from SCREEN coordinates to client window coordinates
-
-        wxPoint screenMousePos = wxGetMousePosition();
-
-        int TopLeftCorner_x = screenMousePos.x - m_imageWidgetClickPos.x;
-        int TopLeftCorner_y = screenMousePos.y - m_imageWidgetClickPos.y;
-
-        //Move box to converted screen position (m_parent var is from window.h)
-        this->Move(m_parent->ScreenToClient(wxPoint(TopLeftCorner_x, TopLeftCorner_y)));
-
-        //Need to do this otherwise dragging an ImageWidget leave artifacts
-        //GetParent()->ClearBackground();
-    }
 }
 
 void ImageWidget::enterWindow(wxMouseEvent& event)
@@ -352,4 +342,19 @@ void ImageWidget::OnCaptureLost(wxMouseCaptureLostEvent&)
     {
         ReleaseMouse();
     }
+}
+
+void ImageWidget::rightIsDown(wxMouseEvent& event)
+{
+    //Get SCREEN mouse pos and convert to client
+    wxPoint pos = wxGetMousePosition();
+    wxPoint scrn = m_parent->ScreenToClient(wxPoint(pos.x, pos.y));
+
+    //Assign converted position to mouse event otherwise it is coordinates 
+    //relative to top corner of the ImageWidget
+    event.m_x = scrn.x;
+    event.m_y = scrn.y;
+
+    //Pass event to the parent handler
+    wxPostEvent(GetParent(), event);
 }
