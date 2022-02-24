@@ -5,7 +5,6 @@ class ImageCanvas : public wxScrolledWindow
 private:
     //wxVector<ImageWidget> vecImageWidgets{};
     int m_subgridPixelSpacing{ 200 };
-    bool m_panCanvas{ false };
     int m_dragMultiplier{ 1 };
     wxPoint m_virtualSize{};
     wxPoint m_startMousePos;
@@ -33,5 +32,7 @@ public:
     ~ImageCanvas();
 
     void centerScrollbars();
+    bool m_panCanvas{ false };//MOVE
+
 };
 
