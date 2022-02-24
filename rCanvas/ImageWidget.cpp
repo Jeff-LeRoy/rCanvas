@@ -184,20 +184,20 @@ void ImageWidget::hoverPrinting(wxMouseEvent& event)//Remove later
     wxPoint client = m_parent->ClientToScreen(wxPoint(x, y));
 
 
-    wxLogStatus(/*" X=" + wxString::Format(wxT("%lf"), m_scale.m_x) + ' ' +
-                " Y=" + wxString::Format(wxT("%lf"), m_scale.m_y) + ' ' +
-                " Percent=" + wxString::Format(wxT("%lf"), m_scaleIncrimentor) + ' ' +
-                " OrigX=" + wxString::Format(wxT("%d"), originalDimensions.x) + ' ' +
-                " OrigY=" + wxString::Format(wxT("%d"), originalDimensions.y) + ' ' +*/
-        " mousePosPreZoomX=" + wxString::Format(wxT("%d"), mousePosPreZoom.x) + ' ' +
-        " mousePosPreZoomY=" + wxString::Format(wxT("%d"), mousePosPreZoom.y) + ' ' +
-        " m_offsetX=" + wxString::Format(wxT("%lf"), m_offsetX) + ' ' +
-        " m_offsetY=" + wxString::Format(wxT("%lf"), m_offsetY) + ' ' +
-        " sizeBeforeScaleX=" + wxString::Format(wxT("%lf"), sizeBeforeScale.m_x) + ' ' +
-        " sizeBeforeScaleY=" + wxString::Format(wxT("%lf"), sizeBeforeScale.m_y) + ' ' +
-        " sizeAfterScaleX=" + wxString::Format(wxT("%lf"), sizeAfterScale.m_x) + ' ' +
-        " sizeAfterScaleY=" + wxString::Format(wxT("%lf"), sizeAfterScale.m_y)
-    );
+    //wxLogStatus(/*" X=" + wxString::Format(wxT("%lf"), m_scale.m_x) + ' ' +
+    //            " Y=" + wxString::Format(wxT("%lf"), m_scale.m_y) + ' ' +
+    //            " Percent=" + wxString::Format(wxT("%lf"), m_scaleIncrimentor) + ' ' +
+    //            " OrigX=" + wxString::Format(wxT("%d"), originalDimensions.x) + ' ' +
+    //            " OrigY=" + wxString::Format(wxT("%d"), originalDimensions.y) + ' ' +*/
+    //    " mousePosPreZoomX=" + wxString::Format(wxT("%d"), mousePosPreZoom.x) + ' ' +
+    //    " mousePosPreZoomY=" + wxString::Format(wxT("%d"), mousePosPreZoom.y) + ' ' +
+    //    " m_offsetX=" + wxString::Format(wxT("%lf"), m_offsetX) + ' ' +
+    //    " m_offsetY=" + wxString::Format(wxT("%lf"), m_offsetY) + ' ' +
+    //    " sizeBeforeScaleX=" + wxString::Format(wxT("%lf"), sizeBeforeScale.m_x) + ' ' +
+    //    " sizeBeforeScaleY=" + wxString::Format(wxT("%lf"), sizeBeforeScale.m_y) + ' ' +
+    //    " sizeAfterScaleX=" + wxString::Format(wxT("%lf"), sizeAfterScale.m_x) + ' ' +
+    //    " sizeAfterScaleY=" + wxString::Format(wxT("%lf"), sizeAfterScale.m_y)
+    //);
 }
 
 void ImageWidget::onKey_F(wxKeyEvent& event)
@@ -283,9 +283,20 @@ void ImageWidget::scrollWheelZoom(wxMouseEvent& event)
     int TopLeftCorner_x = (screenMousePos.x - m_imageWidgetClickPos.x) + m_offsetX;
     int TopLeftCorner_y = (screenMousePos.y - m_imageWidgetClickPos.y) + m_offsetY;
 
-    wxPoint pos = this->GetPosition();
+    wxPoint2DDouble pos = this->GetPosition();
 
-    this->Move((wxPoint(pos.x - m_offsetX, pos.y - m_offsetY)));
+    this->Move((wxPoint(pos.m_x - m_offsetX, pos.m_y - m_offsetY)));
+
+
+
+    //vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+    wxPoint2DDouble posAfter = this->GetPosition();
+    
+    wxLogStatus(
+        " m_offsetX=" + wxString::Format(wxT("%lf"), m_offsetX) + ' ' +
+        " m_offsetY=" + wxString::Format(wxT("%lf"), m_offsetY) + ' ' +
+        " movedX=" + wxString::Format(wxT("%lf"), pos.m_x - posAfter.m_x)
+    );
 }
 
 void ImageWidget::leftIsDown(wxMouseEvent& event)
