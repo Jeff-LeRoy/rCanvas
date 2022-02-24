@@ -34,6 +34,7 @@
     <Image Include="Images\image_3.jpg" />
     <Image Include="Images\image_4.jpg" />
     <Image Include="Images\image_5.jpg" />
+    <Image Include="Images\Image_Grid.jpg" />
     <Image Include="Images\image_huge.jpg" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -55,5 +55,8 @@
     <Image Include="Images\image_huge.jpg">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="Images\Image_Grid.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
