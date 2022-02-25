@@ -16,12 +16,14 @@ private:
     wxString m_imgPath{};
     bool m_canDelete = false;
     wxStatusBar* m_statusBar;//From mainFrame
+
+    //Zooming to and from mouse 
     int m_offsetX{ 0 };
     int m_offsetY{ 0 };
     wxPoint mousePosPreZoom{};
-    wxPoint mousePosPostZoom{};
     wxPoint2DDouble sizeBeforeScale{};
     wxPoint2DDouble sizeAfterScale{};
+    wxPoint2DDouble decCoordinates{};
 
 
     void OnCaptureLost(wxMouseCaptureLostEvent&);

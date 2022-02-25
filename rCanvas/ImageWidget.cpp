@@ -169,7 +169,7 @@ void ImageWidget::hoverPrinting(wxMouseEvent& event)//Remove later
 //| F - Restore original image size");
         
 
-    wxPoint pos = wxGetMousePosition();
+    wxPoint pos = event.GetPosition();
 
     int x = pos.x;
     int y = pos.y;
@@ -180,8 +180,8 @@ void ImageWidget::hoverPrinting(wxMouseEvent& event)//Remove later
 
 
     //wxLogStatus(
-    //    " m_scaleX=" + wxString::Format(wxT("%d"), m_scale.x) + ' ' +
-    //    " m_scaleY=" + wxString::Format(wxT("%d"), m_scale.y)
+    //    " posX=" + wxString::Format(wxT("%d"), pos.x) + ' ' +
+    //    " posY=" + wxString::Format(wxT("%d"), pos.y)
     //);
 }
 
@@ -226,9 +226,11 @@ void ImageWidget::onKey_D(wxKeyEvent& event)
 
 void ImageWidget::scrollWheelZoom(wxMouseEvent& event)
 {
-    //GET PRE ZOOM POSITION
     mousePosPreZoom = event.GetPosition();
     sizeBeforeScale = m_scale;
+
+    int rot = event.GetWheelRotation();
+    int delta = event.GetWheelDelta();
 
     if (!m_widgetDragging && !*m_isCanvasPanning)
     {
@@ -240,9 +242,6 @@ void ImageWidget::scrollWheelZoom(wxMouseEvent& event)
         else
             m_scaleMultiplier = 2;
 
-        int rot = event.GetWheelRotation();
-        int delta = event.GetWheelDelta();
-
         //incriment scale
         m_scaleIncrimentor = 100;
         m_scaleIncrimentor += (double)m_scaleMultiplier * (rot / delta);
@@ -252,27 +251,37 @@ void ImageWidget::scrollWheelZoom(wxMouseEvent& event)
         //Set size of ImageWidget wxPanel
         this->SetSize(wxSize(m_scale.x, m_scale.y));
     }
-    mousePosPostZoom = event.GetPosition();
+
     sizeAfterScale = m_scale;
 
-    wxPoint2DDouble blah = sizeBeforeScale / mousePosPreZoom;
-    wxPoint2DDouble test = sizeAfterScale - sizeBeforeScale;
-
-    m_offsetX = (test.m_x / blah.m_x) + 0.5;
-    m_offsetY = (test.m_y / blah.m_y) + 0.5;
-
-    wxPoint2DDouble pos = this->GetPosition();
-
-    this->Move((wxPoint(pos.m_x - m_offsetX, pos.m_y - m_offsetY)));
-
-    wxPoint2DDouble posAfter = this->GetPosition();
+    //ZOOM WITH OFFSET 
+    //----------------------------------------------------------------
+    //extraOffset will "round" the integer since they are truncated
+    //When zooming out we need to "round" down
+    double extraOffset;
+    if (rot > 1)
+        extraOffset = + 0.5;
+    else
+        extraOffset = - 0.5;
     
-    wxLogStatus(
-        " m_offsetX=" + wxString::Format(wxT("%d"), m_offsetX) + ' ' +
-        " m_offsetY=" + wxString::Format(wxT("%d"), m_offsetY) + ' ' +
-        " movedX=" + wxString::Format(wxT("%lf"), pos.m_x - posAfter.m_x) + ' ' +
-        " movedY=" + wxString::Format(wxT("%lf"), pos.m_y - posAfter.m_y)
-    );
+    //Get 0-1 decimal coordinates inside ImageWidget for X and Y
+    decCoordinates =  mousePosPreZoom / sizeBeforeScale;
+    wxPoint2DDouble changeInSize = sizeAfterScale - sizeBeforeScale;
+    m_offsetX = (changeInSize.m_x * decCoordinates.m_x) + extraOffset;
+    m_offsetY = (changeInSize.m_y * decCoordinates.m_y) + extraOffset;
+    wxPoint2DDouble pos = this->GetPosition();
+    this->Move((wxPoint(pos.m_x - m_offsetX, pos.m_y - m_offsetY)));
+    //----------------------------------------------------------------
+
+    //wxLogStatus(
+    //    " MoveX=" + wxString::Format(wxT("%lf"), posBefore.m_x - posAfter.m_x) + ' ' +
+    //    " MoveY=" + wxString::Format(wxT("%lf"), posBefore.m_y - posAfter.m_y) + ' ' +
+    //    " decCoordinates=" + wxString::Format(wxT("%lf"), decCoordinates.m_x) + ' ' +
+    //    " decCoordinates=" + wxString::Format(wxT("%lf"), decCoordinates.m_y) + ' ' +
+    //    " m_offsetX=" + wxString::Format(wxT("%d"), m_offsetX) + ' ' +
+    //    " m_offsetY=" + wxString::Format(wxT("%d"), m_offsetY) + ' ' +
+    //    " m_scaleIncrimentor=" + wxString::Format(wxT("%lf"), m_scaleIncrimentor)
+    //);
 }
 
 void ImageWidget::leftIsDown(wxMouseEvent& event)
