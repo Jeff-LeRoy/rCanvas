@@ -226,8 +226,8 @@ void ImageWidget::onKey_D(wxKeyEvent& event)
 
 void ImageWidget::scrollWheelZoom(wxMouseEvent& event)
 {
-    mousePosPreZoom = event.GetPosition();
-    sizeBeforeScale = m_scale;
+    wxPoint mousePosPreZoom = event.GetPosition();
+    wxPoint2DDouble sizeBeforeScale = m_scale;
 
     int rot = event.GetWheelRotation();
     int delta = event.GetWheelDelta();
@@ -252,10 +252,10 @@ void ImageWidget::scrollWheelZoom(wxMouseEvent& event)
         this->SetSize(wxSize(m_scale.x, m_scale.y));
     }
 
-    sizeAfterScale = m_scale;
-
     //ZOOM WITH OFFSET 
     //----------------------------------------------------------------
+    wxPoint2DDouble sizeAfterScale = m_scale;
+    
     //extraOffset will "round" the integer since they are truncated
     //When zooming out we need to "round" down
     double extraOffset;
@@ -265,10 +265,11 @@ void ImageWidget::scrollWheelZoom(wxMouseEvent& event)
         extraOffset = - 0.5;
     
     //Get 0-1 decimal coordinates inside ImageWidget for X and Y
-    decCoordinates =  mousePosPreZoom / sizeBeforeScale;
+    wxPoint2DDouble decCoordinates =  mousePosPreZoom / sizeBeforeScale;
+
     wxPoint2DDouble changeInSize = sizeAfterScale - sizeBeforeScale;
-    m_offsetX = (changeInSize.m_x * decCoordinates.m_x) + extraOffset;
-    m_offsetY = (changeInSize.m_y * decCoordinates.m_y) + extraOffset;
+    int m_offsetX = (changeInSize.m_x * decCoordinates.m_x) + extraOffset;
+    int m_offsetY = (changeInSize.m_y * decCoordinates.m_y) + extraOffset;
     wxPoint2DDouble pos = this->GetPosition();
     this->Move((wxPoint(pos.m_x - m_offsetX, pos.m_y - m_offsetY)));
     //----------------------------------------------------------------
@@ -307,35 +308,24 @@ void ImageWidget::leftIsDragging(wxMouseEvent& event)
 {
     if (m_widgetDragging)
     {
-        moveWidget(0,0);
+        //When you click inside an ImageWidget LeftDown() will store a mouse position relative 
+        //to the inside of that widget. Positioning an ImageWidget/wxPanel relies on its top left 
+        //corner, so to get those coordinates we will get the SCREEN position of the mouse then  
+        //subtract the offset from inside the widget, now we have the top left corner. Then we just
+        //need to convert from SCREEN coordinates to client window coordinates
+
+        wxPoint screenMousePos = wxGetMousePosition();
+
+        int TopLeftCorner_x = screenMousePos.x - m_imageWidgetClickPos.x;
+        int TopLeftCorner_y = screenMousePos.y - m_imageWidgetClickPos.y;
+
+        //Move box to converted screen position (m_parent var is from window.h)
+        this->Move(m_parent->ScreenToClient(wxPoint(TopLeftCorner_x, TopLeftCorner_y)));
+
+        //Need to do this otherwise dragging an ImageWidget leave artifacts
+        //GetParent()->ClearBackground();
+        Refresh();
     }
-    wxPoint2DDouble posAfter = this->GetPosition();
-
-    wxLogStatus(
-        " X=" + wxString::Format(wxT("%lf"), posAfter.m_x) + ' ' +
-        " Y=" + wxString::Format(wxT("%lf"), posAfter.m_y)
-    );
-}
-
-void ImageWidget::moveWidget(double offsetX, double offsetY)
-{
-    //When you click inside an ImageWidget LeftDown() will store a mouse position relative 
-    //to the inside of that widget. Positioning an ImageWidget/wxPanel relies on its top left 
-    //corner, so to get those coordinates we will get the SCREEN position of the mouse then  
-    //subtract the offset from inside the widget, now we have the top left corner. Then we just
-    //need to convert from SCREEN coordinates to client window coordinates
-
-    wxPoint screenMousePos = wxGetMousePosition();
-
-    int TopLeftCorner_x = screenMousePos.x - m_imageWidgetClickPos.x;
-    int TopLeftCorner_y = screenMousePos.y - m_imageWidgetClickPos.y;
-
-    //Move box to converted screen position (m_parent var is from window.h)
-    this->Move(m_parent->ScreenToClient(wxPoint(TopLeftCorner_x + (int)offsetX, TopLeftCorner_y + (int)offsetY)));
-
-    //Need to do this otherwise dragging an ImageWidget leave artifacts
-    //GetParent()->ClearBackground();
-    Refresh();
 }
 
 void ImageWidget::leftIsUp(wxMouseEvent& event)

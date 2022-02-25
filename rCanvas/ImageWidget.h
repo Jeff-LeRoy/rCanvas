@@ -17,14 +17,6 @@ private:
     bool m_canDelete = false;
     wxStatusBar* m_statusBar;//From mainFrame
 
-    //Zooming to and from mouse 
-    int m_offsetX{ 0 };
-    int m_offsetY{ 0 };
-    wxPoint mousePosPreZoom{};
-    wxPoint2DDouble sizeBeforeScale{};
-    wxPoint2DDouble sizeAfterScale{};
-    wxPoint2DDouble decCoordinates{};
-
 
     void OnCaptureLost(wxMouseCaptureLostEvent&);
     void rescaleImage(wxBitmap* bitmap, int max);
@@ -43,7 +35,6 @@ private:
     void calculateAspectRatio(); //Might not need seperate member for this 
     void renderScaled(wxDC& dc);
     void render(wxDC& dc);
-    void moveWidget(double offsetX, double offsetY);
 
 public:
     ImageWidget(wxWindow* parent, 
