@@ -169,7 +169,6 @@ void ImageWidget::hoverPrinting(wxMouseEvent& event)//Remove later
 //| F - Restore original image size");
         
 
-
     wxPoint pos = wxGetMousePosition();
 
     int x = pos.x;
@@ -180,10 +179,10 @@ void ImageWidget::hoverPrinting(wxMouseEvent& event)//Remove later
     wxPoint client = m_parent->ClientToScreen(wxPoint(x, y));
 
 
-    wxLogStatus(
-        " m_scaleX=" + wxString::Format(wxT("%d"), m_scale.x) + ' ' +
-        " m_scaleY=" + wxString::Format(wxT("%d"), m_scale.y)
-    );
+    //wxLogStatus(
+    //    " m_scaleX=" + wxString::Format(wxT("%d"), m_scale.x) + ' ' +
+    //    " m_scaleY=" + wxString::Format(wxT("%d"), m_scale.y)
+    //);
 }
 
 void ImageWidget::onKey_F(wxKeyEvent& event)
@@ -239,7 +238,7 @@ void ImageWidget::scrollWheelZoom(wxMouseEvent& event)
         if (event.ControlDown())
             m_scaleMultiplier = 8;
         else
-            m_scaleMultiplier = 1;
+            m_scaleMultiplier = 2;
 
         int rot = event.GetWheelRotation();
         int delta = event.GetWheelDelta();
@@ -252,7 +251,6 @@ void ImageWidget::scrollWheelZoom(wxMouseEvent& event)
 
         //Set size of ImageWidget wxPanel
         this->SetSize(wxSize(m_scale.x, m_scale.y));
-
     }
     mousePosPostZoom = event.GetPosition();
     sizeAfterScale = m_scale;
@@ -260,31 +258,21 @@ void ImageWidget::scrollWheelZoom(wxMouseEvent& event)
     wxPoint2DDouble blah = sizeBeforeScale / mousePosPreZoom;
     wxPoint2DDouble test = sizeAfterScale - sizeBeforeScale;
 
-    m_offsetX = test.m_x / blah.m_x;
-    m_offsetY = test.m_y / blah.m_y;
-
-    //this->Move(wxPoint(m_offsetX, m_offsetY));
-    wxPoint2DDouble screenMousePos = wxGetMousePosition();
-
-    double TopLeftCorner_x = (screenMousePos.m_x - mousePosPreZoom.x) + m_offsetX;
-    double TopLeftCorner_y = (screenMousePos.m_y - mousePosPreZoom.y) + m_offsetY;
+    m_offsetX = (test.m_x / blah.m_x) + 0.5;
+    m_offsetY = (test.m_y / blah.m_y) + 0.5;
 
     wxPoint2DDouble pos = this->GetPosition();
 
-    this->Move((wxPoint(pos.m_x - (double)m_offsetX, pos.m_y - (double)m_offsetY)));
+    this->Move((wxPoint(pos.m_x - m_offsetX, pos.m_y - m_offsetY)));
 
-
-
-    //vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     wxPoint2DDouble posAfter = this->GetPosition();
     
-    //wxLogStatus(
-    //    " m_offsetX=" + wxString::Format(wxT("%lf"), m_offsetX) + ' ' +
-    //    " m_offsetY=" + wxString::Format(wxT("%lf"), m_offsetY) + ' ' +
-    //    " movedX=" + wxString::Format(wxT("%lf"), pos.m_x - posAfter.m_x) + ' ' +
-    //    " screenMousePosX=" + wxString::Format(wxT("%lf"), screenMousePos.m_x) + ' ' +
-    //    " screenMousePosY=" + wxString::Format(wxT("%lf"), screenMousePos.m_y)
-    //);
+    wxLogStatus(
+        " m_offsetX=" + wxString::Format(wxT("%d"), m_offsetX) + ' ' +
+        " m_offsetY=" + wxString::Format(wxT("%d"), m_offsetY) + ' ' +
+        " movedX=" + wxString::Format(wxT("%lf"), pos.m_x - posAfter.m_x) + ' ' +
+        " movedY=" + wxString::Format(wxT("%lf"), pos.m_y - posAfter.m_y)
+    );
 }
 
 void ImageWidget::leftIsDown(wxMouseEvent& event)

@@ -16,8 +16,8 @@ private:
     wxString m_imgPath{};
     bool m_canDelete = false;
     wxStatusBar* m_statusBar;//From mainFrame
-    double m_offsetX{ 0 };
-    double m_offsetY{ 0 };
+    int m_offsetX{ 0 };
+    int m_offsetY{ 0 };
     wxPoint mousePosPreZoom{};
     wxPoint mousePosPostZoom{};
     wxPoint2DDouble sizeBeforeScale{};
