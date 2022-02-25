@@ -4,7 +4,7 @@ class ImageWidget : public wxPanel
 {
 private:
     wxDouble m_scaleIncrimentor{ 100.0 };
-    wxPoint2DDouble m_scale{ 1.0, 1.0 };
+    wxPoint m_scale{ 1, 1 };
     wxPoint m_imageWidgetClickPos{};
     const bool* m_isCanvasPanning{};//From Canvas class
     bool m_widgetDragging{ false };
@@ -12,7 +12,6 @@ private:
     wxBitmap* m_bitmap = nullptr;
     wxImage* m_image = nullptr;
     int m_scaleMultiplier{ 1 };
-    wxDouble m_aspectRatio{}; //Can move this to local
     bool m_scalingImage{};
     wxString m_imgPath{};
     bool m_canDelete = false;
