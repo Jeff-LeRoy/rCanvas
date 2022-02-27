@@ -3,8 +3,8 @@
 class ImageWidget : public wxPanel
 {
 private:
+    //Member Variables
     wxDouble m_scaleIncrimentor{ 100.0 };
-    wxPoint m_scale{ 1, 1 };
     wxPoint m_imageWidgetClickPos{};
     const bool* m_isCanvasPanning{};//From Canvas class
     bool m_widgetDragging{ false };
@@ -12,29 +12,33 @@ private:
     wxBitmap* m_bitmap = nullptr;
     wxImage* m_image = nullptr;
     int m_scaleMultiplier{ 1 };
-    bool m_scalingImage{};
-    wxString m_imgPath{};
     bool m_canDelete = false;
     wxStatusBar* m_statusBar;//From mainFrame
+    wxPoint m_scale{ 1, 1 };
+    bool m_scalingImage{};
+    wxString m_imgPath{};
 
 
+    //Member Functions
+    void RescaleImage(wxBitmap* bitmap, int max);
+    void CalculateAspectRatio(int max);
+    void CalculateAspectRatio(); //Might not need seperate member for this 
+    void RenderScaled(wxDC& dc);
+    void Render(wxDC& dc);
+
+    //Event Handlers
     void OnCaptureLost(wxMouseCaptureLostEvent&);
-    void rescaleImage(wxBitmap* bitmap, int max);
-    void scrollWheelZoom(wxMouseEvent& event);
-    void leftIsDragging(wxMouseEvent& event);
-    void hoverPrinting(wxMouseEvent& event);//Remove later
-    void rightIsDown(wxMouseEvent& event);
-    void enterWindow(wxMouseEvent& event);
-    void exitWindow(wxMouseEvent& event);
-    void leftIsDown(wxMouseEvent& event);
-    void calculateAspectRatio(int max);
-    void leftIsUp(wxMouseEvent& event);
+    void ScrollWheelZoom(wxMouseEvent& event);
+    void LeftIsDragging(wxMouseEvent& event);
+    void HoverPrinting(wxMouseEvent& event);//Remove later
+    void RightIsDown(wxMouseEvent& event);
+    void EnterWindow(wxMouseEvent& event);
+    void ExitWindow(wxMouseEvent& event);
+    void LeftIsDown(wxMouseEvent& event);
+    void LeftIsUp(wxMouseEvent& event);
     void OnPaint(wxPaintEvent& event);
-    void onKey_D(wxKeyEvent& event);
-    void onKey_F(wxKeyEvent& event);
-    void calculateAspectRatio(); //Might not need seperate member for this 
-    void renderScaled(wxDC& dc);
-    void render(wxDC& dc);
+    void OnKey_D(wxKeyEvent& event);
+    void OnKey_F(wxKeyEvent& event);
 
 public:
     ImageWidget(wxWindow* parent, 
@@ -46,5 +50,5 @@ public:
         wxStatusBar& statusBar);
     ~ImageWidget();
 
-    void setGlobalScale();
+    void SetGlobalScale();
 };

@@ -21,7 +21,7 @@ ImageWidget::ImageWidget(wxWindow* parent,
                         wxString imgPath, 
                         const bool& m_panCanvas, 
                         wxStatusBar& statusBar)
-:wxPanel(parent, id, pos, size)
+    :wxPanel(parent, id, pos, size)
 {
     this->SetBackgroundColour(wxColor(77, 38, 39));
 
@@ -42,31 +42,32 @@ ImageWidget::ImageWidget(wxWindow* parent,
     m_originalDimensions.x = m_bitmap->GetWidth();
     m_originalDimensions.y = m_bitmap->GetHeight();
 
-    //If image is larger than client Y, Scale it
+    //If image is larger than client Y, scale it and move to the top
     wxPoint clientSize{}; 
     GetParent()->GetClientSize(&clientSize.x, &clientSize.y);
     if (m_bitmap->GetHeight() >= clientSize.y)
-        rescaleImage(m_bitmap, clientSize.y);
+    {
+        RescaleImage(m_bitmap, clientSize.y);
+        this->Move((wxPoint(pos.x, 10)));
+    }
 
     m_scale.x = m_bitmap->GetWidth();
     m_scale.y = m_bitmap->GetHeight();
-    //m_aspectRatio = ( (double)m_originalDimensions.y / m_originalDimensions.x);
 
-    //Set size of widget
+    //Set size of widget (wxPanel)
     this->SetSize(wxSize(m_scale.x, m_scale.y));
 
     Raise();
 
     //Bind Mouse Events
-    Bind(wxEVT_MOUSEWHEEL, &ImageWidget::scrollWheelZoom, this);
-    Bind(wxEVT_RIGHT_DOWN, &ImageWidget::rightIsDown, this);
-    Bind(wxEVT_LEFT_DOWN, &ImageWidget::leftIsDown, this);
-    Bind(wxEVT_ENTER_WINDOW, &ImageWidget::enterWindow, this);
-    Bind(wxEVT_LEAVE_WINDOW, &ImageWidget::exitWindow, this);
-    Bind(wxEVT_MOTION, &ImageWidget::hoverPrinting, this);//Remove later
+    Bind(wxEVT_MOUSEWHEEL, &ImageWidget::ScrollWheelZoom, this);
+    Bind(wxEVT_RIGHT_DOWN, &ImageWidget::RightIsDown, this);
+    Bind(wxEVT_LEFT_DOWN, &ImageWidget::LeftIsDown, this);
+    Bind(wxEVT_ENTER_WINDOW, &ImageWidget::EnterWindow, this);
+    Bind(wxEVT_LEAVE_WINDOW, &ImageWidget::ExitWindow, this);
+    Bind(wxEVT_MOTION, &ImageWidget::HoverPrinting, this);//Remove later
     //Bind Paint
     Bind(wxEVT_PAINT, &ImageWidget::OnPaint, this);
-
 }
 
 ImageWidget::~ImageWidget()
@@ -83,18 +84,18 @@ void ImageWidget::OnPaint(wxPaintEvent& event)
     wxPaintDC dc(this);
     if (m_scalingImage)
     {
-        renderScaled(dc);
+        RenderScaled(dc);
     }
     else
-        render(dc);
+        Render(dc);
 }
 
-void ImageWidget::render(wxDC& dc)
+void ImageWidget::Render(wxDC& dc)
 {
     dc.DrawBitmap(*m_bitmap, 0, 0, true);
 }
 
-void ImageWidget::renderScaled(wxDC& dc)
+void ImageWidget::RenderScaled(wxDC& dc)
 {
     //Convert bitmap to wxImage for scaling
     m_image = new wxImage();
@@ -109,7 +110,7 @@ void ImageWidget::renderScaled(wxDC& dc)
     m_scalingImage = false;
 }
 
-void ImageWidget::calculateAspectRatio()
+void ImageWidget::CalculateAspectRatio()
 {
     //Aspect ratio formula -> (org. height / org. width) x new width = new height
     //Solve for width - width / (original width / original Height);
@@ -125,7 +126,7 @@ void ImageWidget::calculateAspectRatio()
     //currentAspectRatio = ((double)m_scale.y / m_scale.x);
 }
 
-void ImageWidget::calculateAspectRatio(int clientSizeY)
+void ImageWidget::CalculateAspectRatio(int clientSizeY)
 {
     //Solve width while having new height
     m_scale.y = (double)clientSizeY - 20;
@@ -137,20 +138,20 @@ void ImageWidget::calculateAspectRatio(int clientSizeY)
     //currentAspectRatio = ((double)m_scale.y / m_scale.x);
 }
 
-void ImageWidget::rescaleImage(wxBitmap* bitmap, int max)
+void ImageWidget::RescaleImage(wxBitmap* bitmap, int max)
 {
     //Convert bitmap to wxImage for scaling
     m_image = new wxImage();
     m_image->LoadFile(m_imgPath, wxBITMAP_TYPE_JPEG);
 
-    calculateAspectRatio(max);
+    CalculateAspectRatio(max);
 
     //Convert wxImage to wxBitmap for drawing
     *m_bitmap = wxBitmap(m_image->Scale(m_scale.x, m_scale.y));
     delete m_image;
 }
 
-void ImageWidget::setGlobalScale()
+void ImageWidget::SetGlobalScale()
 {
     //baseOffset + (pivot * height) = finalPos
     m_scale.x = 256;
@@ -162,12 +163,11 @@ void ImageWidget::setGlobalScale()
 // Mouse / Keyboard Handlers
 //---------------------------------------------------------------------------
 
-void ImageWidget::hoverPrinting(wxMouseEvent& event)//Remove later
+void ImageWidget::HoverPrinting(wxMouseEvent& event)//Remove later
 {
 //    m_statusBar->SetStatusText("Right click + drag to pan canvas \
 //| Left click + drag to move image \
 //| F - Restore original image size");
-        
 
     wxPoint pos = event.GetPosition();
 
@@ -185,7 +185,7 @@ void ImageWidget::hoverPrinting(wxMouseEvent& event)//Remove later
     //);
 }
 
-void ImageWidget::onKey_F(wxKeyEvent& event)
+void ImageWidget::OnKey_F(wxKeyEvent& event)
 {
     //Rescales image to its original dimensions
     wxChar key = event.GetUnicodeKey();
@@ -200,7 +200,7 @@ void ImageWidget::onKey_F(wxKeyEvent& event)
     event.Skip();
 }
 
-void ImageWidget::onKey_D(wxKeyEvent& event)
+void ImageWidget::OnKey_D(wxKeyEvent& event)
 {
     wxChar key = event.GetUnicodeKey();
     if (key == 'D' && m_canDelete)
@@ -224,7 +224,7 @@ void ImageWidget::onKey_D(wxKeyEvent& event)
         event.Skip();
 }
 
-void ImageWidget::scrollWheelZoom(wxMouseEvent& event)
+void ImageWidget::ScrollWheelZoom(wxMouseEvent& event)
 {
     wxPoint mousePosPreZoom = event.GetPosition();
     wxPoint2DDouble sizeBeforeScale = m_scale;
@@ -246,13 +246,13 @@ void ImageWidget::scrollWheelZoom(wxMouseEvent& event)
         m_scaleIncrimentor = 100;
         m_scaleIncrimentor += (double)m_scaleMultiplier * (rot / delta);
 
-        calculateAspectRatio();
+        CalculateAspectRatio();
 
         //Set size of ImageWidget wxPanel
         this->SetSize(wxSize(m_scale.x, m_scale.y));
     }
 
-    //ZOOM WITH OFFSET 
+    //ZOOM WITH MOUSE OFFSET 
     //----------------------------------------------------------------
     wxPoint2DDouble sizeAfterScale = m_scale;
     
@@ -285,7 +285,7 @@ void ImageWidget::scrollWheelZoom(wxMouseEvent& event)
     //);
 }
 
-void ImageWidget::leftIsDown(wxMouseEvent& event)
+void ImageWidget::LeftIsDown(wxMouseEvent& event)
 {
     CaptureMouse();
     wxSetCursor(wxCURSOR_HAND);
@@ -299,12 +299,12 @@ void ImageWidget::leftIsDown(wxMouseEvent& event)
     if(!event.AltDown())
         Raise();
 
-    Bind(wxEVT_LEFT_UP, &ImageWidget::leftIsUp, this);
-    Bind(wxEVT_MOTION, &ImageWidget::leftIsDragging, this);
+    Bind(wxEVT_LEFT_UP, &ImageWidget::LeftIsUp, this);
+    Bind(wxEVT_MOTION, &ImageWidget::LeftIsDragging, this);
     Bind(wxEVT_MOUSE_CAPTURE_LOST, &ImageWidget::OnCaptureLost, this);
 }
 
-void ImageWidget::leftIsDragging(wxMouseEvent& event)
+void ImageWidget::LeftIsDragging(wxMouseEvent& event)
 {
     if (m_widgetDragging)
     {
@@ -328,7 +328,7 @@ void ImageWidget::leftIsDragging(wxMouseEvent& event)
     }
 }
 
-void ImageWidget::leftIsUp(wxMouseEvent& event)
+void ImageWidget::LeftIsUp(wxMouseEvent& event)
 {
     if (HasCapture())
     {
@@ -337,23 +337,23 @@ void ImageWidget::leftIsUp(wxMouseEvent& event)
 
     m_widgetDragging = false;
 
-    Unbind(wxEVT_LEFT_UP, &ImageWidget::leftIsUp, this);
-    Unbind(wxEVT_MOTION, &ImageWidget::leftIsDragging, this);
+    Unbind(wxEVT_LEFT_UP, &ImageWidget::LeftIsUp, this);
+    Unbind(wxEVT_MOTION, &ImageWidget::LeftIsDragging, this);
     Unbind(wxEVT_MOUSE_CAPTURE_LOST, &ImageWidget::OnCaptureLost, this);
 }
 
-void ImageWidget::enterWindow(wxMouseEvent& event)
+void ImageWidget::EnterWindow(wxMouseEvent& event)
 {
     SetFocus();
-    Bind(wxEVT_CHAR_HOOK, &ImageWidget::onKey_F, this);
-    Bind(wxEVT_CHAR_HOOK, &ImageWidget::onKey_D, this);
+    Bind(wxEVT_CHAR_HOOK, &ImageWidget::OnKey_F, this);
+    Bind(wxEVT_CHAR_HOOK, &ImageWidget::OnKey_D, this);
     m_canDelete = true;
 }
 
-void ImageWidget::exitWindow(wxMouseEvent& event)
+void ImageWidget::ExitWindow(wxMouseEvent& event)
 {
-    Unbind(wxEVT_CHAR_HOOK, &ImageWidget::onKey_F, this);
-    Unbind(wxEVT_CHAR_HOOK, &ImageWidget::onKey_D, this);
+    Unbind(wxEVT_CHAR_HOOK, &ImageWidget::OnKey_F, this);
+    Unbind(wxEVT_CHAR_HOOK, &ImageWidget::OnKey_D, this);
     m_canDelete = false;
 }
 
@@ -366,7 +366,7 @@ void ImageWidget::OnCaptureLost(wxMouseCaptureLostEvent&)
     }
 }
 
-void ImageWidget::rightIsDown(wxMouseEvent& event)
+void ImageWidget::RightIsDown(wxMouseEvent& event)
 {
     //Get SCREEN mouse pos and convert to client
     wxPoint pos = wxGetMousePosition();
