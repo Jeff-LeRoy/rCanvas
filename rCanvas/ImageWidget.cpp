@@ -118,6 +118,12 @@ void ImageWidget::CalculateAspectRatio()
 
     wxPoint oldScale = m_scale;
     m_scale.x = oldScale.x * (m_scaleIncrimentor / 100.0);
+    
+    //Limiting scale of image
+    if (m_scale.x < 32.0)
+        m_scale.x = 32.0;
+    else if (m_scale.x > m_originalDimensions.x * 4)
+        m_scale.x = m_originalDimensions.x * 4;
 
     //Calculate new height
     //adding 0.5 causes the integer truncation to produce a rounding effect
@@ -177,12 +183,12 @@ void ImageWidget::HoverPrinting(wxMouseEvent& event)//Remove later
     //wxPoint scrn = event.GetPosition();
     wxPoint scrn = m_parent->ScreenToClient(wxPoint(x, y));
     wxPoint client = m_parent->ClientToScreen(wxPoint(x, y));
+    
 
-
-    //wxLogStatus(
-    //    " posX=" + wxString::Format(wxT("%d"), pos.x) + ' ' +
-    //    " posY=" + wxString::Format(wxT("%d"), pos.y)
-    //);
+    wxLogStatus(
+        " virtualSize.xX=" + wxString::Format(wxT("%lf"), (double)m_virtualSize.x * 2) + ' ' +
+        " posY=" + wxString::Format(wxT("%d"), pos.y)
+    );
 }
 
 void ImageWidget::OnKey_F(wxKeyEvent& event)
