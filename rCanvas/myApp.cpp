@@ -48,6 +48,7 @@ void MainFrame::OnAbout(wxKeyEvent& event)
             " \n"
             " \n"
             " IMAGE-WIDGET SHORTCUTS\n"
+            " (When mouse is hovering over an image)\n"
             " ----------------------------------------------------------------------------\n"
             " Scale image up / down \t\t| Mouse Scrollwheel\n"
             " Accelerate Scaling speed \t\t| CTRL + Mouse Scrollwheel\n"
