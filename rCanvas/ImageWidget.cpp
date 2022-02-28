@@ -31,7 +31,7 @@ ImageWidget::ImageWidget(wxWindow* parent,
     m_statusBar = &statusBar;
 
     //load image to heap
-    m_bitmap = new wxBitmap(imgPath, wxBITMAP_TYPE_JPEG);
+    m_bitmap = new wxBitmap(imgPath, wxBITMAP_TYPE_ANY);
     if(!m_bitmap->IsOk())
     {
         wxMessageBox("There was an error loading the image.");
@@ -175,20 +175,20 @@ void ImageWidget::HoverPrinting(wxMouseEvent& event)//Remove later
 //| Left click + drag to move image \
 //| F - Restore original image size");
 
-    wxPoint pos = event.GetPosition();
+    //wxPoint pos = event.GetPosition();
 
-    int x = pos.x;
-    int y = pos.y;
+    //int x = pos.x;
+    //int y = pos.y;
 
-    //wxPoint scrn = event.GetPosition();
-    wxPoint scrn = m_parent->ScreenToClient(wxPoint(x, y));
-    wxPoint client = m_parent->ClientToScreen(wxPoint(x, y));
-    
+    ////wxPoint scrn = event.GetPosition();
+    //wxPoint scrn = m_parent->ScreenToClient(wxPoint(x, y));
+    //wxPoint client = m_parent->ClientToScreen(wxPoint(x, y));
+    //
 
-    wxLogStatus(
-        " virtualSize.xX=" + wxString::Format(wxT("%lf"), (double)m_virtualSize.x * 2) + ' ' +
-        " posY=" + wxString::Format(wxT("%d"), pos.y)
-    );
+    //wxLogStatus(
+    //    " virtualSize.xX=" + wxString::Format(wxT("%lf"), (double)m_virtualSize.x * 2) + ' ' +
+    //    " posY=" + wxString::Format(wxT("%d"), pos.y)
+    //);
 }
 
 void ImageWidget::OnKey_F(wxKeyEvent& event)
