@@ -55,7 +55,7 @@ wxString ImageCanvas::GetImage()
     wxFileDialog openFileDialog
     (this, _("Open Image"), "", "", 
 "Any supported image (*.jpg; *.bmp; *.gif; *.png)|*.jpg; *.bmp; *.gif; *.png|\
-.jpg files (*.jpg)|*.jpg|\
+JPG files (*.jpg)|*.jpg|\
 BMP and GIF files (*.bmp;*.gif)|*.bmp;*.gif|\
 PNG files (*.png)|*.png", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 

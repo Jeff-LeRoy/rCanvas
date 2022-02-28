@@ -99,7 +99,7 @@ void ImageWidget::RenderScaled(wxDC& dc)
 {
     //Convert bitmap to wxImage for scaling
     m_image = new wxImage();
-    m_image->LoadFile(m_imgPath, wxBITMAP_TYPE_JPEG);
+    m_image->LoadFile(m_imgPath, wxBITMAP_TYPE_ANY);
 
     //Convert wxImage to wxBitmap for drawing
     *m_bitmap = wxBitmap(m_image->Scale(m_scale.x, m_scale.y));
@@ -148,7 +148,7 @@ void ImageWidget::RescaleImage(wxBitmap* bitmap, int max)
 {
     //Convert bitmap to wxImage for scaling
     m_image = new wxImage();
-    m_image->LoadFile(m_imgPath, wxBITMAP_TYPE_JPEG);
+    m_image->LoadFile(m_imgPath, wxBITMAP_TYPE_ANY);
 
     CalculateAspectRatio(max);
 
@@ -195,7 +195,7 @@ void ImageWidget::OnKey_F(wxKeyEvent& event)
 {
     //Rescales image to its original dimensions
     wxChar key = event.GetUnicodeKey();
-    if (key == 'F')
+    if (key == 'F' && m_scale.x != m_originalDimensions.x)
     {
         m_scale.x = m_originalDimensions.x;
         m_scale.y = m_originalDimensions.y;
