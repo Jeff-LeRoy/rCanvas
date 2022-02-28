@@ -54,10 +54,10 @@ wxString ImageCanvas::GetImage()
 {
     wxFileDialog openFileDialog
     (this, _("Open Image"), "", "", 
-        "All supported image formats (*.jpg; *.bmp; *.gif; *.png)|*.jpg; *.bmp; *.gif; *.png|'\
-        .jpg files (*.jpg)|*.jpg|'\
-        BMP and GIF files (*.bmp;*.gif)|*.bmp;*.gif|'\
-        PNG files (*.png)|*.png", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+"Any supported image (*.jpg; *.bmp; *.gif; *.png)|*.jpg; *.bmp; *.gif; *.png|\
+.jpg files (*.jpg)|*.jpg|\
+BMP and GIF files (*.bmp;*.gif)|*.bmp;*.gif|\
+PNG files (*.png)|*.png", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 
     if (openFileDialog.ShowModal() == wxID_CANCEL)
         return wxEmptyString;
