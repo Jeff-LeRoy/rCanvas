@@ -25,6 +25,8 @@ private:
     void CalculateAspectRatio(); //Might not need seperate member for this 
     void RenderScaled(wxDC& dc);
     void Render(wxDC& dc);
+    void ZoomToCursor(wxPoint& mousePos, bool scalingUp, 
+        wxPoint2DDouble sizeAfterScale, wxPoint2DDouble sizeBeforeScale);
 
     //Event Handlers
     void OnCaptureLost(wxMouseCaptureLostEvent&);
