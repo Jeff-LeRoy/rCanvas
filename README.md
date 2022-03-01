@@ -6,12 +6,12 @@ A few examples with placeholder images, imagine it with real reference images.
 ![Capture](https://user-images.githubusercontent.com/7757495/155215023-f28c532b-1cd4-4d01-85d3-92d0f16968ef.PNG)
 
 # Features
-* Load .jpg images
+* Load JPG, PNG, GIF and BMP images
 * Scale and translate images on canvas
 * Delete images from canvas
-* Restore original dimensions of images ( it is scaled to not be larger than viewable canvas on import )
+* Restore original dimensions of images after translating
+* ImageWidgets scale from offset of mouse cursor
 ### Imminent Features
-* Support for other image formats
 * Save/load canvas configurations
 * Lock Images from transforms
 
