@@ -42,17 +42,17 @@ ImageWidget::ImageWidget(wxWindow* parent,
     m_originalDimensions.x = m_bitmap->GetWidth();
     m_originalDimensions.y = m_bitmap->GetHeight();
 
-    //If image is larger than client Y, scale it and move to the top
+    //If image is larger than client Y, scale it
     wxPoint clientSize{}; 
     GetParent()->GetClientSize(&clientSize.x, &clientSize.y);
     if (m_bitmap->GetHeight() >= clientSize.y)
-    {
         RescaleImage(m_bitmap, clientSize.y);
-        this->Move((wxPoint(pos.x, 10)));
-    }
 
     m_scale.x = m_bitmap->GetWidth();
     m_scale.y = m_bitmap->GetHeight();
+
+    //Move center of ImageWidget to cursor 
+    this->Move(wxPoint(pos.x - (m_scale.x / 2), pos.y - (m_scale.y / 2)));
 
     //Set size of widget (wxPanel)
     this->SetSize(wxSize(m_scale.x, m_scale.y));
