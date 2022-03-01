@@ -15,7 +15,7 @@ private:
     bool ShouldScrollToChildOnFocus(wxWindow* child);
     void OnDraw(wxDC& dc) override;
     void Render(wxDC& dc);
-    wxPoint GetMousePos();
+    wxPoint GetClientMousePos();
     wxString GetImage();
 
     //Event Handlers

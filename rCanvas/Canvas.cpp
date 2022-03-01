@@ -101,7 +101,7 @@ void ImageCanvas::CenterScrollbars()
     Scroll(((m_virtualSize.x - clientSize.x) / 2), ((m_virtualSize.y - clientSize.y) / 2));
 }
 
-wxPoint ImageCanvas::GetMousePos()
+wxPoint ImageCanvas::GetClientMousePos()
 {
     //Get screen mouse pos
     const wxPoint pt = wxGetMousePosition();
@@ -190,11 +190,11 @@ void ImageCanvas::OnKey_A(wxKeyEvent& event)
 void ImageCanvas::OnKey_O(wxKeyEvent& event)
 {
     wxChar key = event.GetKeyCode();
-    wxPoint mPos = GetMousePos();
+    wxPoint mPos = GetClientMousePos();
 
     if (key == 'O')
     {
-        wxString fileLocation = ImageCanvas::GetImage();
+        wxString fileLocation = GetImage();
 
         if(fileLocation != wxEmptyString)
             ImageWidget* imageWidget = new ImageWidget(this, wxID_ANY, mPos, wxDefaultSize, fileLocation, m_panCanvas, *m_statusBar);
@@ -208,25 +208,25 @@ void ImageCanvas::OnKey_O(wxKeyEvent& event)
 
 void ImageCanvas::HoverPrinting(wxMouseEvent& event)//Remove later
 {
-    //const wxPoint pt = event.GetPosition();
-    //wxPoint clientSize{}; GetClientSize(&clientSize.x, &clientSize.y);
-    //wxPoint scrolledPosition{}; GetViewStart(&scrolledPosition.x, &scrolledPosition.y);
-    //wxPoint windowSize{}; GetSize(&windowSize.x, &windowSize.y);
-    //wxPoint mPos = wxGetMousePosition();
-    //wxPoint screenToClient = ScreenToClient(mPos);
-    //wxPoint clientToScreen = ClientToScreen(mPos);
-    //wxPoint mainScrnMPos = wxGetMousePosition();
+    const wxPoint pt = event.GetPosition();
+    wxPoint clientSize{}; GetClientSize(&clientSize.x, &clientSize.y);
+    wxPoint scrolledPosition{}; GetViewStart(&scrolledPosition.x, &scrolledPosition.y);
+    wxPoint windowSize{}; GetSize(&windowSize.x, &windowSize.y);
+    wxPoint mPos = GetClientMousePos();
+    wxPoint screenToClient = ScreenToClient(mPos);
+    wxPoint clientToScreen = ClientToScreen(mPos);
+    wxPoint mainScrnMPos = wxGetMousePosition();
 
-    //wxLogStatus(
-    //    " mPosX=" + wxString::Format(wxT("%d"), mPos.x) + ' ' +
-    //    " mPosY=" + wxString::Format(wxT("%d"), mPos.y) + ' ' +
-    //    " screenToClientX=" + wxString::Format(wxT("%d"), screenToClient.x) + ' ' +
-    //    " screenToClientY=" + wxString::Format(wxT("%d"), screenToClient.y) + ' ' +
-    //    " clientToScreenX=" + wxString::Format(wxT("%d"), clientToScreen.x) + ' ' +
-    //    " clientToScreenY=" + wxString::Format(wxT("%d"), clientToScreen.y) + ' ' +
-    //    " mainScrnMPos=" + wxString::Format(wxT("%d"), mainScrnMPos.x) + ' ' +
-    //    " mainScrnMPos=" + wxString::Format(wxT("%d"), mainScrnMPos.y)
-    //);
+    wxLogStatus(
+        " mPosX=" + wxString::Format(wxT("%d"), mPos.x) + ' ' +
+        " mPosY=" + wxString::Format(wxT("%d"), mPos.y) + ' ' +
+        " screenToClientX=" + wxString::Format(wxT("%d"), screenToClient.x) + ' ' +
+        " screenToClientY=" + wxString::Format(wxT("%d"), screenToClient.y) + ' ' +
+        " clientToScreenX=" + wxString::Format(wxT("%d"), clientToScreen.x) + ' ' +
+        " clientToScreenY=" + wxString::Format(wxT("%d"), clientToScreen.y) + ' ' +
+        " mainScrnMPos=" + wxString::Format(wxT("%d"), mainScrnMPos.x) + ' ' +
+        " mainScrnMPos=" + wxString::Format(wxT("%d"), mainScrnMPos.y)
+    );
     event.Skip();
 }
 
