@@ -20,6 +20,7 @@ A few examples with placeholder images, imagine it with real reference images.
 
 # Shortcut Keys
 ### Global Shortcut Keys
+* **F1** - Help Menu
 * **Right Mouse + Drag** - Pan canvas
 * **CTRL + Right Mouse + Drag** - Accelerate the panning speed
 * **a** - Center canvas 
