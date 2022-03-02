@@ -167,9 +167,9 @@ void ImageWidget::SetGlobalScale()
 void ImageWidget::ZoomToCursor(wxPoint& mousePos, bool scalingUp,
     wxPoint2DDouble sizeAfterScale, wxPoint2DDouble sizeBeforeScale)
 {
-    //extraOffset will "round" the integer since they are truncated
-    //When zooming out we need to "round" down, doing this because you may have a situation
-    //where it calls to move, 8.7 pixels, then 8.8, and 8.9 these will all be truncated to 8
+    //This will "round" the integer since they are truncated
+    //Doing this because you may have a situation where it calls to move,
+    //8.7 pixels, then 8.8, and 8.9 these will all be truncated to 8
     //BUT it will be more accurate if rounded to 9, round down when zooming out
     double rounding;
     if (scalingUp)
@@ -178,7 +178,7 @@ void ImageWidget::ZoomToCursor(wxPoint& mousePos, bool scalingUp,
         rounding = -0.5;
 
     //Get 0-1 decimal coordinates inside ImageWidget for X and Y
-    //if the image is 512x512 and the mouse position is (256,256) this will give you (.5,.5)
+    //If the image is 512x512 and the mouse position is (256,256) this will give you (.5,.5)
     //aka we're at the middle of the image
     //0 will be far left or top of image, 1 is far right or bottom
     wxPoint2DDouble decCoordinates = mousePos / sizeBeforeScale;
@@ -189,7 +189,7 @@ void ImageWidget::ZoomToCursor(wxPoint& mousePos, bool scalingUp,
     //Now we need to calculate how much to offset the image based on mousePos
     //if old size was 512,512 and new size is 528x528 the change in size is 16
     //so, 16 * .5 = 8, same for y because image is square, now we know to move the image 
-    //up and to the left 8 pixels.
+    //up and to the left 8 pixels each
     int m_offsetX = (changeInSize.m_x * decCoordinates.m_x) + rounding;
     int m_offsetY = (changeInSize.m_y * decCoordinates.m_y) + rounding;
 
