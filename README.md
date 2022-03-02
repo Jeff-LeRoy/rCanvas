@@ -29,3 +29,13 @@ A few examples with placeholder images, imagine it with real reference images.
 * **Left Mouse + Drag** - Move image widget
 * **Alt + Left Mouse + Drag** - Move image widget without changing z-order
 * **f** - Reset image to original dimensions
+
+# Windows building
+1. Requires [wxWidgets](https://www.wxwidgets.org/downloads/) GUI library. You will probably need to download and build the library from source. I used wxWidgets-3.1.5 for rCanvas.
+
+2. Make sure the compiler knows where to look for the header file(s) for the library. Open the .sln and navigate to **Project > Properties > Configuration Properties > C/C++ > General**. Then under **Additional Include Directories** add the location for the header files:
+    -  `...\wxWidgets-3.1.5\include`
+    -  `...\wxWidgets-3.1.5\include\msvc`
+
+3. Tell the linker where to look for the library file(s). Open the .sln and navigate to **Project > Properties > Configuration Properties > Linker > General**. Then under **Additional Library Directories** add path for library files. 
+    - `...\wxWidgets-3.1.5\lib\vc_lib`
