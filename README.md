@@ -2,7 +2,7 @@
 rCanvas is a minimilistic image viewer with the advantage that you can load multiple images onto a single canvas for reference. It was designed around the needs of digital artist where often times it is benifical to have a collage of reference images instead of flipping back and forth through images, tabs and folders.  
 
 # Current Release
-[v0.3.0-alpha](https://github.com/Jeff-LeRoy/rCanvas/releases)
+[v0.3.0-alpha](https://github.com/Jeff-LeRoy/rCanvas/releases) - The main feature missing that still needs to be implimented is saving/loading user canvas. Some performance improvements to scaling images and other misc tweaks are planned for the next and probably last alpha release. Other than that everything is working well.
 
 # Examples
 A few examples with placeholder images, imagine it with real reference images.
