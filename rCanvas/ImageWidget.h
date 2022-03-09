@@ -17,6 +17,7 @@ private:
     wxPoint m_scale{ 1, 1 };
     bool m_scalingImage{};
     wxString m_imgPath{};
+    wxTimer m_timer;
 
 
     //Member Functions
@@ -41,6 +42,7 @@ private:
     void OnPaint(wxPaintEvent& event);
     void OnKey_D(wxKeyEvent& event);
     void OnKey_F(wxKeyEvent& event);
+    void OnTimer(wxTimerEvent& event);
 
 public:
     ImageWidget(wxWindow* parent, 
