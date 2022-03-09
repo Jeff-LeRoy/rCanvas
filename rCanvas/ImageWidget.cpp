@@ -59,6 +59,8 @@ ImageWidget::ImageWidget(wxWindow* parent,
 
     Raise();
 
+    m_timer.SetOwner(this);
+
     //Bind Mouse Events
     Bind(wxEVT_MOUSEWHEEL, &ImageWidget::ScrollWheelZoom, this);
     Bind(wxEVT_RIGHT_DOWN, &ImageWidget::RightIsDown, this);
@@ -67,6 +69,8 @@ ImageWidget::ImageWidget(wxWindow* parent,
     Bind(wxEVT_LEAVE_WINDOW, &ImageWidget::ExitWindow, this);
     Bind(wxEVT_MOTION, &ImageWidget::HoverPrinting, this);//Remove later
     Bind(wxEVT_PAINT, &ImageWidget::OnPaint, this);
+    Bind(wxEVT_TIMER, &ImageWidget::OnTimer, this);
+
 }
 
 ImageWidget::~ImageWidget()
@@ -83,10 +87,15 @@ void ImageWidget::OnPaint(wxPaintEvent& event)
     wxPaintDC dc(this);
     if (m_scalingImage)
     {
+        //wxLogStatus("Drawing wxImage");
         RenderScaled(dc);
     }
     else
+    {
+        //wxLogStatus("Drawing Bitmap");
         Render(dc);
+    }
+        
 }
 
 void ImageWidget::Render(wxDC& dc)
@@ -96,6 +105,7 @@ void ImageWidget::Render(wxDC& dc)
 
 void ImageWidget::RenderScaled(wxDC& dc)
 {
+
     //Convert bitmap to wxImage for scaling
     m_image = new wxImage();
     m_image->LoadFile(m_imgPath, wxBITMAP_TYPE_ANY);
@@ -105,8 +115,6 @@ void ImageWidget::RenderScaled(wxDC& dc)
     delete m_image;
 
     dc.DrawBitmap(*m_bitmap, 0, 0, true);
-
-    m_scalingImage = false;
 }
 
 void ImageWidget::CalculateAspectRatio()
@@ -172,12 +180,10 @@ void ImageWidget::ZoomToCursor(wxPoint& mousePos, bool scalingUp,
     //8.7 pixels, then 8.8, and 8.9 these will all be truncated to 8
     //BUT it will be more accurate if rounded to 9, round down when zooming out
     double rounding;
-    if (scalingUp)
-        rounding = +0.5;
-    else
-        rounding = -0.5;
 
-    //Get 0-1 decimal coordinates inside ImageWidget for X and Y
+    rounding = (scalingUp) ? +0.5 : -0.5;
+
+    //Get 0.0-1.0 decimal coordinates inside ImageWidget for X and Y
     //If the image is 512x512 and the mouse position is (256,256) this will give you (.5,.5)
     //aka we're at the middle of the image
     //0 will be far left or top of image, 1 is far right or bottom
@@ -274,6 +280,9 @@ void ImageWidget::OnKey_D(wxKeyEvent& event)
 
 void ImageWidget::ScrollWheelZoom(wxMouseEvent& event)
 {
+    //This will auto turn m_scalingImage to false
+    m_timer.Start(1000);
+
     wxPoint mousePosPreZoom = event.GetPosition();
     wxPoint2DDouble sizeBeforeScale = m_scale;
 
@@ -323,6 +332,8 @@ void ImageWidget::ScrollWheelZoom(wxMouseEvent& event)
 
 void ImageWidget::LeftIsDown(wxMouseEvent& event)
 {
+    m_scalingImage = false;
+
     CaptureMouse();
     wxSetCursor(wxCURSOR_HAND);
 
@@ -388,6 +399,8 @@ void ImageWidget::EnterWindow(wxMouseEvent& event)
 
 void ImageWidget::ExitWindow(wxMouseEvent& event)
 {
+    m_scalingImage = false;
+
     Unbind(wxEVT_CHAR_HOOK, &ImageWidget::OnKey_F, this);
     Unbind(wxEVT_CHAR_HOOK, &ImageWidget::OnKey_D, this);
     m_canDelete = false;
@@ -404,6 +417,8 @@ void ImageWidget::OnCaptureLost(wxMouseCaptureLostEvent&)
 
 void ImageWidget::RightIsDown(wxMouseEvent& event)
 {
+    m_scalingImage = false;
+
     //Get SCREEN mouse pos and convert to client
     wxPoint pos = wxGetMousePosition();
     wxPoint scrn = m_parent->ScreenToClient(wxPoint(pos.x, pos.y));
@@ -415,4 +430,9 @@ void ImageWidget::RightIsDown(wxMouseEvent& event)
 
     //Pass event to the parent handler
     wxPostEvent(GetParent(), event);
+}
+
+void ImageWidget::OnTimer(wxTimerEvent& event)
+{
+    m_scalingImage = false;
 }
