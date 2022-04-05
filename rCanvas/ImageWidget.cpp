@@ -224,8 +224,8 @@ void ImageWidget::HoverPrinting(wxMouseEvent& event)//Remove later
     //
 
     //wxLogStatus(
-    //    " virtualSize.xX=" + wxString::Format(wxT("%lf"), (double)m_virtualSize.x * 2) + ' ' +
-    //    " posY=" + wxString::Format(wxT("%d"), pos.y)
+    //    " m_scaleX" + wxString::Format(wxT("%lf"), (double)m_scale.x * 2) + ' ' +
+    //    " m_scaleY" + wxString::Format(wxT("%d"), m_scale.y)
     //);
 }
 

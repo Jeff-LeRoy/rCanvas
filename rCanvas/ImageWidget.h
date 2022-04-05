@@ -56,6 +56,10 @@ public:
 
     //Getters
     wxPoint GetOriginalDimensions() { return m_originalDimensions; }
+    wxString GetImgPath() { return m_imgPath; }
+    wxPoint GetCurrentScale() { return m_scale; }
+
+
 
     //for scaling all images (not doing anything atm)
     void SetGlobalScale();

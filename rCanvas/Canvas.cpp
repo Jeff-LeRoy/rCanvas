@@ -210,47 +210,53 @@ void ImageCanvas::OnSave(wxKeyEvent& event)
   
     if (key == 'S' && event.ControlDown())
     {
-        wxLogStatus("save");
+        wxPoint savePosition{};
+        wxPoint saveOriginalDimensions{};
+        int saveImageID{0};
+        wxPoint saveCurrentScale{};
+        wxString saveImgPath{};
 
-        double savePositionX{};
-        double savePositionY{};
-        double saveOriginalDimensionsX{};
-        double saveOriginalDimensionsY{};
-
-        wxWindowList& children = GetChildren();
-        for (wxWindowList::Node* node = children.GetFirst(); node; node = node->GetNext())
-        {
-            ImageWidget* current = (ImageWidget*)node->GetData();
-
-            savePositionX = current->GetPosition().x;
-            savePositionY = current->GetPosition().y;
-            saveOriginalDimensionsX = current->GetOriginalDimensions().x;
-            saveOriginalDimensionsY = current->GetOriginalDimensions().y;
-        }
-
-        //-----------------------------------------
-         //Create a document and add the root node.
+        //Create a document and set up root node
         wxXmlDocument xmlDoc;
-
         wxXmlNode* root = new wxXmlNode(NULL, wxXML_ELEMENT_NODE, "rCanvasRoot");
         xmlDoc.SetRoot(root);
 
-        // Add some XML
-        wxXmlNode* image_001 = new wxXmlNode(root, wxXML_ELEMENT_NODE, "image_001");
+        wxWindowList& children = GetChildren();
+        for (wxWindowList::Node* node{ children.GetFirst() }; node; node = node->GetNext())
+        {
+            ImageWidget* current = (ImageWidget*)node->GetData();
+            saveImgPath = current->GetImgPath();
+            savePosition = current->GetPosition();
+            saveOriginalDimensions = current->GetOriginalDimensions();
+            saveCurrentScale = current->GetCurrentScale();
 
-        wxXmlNode* originalDimensionsY = new wxXmlNode(image_001, wxXML_ELEMENT_NODE, "originalDimensionsY");
-        originalDimensionsY->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", wxString::Format(wxT("%lf"), saveOriginalDimensionsY)));
-        wxXmlNode* originalDimensionsX = new wxXmlNode(image_001, wxXML_ELEMENT_NODE, "originalDimensionsX");
-        originalDimensionsX->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", wxString::Format(wxT("%lf"), saveOriginalDimensionsX)));
+            wxXmlNode* currentImage = new wxXmlNode(root, wxXML_ELEMENT_NODE, "image_" + wxString::Format(wxT("%d"), saveImageID));
 
-        wxXmlNode* positionY = new wxXmlNode(image_001, wxXML_ELEMENT_NODE, "positionY");
-        positionY->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", wxString::Format(wxT("%lf"), savePositionY)));
-        wxXmlNode* positionX = new wxXmlNode(image_001, wxXML_ELEMENT_NODE, "positionX");
-        positionX->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", wxString::Format(wxT("%lf"), savePositionX)));
+            wxXmlNode* imgPath = new wxXmlNode(currentImage, wxXML_ELEMENT_NODE, "imgPath");
+            imgPath->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", saveImgPath));
 
+            wxXmlNode* currentScaleY = new wxXmlNode(currentImage, wxXML_ELEMENT_NODE, "currentScaleY");
+            currentScaleY->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", wxString::Format(wxT("%d"), saveCurrentScale.y)));
+            wxXmlNode* currentScaleX = new wxXmlNode(currentImage, wxXML_ELEMENT_NODE, "currentScaleX");
+            currentScaleX->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", wxString::Format(wxT("%d"), saveCurrentScale.x)));
+
+            wxXmlNode* originalDimensionsY = new wxXmlNode(currentImage, wxXML_ELEMENT_NODE, "originalDimensionsY");
+            originalDimensionsY->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", wxString::Format(wxT("%d"), saveOriginalDimensions.y)));
+            wxXmlNode* originalDimensionsX = new wxXmlNode(currentImage, wxXML_ELEMENT_NODE, "originalDimensionsX");
+            originalDimensionsX->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", wxString::Format(wxT("%d"), saveOriginalDimensions.x)));
+
+            wxXmlNode* positionY = new wxXmlNode(currentImage, wxXML_ELEMENT_NODE, "positionY");
+            positionY->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", wxString::Format(wxT("%d"), savePosition.y)));
+            wxXmlNode* positionX = new wxXmlNode(currentImage, wxXML_ELEMENT_NODE, "positionX");
+            positionX->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", wxString::Format(wxT("%d"), savePosition.x)));
+
+            saveImageID++;
+        }
 
         // Write the output to a wxString.
         xmlDoc.Save("testSaveFile.xml");
+
+        wxLogStatus("Saved!");
     }
     event.Skip();
 }
