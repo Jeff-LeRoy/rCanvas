@@ -27,6 +27,7 @@ private:
     void HoverPrinting(wxMouseEvent& event);//Remove later
     void RightIsDown(wxMouseEvent& event);
     void RightIsUp(wxMouseEvent& event);
+    void OnSave(wxKeyEvent& event);
     void OnKey_A(wxKeyEvent& event);
     void OnKey_O(wxKeyEvent& event);
 

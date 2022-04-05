@@ -54,5 +54,9 @@ public:
         wxStatusBar& statusBar);
     ~ImageWidget();
 
+    //Getters
+    wxPoint GetOriginalDimensions() { return m_originalDimensions; }
+
+    //for scaling all images (not doing anything atm)
     void SetGlobalScale();
 };

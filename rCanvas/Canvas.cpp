@@ -8,6 +8,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include <wx/wx.h>
+#include <wx/xml/xml.h>
 #include "ImageWidget.h"
 #include "Canvas.h"
 
@@ -44,6 +45,7 @@ ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id, wxStatusBar& statusBar
     //Global key bindings
     Bind(wxEVT_CHAR_HOOK, &ImageCanvas::OnKey_O, this);
     Bind(wxEVT_CHAR_HOOK, &ImageCanvas::OnKey_A, this);
+    Bind(wxEVT_CHAR_HOOK, &ImageCanvas::OnSave, this);
 
     m_statusBar->SetStatusText("Press F1 for help!");
 }
@@ -198,6 +200,57 @@ void ImageCanvas::OnKey_O(wxKeyEvent& event)
 
         if(fileLocation != wxEmptyString)
             ImageWidget* imageWidget = new ImageWidget(this, wxID_ANY, mPos, wxDefaultSize, fileLocation, m_panCanvas, *m_statusBar);
+    }
+    event.Skip();
+}
+
+void ImageCanvas::OnSave(wxKeyEvent& event)
+{
+    wxChar key = event.GetKeyCode();
+  
+    if (key == 'S' && event.ControlDown())
+    {
+        wxLogStatus("save");
+
+        double savePositionX{};
+        double savePositionY{};
+        double saveOriginalDimensionsX{};
+        double saveOriginalDimensionsY{};
+
+        wxWindowList& children = GetChildren();
+        for (wxWindowList::Node* node = children.GetFirst(); node; node = node->GetNext())
+        {
+            ImageWidget* current = (ImageWidget*)node->GetData();
+
+            savePositionX = current->GetPosition().x;
+            savePositionY = current->GetPosition().y;
+            saveOriginalDimensionsX = current->GetOriginalDimensions().x;
+            saveOriginalDimensionsY = current->GetOriginalDimensions().y;
+        }
+
+        //-----------------------------------------
+         //Create a document and add the root node.
+        wxXmlDocument xmlDoc;
+
+        wxXmlNode* root = new wxXmlNode(NULL, wxXML_ELEMENT_NODE, "rCanvasRoot");
+        xmlDoc.SetRoot(root);
+
+        // Add some XML
+        wxXmlNode* image_001 = new wxXmlNode(root, wxXML_ELEMENT_NODE, "image_001");
+
+        wxXmlNode* originalDimensionsY = new wxXmlNode(image_001, wxXML_ELEMENT_NODE, "originalDimensionsY");
+        originalDimensionsY->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", wxString::Format(wxT("%lf"), saveOriginalDimensionsY)));
+        wxXmlNode* originalDimensionsX = new wxXmlNode(image_001, wxXML_ELEMENT_NODE, "originalDimensionsX");
+        originalDimensionsX->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", wxString::Format(wxT("%lf"), saveOriginalDimensionsX)));
+
+        wxXmlNode* positionY = new wxXmlNode(image_001, wxXML_ELEMENT_NODE, "positionY");
+        positionY->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", wxString::Format(wxT("%lf"), savePositionY)));
+        wxXmlNode* positionX = new wxXmlNode(image_001, wxXML_ELEMENT_NODE, "positionX");
+        positionX->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", wxString::Format(wxT("%lf"), savePositionX)));
+
+
+        // Write the output to a wxString.
+        xmlDoc.Save("testSaveFile.xml");
     }
     event.Skip();
 }
