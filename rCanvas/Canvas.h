@@ -1,4 +1,5 @@
 #pragma once
+#include <wx/xml/xml.h>
 
 class ImageCanvas : public wxScrolledWindow
 {
@@ -10,6 +11,7 @@ private:
     wxPoint m_virtualSize{};
     wxPoint m_startMousePos;
     int m_border{ 50 };
+    wxXmlDocument doc; //Can we make this local ?
 
     //Member Functions
     bool ShouldScrollToChildOnFocus(wxWindow* child);
@@ -17,6 +19,7 @@ private:
     void Render(wxDC& dc);
     wxPoint GetClientMousePos();
     wxString GetImage();
+    void ProcessSavefile(wxXmlNode* node);
 
     //Event Handlers
     wxPoint IncrimentScrollDirection(wxPoint pt, wxPoint start, wxMouseEvent& event);
@@ -30,6 +33,8 @@ private:
     void OnSave(wxKeyEvent& event);
     void OnKey_A(wxKeyEvent& event);
     void OnKey_O(wxKeyEvent& event);
+    void OnKey_C(wxKeyEvent& event);
+
 
 public:
     ImageCanvas(wxWindow* parent, wxWindowID id, wxStatusBar& statusBar);

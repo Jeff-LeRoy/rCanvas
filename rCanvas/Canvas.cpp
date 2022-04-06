@@ -11,8 +11,6 @@
 #include <wx/xml/xml.h>
 #include "ImageWidget.h"
 #include "Canvas.h"
-
-
 class ImageWidget;
 
 //---------------------------------------------------------------------------
@@ -45,6 +43,7 @@ ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id, wxStatusBar& statusBar
     //Global key bindings
     Bind(wxEVT_CHAR_HOOK, &ImageCanvas::OnKey_O, this);
     Bind(wxEVT_CHAR_HOOK, &ImageCanvas::OnKey_A, this);
+    Bind(wxEVT_CHAR_HOOK, &ImageCanvas::OnKey_C, this);
     Bind(wxEVT_CHAR_HOOK, &ImageCanvas::OnSave, this);
 
     m_statusBar->SetStatusText("Press F1 for help!");
@@ -114,6 +113,41 @@ wxPoint ImageCanvas::GetClientMousePos()
     return mPos;
 }
 
+void ImageCanvas::ProcessSavefile(wxXmlNode* node)
+{
+    wxPoint position{};
+    wxPoint originalDimensions{};
+    wxPoint currentScale{};
+    wxString imgPath{};
+
+    while (node)
+    {
+        //If imagewidget then get children
+        if (node->GetAttribute("type") == "ImageWidget")
+        {
+            node = node->GetChildren();
+        }
+
+        //wxLogMessage(node->GetName());
+
+        if (node->GetName() == "positionX")
+            position.x = wxAtoi(node->GetNodeContent());
+        else if (node->GetName() == "positionY")
+            position.y = wxAtoi(node->GetNodeContent());
+        else if (node->GetName() == "imgPath")
+            imgPath = node->GetNodeContent();
+
+        //No more children so move up in heirarchy
+        if (node->GetNext() == NULL)
+        {
+            ImageWidget* imageWidget = new ImageWidget(this, wxID_ANY, position, wxDefaultSize, imgPath, m_panCanvas, *m_statusBar);
+            node = node->GetParent();
+        }
+
+        node = node->GetNext();
+    }
+}
+
 //---------------------------------------------------------------------------
 //Override functions
 //---------------------------------------------------------------------------
@@ -181,25 +215,48 @@ void ImageCanvas::Render(wxDC& dc)
 
 void ImageCanvas::OnKey_A(wxKeyEvent& event)
 {
-    wxChar key = event.GetUnicodeKey();
+    wxChar key = event.GetKeyCode();
+    wxPoint mPos = GetClientMousePos();
+
     if (key == 'A')
     {
-        CenterScrollbars();
+        wxString fileLocation = GetImage();
+
+        if (fileLocation != wxEmptyString)
+            ImageWidget* imageWidget = new ImageWidget(this, wxID_ANY, mPos, wxDefaultSize, fileLocation, m_panCanvas, *m_statusBar);
     }
     event.Skip();
 }
 
 void ImageCanvas::OnKey_O(wxKeyEvent& event)
 {
-    wxChar key = event.GetKeyCode();
-    wxPoint mPos = GetClientMousePos();
+    wxChar key = event.GetUnicodeKey();
 
     if (key == 'O')
     {
-        wxString fileLocation = GetImage();
+        wxFileDialog openFileDialog(this, _("Open Canvas file"), "", "",
+            "Canvas files (*.xml)|*.xml", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 
-        if(fileLocation != wxEmptyString)
-            ImageWidget* imageWidget = new ImageWidget(this, wxID_ANY, mPos, wxDefaultSize, fileLocation, m_panCanvas, *m_statusBar);
+        if (openFileDialog.ShowModal() == wxID_CANCEL)
+            return;
+
+        //Get path to XML location
+        wxString fileLocation = (openFileDialog.GetPath());
+
+        //Handle loading XML
+        if (!doc.Load(fileLocation))
+            m_statusBar->SetStatusText("Failed To Load canvas.");
+        else
+            m_statusBar->SetStatusText("Successfully Loaded canvas");
+
+        //Make sure it is a rCanvas XML
+        if (doc.GetRoot()->GetName() != "rCanvasRoot")
+            wxLogMessage("Error loading Canvas");
+        else
+        {
+            wxXmlNode* rootChild = doc.GetRoot()->GetChildren();
+            ProcessSavefile(rootChild);
+        }
     }
     event.Skip();
 }
@@ -231,6 +288,7 @@ void ImageCanvas::OnSave(wxKeyEvent& event)
             saveCurrentScale = current->GetCurrentScale();
 
             wxXmlNode* currentImage = new wxXmlNode(root, wxXML_ELEMENT_NODE, "image_" + wxString::Format(wxT("%d"), saveImageID));
+            currentImage->AddAttribute("type", "ImageWidget");
 
             wxXmlNode* imgPath = new wxXmlNode(currentImage, wxXML_ELEMENT_NODE, "imgPath");
             imgPath->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", saveImgPath));
@@ -257,6 +315,16 @@ void ImageCanvas::OnSave(wxKeyEvent& event)
         xmlDoc.Save("testSaveFile.xml");
 
         wxLogStatus("Saved!");
+    }
+    event.Skip();
+}
+
+void ImageCanvas::OnKey_C(wxKeyEvent& event)
+{
+    wxChar key = event.GetUnicodeKey();
+    if (key == 'C')
+    {
+        CenterScrollbars();
     }
     event.Skip();
 }

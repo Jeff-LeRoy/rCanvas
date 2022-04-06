@@ -52,7 +52,7 @@ ImageWidget::ImageWidget(wxWindow* parent,
     m_scale.y = m_bitmap->GetHeight();
 
     //Move center of ImageWidget to cursor 
-    this->Move(wxPoint(pos.x - (m_scale.x / 2), pos.y - (m_scale.y / 2)));
+    //this->Move(wxPoint(pos.x - (m_scale.x / 2), pos.y - (m_scale.y / 2)));
 
     //Set size of widget (wxPanel)
     this->SetSize(wxSize(m_scale.x, m_scale.y));
