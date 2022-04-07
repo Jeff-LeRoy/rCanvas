@@ -6,22 +6,22 @@ class ImageCanvas : public wxScrolledWindow
 private:
     //Member Variables
     int m_subgridPixelSpacing{ 350 };
+    bool m_loadingSaveFile{false};
     int m_dragMultiplier{ 1 };
     wxStatusBar* m_statusBar;//From mainFrame
     wxPoint m_virtualSize{};
     wxPoint m_startMousePos;
-    int m_border{ 50 };
-    wxXmlDocument doc; //Can we make this local ?
     wxPoint m_viewStart{};
-    bool m_loadingSaveFile{false};
+    int m_border{ 50 };
+    wxXmlDocument doc;
 
     //Member Functions
     bool ShouldScrollToChildOnFocus(wxWindow* child);
-    void OnDraw(wxDC& dc) override;
-    void Render(wxDC& dc);
-    wxPoint GetClientMousePos();
-    wxString GetImage();
     void ProcessSavefile(wxXmlNode* node);
+    void OnDraw(wxDC& dc) override;
+    wxPoint GetClientMousePos();
+    void Render(wxDC& dc);
+    wxString GetImage();
 
     //Event Handlers
     wxPoint IncrimentScrollDirection(wxPoint pt, wxPoint start, wxMouseEvent& event);

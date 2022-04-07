@@ -21,9 +21,9 @@ ImageWidget::ImageWidget(wxWindow* parent,
                         wxString imgPath, 
                         const bool& m_panCanvas, //Cant zoom when panning
                         wxStatusBar& statusBar,
-                        const wxPoint& viewStart,
-                        const bool& saving,
-                        int imageHeight)
+                        const wxPoint& viewStart, //Calculat pos on Canvas
+                        const bool& saving, //Know if instantiating from save file
+                        int imageHeight) //Resize from save file
     :wxPanel(parent, id, pos, size)
 {
     this->SetBackgroundColour(wxColor(77, 38, 39));
@@ -58,6 +58,7 @@ ImageWidget::ImageWidget(wxWindow* parent,
         m_scale.x = m_bitmap->GetWidth();
         m_scale.y = m_bitmap->GetHeight();
     }
+    //Loading from a save file need to account for pixels removed in CalculateAspectRatio
     else
         RescaleImage(m_bitmap, imageHeight + 20);
 
@@ -80,7 +81,6 @@ ImageWidget::ImageWidget(wxWindow* parent,
     Bind(wxEVT_MOTION, &ImageWidget::HoverPrinting, this);//Remove later
     Bind(wxEVT_PAINT, &ImageWidget::OnPaint, this);
     Bind(wxEVT_TIMER, &ImageWidget::OnTimer, this);
-
 }
 
 ImageWidget::~ImageWidget()
@@ -213,8 +213,10 @@ void ImageWidget::ZoomToCursor(wxPoint& mousePos, bool scalingUp,
     this->Move((wxPoint(pos.m_x - m_offsetX, pos.m_y - m_offsetY)));
 }
 
-wxPoint ImageWidget::GetPositionOnCanvas()
+wxPoint ImageWidget::CalcPositionOnCanvas()
 {
+    //This will return the position of the ImageWidget on the canvas
+    //0,0 is top left corner
     return *m_viewStart + GetPosition();
 }
 
@@ -236,14 +238,14 @@ void ImageWidget::HoverPrinting(wxMouseEvent& event)//Remove later
     //wxPoint client = m_parent->ClientToScreen(wxPoint(x, y));
 
     //----------------------------------------
-    wxPoint iWPos = GetPosition();
-    //wxPoint viewStart = GetViewStart();
-    
+    //wxPoint iWPos = GetPosition();
+    ////wxPoint viewStart = GetViewStart();
+    //
 
-    wxLogStatus(
-        " posX" + wxString::Format(wxT("%d"), m_viewStart->x) + ' ' +
-        " posY" + wxString::Format(wxT("%d"), m_viewStart->y)
-    );
+    //wxLogStatus(
+    //    " posX" + wxString::Format(wxT("%d"), m_viewStart->x) + ' ' +
+    //    " posY" + wxString::Format(wxT("%d"), m_viewStart->y)
+    //);
 }
 
 void ImageWidget::OnKey_F(wxKeyEvent& event)

@@ -116,7 +116,6 @@ wxPoint ImageCanvas::GetClientMousePos()
 void ImageCanvas::ProcessSavefile(wxXmlNode* node)
 {
     wxPoint position{};
-    wxPoint originalDimensions{};
     int currentScaleY{};
     wxString imgPath{};
     wxPoint scrolledPos = GetViewStart();
@@ -130,10 +129,9 @@ void ImageCanvas::ProcessSavefile(wxXmlNode* node)
     {
         //If imagewidget then get children
         if (node->GetAttribute("type") == "ImageWidget")
-        {
             node = node->GetChildren();
-        }
 
+        //Assign data
         if (node->GetName() == "positionX")
             position.x = wxAtoi(node->GetNodeContent());
         else if (node->GetName() == "positionY")
@@ -143,12 +141,18 @@ void ImageCanvas::ProcessSavefile(wxXmlNode* node)
         else if(node->GetName() == "currentScaleY")
             currentScaleY = wxAtoi(node->GetNodeContent());
 
-
         //No more children so move up in heirarchy
         if (node->GetNext() == NULL)
         {
-            ImageWidget* imageWidget = new ImageWidget
-                (this, wxID_ANY, position, wxDefaultSize, imgPath, m_panCanvas, *m_statusBar, m_viewStart, m_loadingSaveFile, currentScaleY);
+            ImageWidget* imageWidget = new ImageWidget(this, 
+                wxID_ANY, 
+                position, 
+                wxDefaultSize, 
+                imgPath, m_panCanvas, 
+                *m_statusBar, 
+                m_viewStart, 
+                m_loadingSaveFile, 
+                currentScaleY);
 
             node = node->GetParent();
         }
@@ -156,8 +160,9 @@ void ImageCanvas::ProcessSavefile(wxXmlNode* node)
         node = node->GetNext();
     }
 
-    //Reset to where use was
+    //Reset to where user was
     Scroll(scrolledPos);
+
     m_loadingSaveFile = false;
 }
 
@@ -223,7 +228,7 @@ void ImageCanvas::Render(wxDC& dc)
 }
 
 //---------------------------------------------------------------------------
-//Shortcut key handlers
+//Mouse / Keyboard Handlers
 //---------------------------------------------------------------------------
 
 void ImageCanvas::OnKey_A(wxKeyEvent& event)
@@ -236,8 +241,16 @@ void ImageCanvas::OnKey_A(wxKeyEvent& event)
         wxString fileLocation = GetImage();
 
         if (fileLocation != wxEmptyString)
-            ImageWidget* imageWidget = new ImageWidget
-                (this, wxID_ANY, mPos, wxDefaultSize, fileLocation, m_panCanvas, *m_statusBar, m_viewStart, m_loadingSaveFile, 100);
+            ImageWidget* imageWidget = new ImageWidget(this, 
+                wxID_ANY, 
+                mPos, 
+                wxDefaultSize, 
+                fileLocation, 
+                m_panCanvas, 
+                *m_statusBar, 
+                m_viewStart, 
+                m_loadingSaveFile, 
+                1);
     }
     event.Skip();
 }
@@ -282,7 +295,6 @@ void ImageCanvas::OnSave(wxKeyEvent& event)
     if (key == 'S' && event.ControlDown())
     {
         wxPoint savePosition{};
-        wxPoint saveOriginalDimensions{};
         int saveImageID{0};
         wxPoint saveCurrentScale{};
         wxString saveImgPath{};
@@ -297,8 +309,7 @@ void ImageCanvas::OnSave(wxKeyEvent& event)
         {
             ImageWidget* current = (ImageWidget*)node->GetData();
             saveImgPath = current->GetImgPath();
-            savePosition = current->Gett_PositionOnCanvas();
-            saveOriginalDimensions = current->GetOriginalDimensions();
+            savePosition = current->GetPositionOnCanvas();
             saveCurrentScale = current->GetCurrentScale();
 
             wxXmlNode* currentImage = new wxXmlNode(root, wxXML_ELEMENT_NODE, "image_" + wxString::Format(wxT("%d"), saveImageID));
@@ -338,10 +349,6 @@ void ImageCanvas::OnKey_C(wxKeyEvent& event)
     }
     event.Skip();
 }
-
-//---------------------------------------------------------------------------
-//Mouse handlers
-//---------------------------------------------------------------------------
 
 void ImageCanvas::HoverPrinting(wxMouseEvent& event)//Remove later
 {

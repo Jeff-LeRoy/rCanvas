@@ -8,10 +8,10 @@ private:
     wxPoint m_imageWidgetClickPos{};
     const bool* m_isCanvasPanning{}; //From Canvas class
     const bool* m_loadingSaveFile{}; //From Canvas class
-    const wxPoint* m_viewStart{}; //From Canvas class
     bool m_widgetDragging{ false };
     wxPoint m_originalDimensions{};
     wxBitmap* m_bitmap = nullptr;
+    const wxPoint* m_viewStart{}; //From Canvas class
     wxImage* m_image = nullptr;
     int m_scaleMultiplier{ 1 };
     bool m_canDelete = false;
@@ -25,15 +25,15 @@ private:
     //Member Functions
     void RescaleImage(wxBitmap* bitmap, int max);
     void CalculateAspectRatio(int max);
+    wxPoint CalcPositionOnCanvas();
     void CalculateAspectRatio(); //Might not need seperate member for this 
     void RenderScaled(wxDC& dc);
     void Render(wxDC& dc);
     void ZoomToCursor(wxPoint& mousePos, bool scalingUp, 
         wxPoint2DDouble sizeAfterScale, wxPoint2DDouble sizeBeforeScale);
-    wxPoint GetPositionOnCanvas();
 
 
-    //Event Handlers Member Functions
+    //Event Handlers
     void OnCaptureLost(wxMouseCaptureLostEvent&);
     void ScrollWheelZoom(wxMouseEvent& event);
     void LeftIsDragging(wxMouseEvent& event);
@@ -62,10 +62,9 @@ public:
     ~ImageWidget();
 
     //Getters
-    wxPoint GetOriginalDimensions() { return m_originalDimensions; }
     wxString GetImgPath() { return m_imgPath; }
     wxPoint GetCurrentScale() { return m_scale; }
-    wxPoint Gett_PositionOnCanvas() { return wxPoint(GetPositionOnCanvas().x, GetPositionOnCanvas().y); }
+    wxPoint GetPositionOnCanvas() { return wxPoint(CalcPositionOnCanvas().x, CalcPositionOnCanvas().y); }
 
     //for scaling all images (not doing anything atm)
     void SetGlobalScale();
