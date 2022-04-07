@@ -81,10 +81,15 @@ bool MyApp::OnInit()
     mainFrame->SetSizer(sizer);
     mainFrame->Show(true);
 
-    canvas->CenterScrollbars();
-    
-    //ImageWidget* img = new ImageWidget(canvas, wxID_ANY, wxPoint(0, 0), wxDefaultSize, "Images/image_grid.jpg", canvas->m_panCanvas, *statusBar);
+    //ImageWidget* img = new ImageWidget(canvas, wxID_ANY, wxPoint(1000, 0), wxDefaultSize, "Images/image_grid.jpg", canvas->m_panCanvas, *statusBar);
 
+    //Centers the scrollbars for startup
+    canvas->CenterScrollbars();
+
+    //Get view start for start up, this also needs to be done after CenterScrollbars or else it is 0,0
+    //which is not accurate after the canvas is centered
+    canvas->SettViewStart(canvas->GetViewStart());
+    
     mainFrame->Center();
 
     return true;

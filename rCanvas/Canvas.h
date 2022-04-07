@@ -12,6 +12,8 @@ private:
     wxPoint m_startMousePos;
     int m_border{ 50 };
     wxXmlDocument doc; //Can we make this local ?
+    wxPoint m_viewStart{};
+    bool m_loadingSaveFile{false};
 
     //Member Functions
     bool ShouldScrollToChildOnFocus(wxWindow* child);
@@ -39,6 +41,9 @@ private:
 public:
     ImageCanvas(wxWindow* parent, wxWindowID id, wxStatusBar& statusBar);
     ~ImageCanvas();
+
+    //Setters
+    void SettViewStart(wxPoint vs) { m_viewStart = vs; }
 
     void CenterScrollbars();
     bool m_panCanvas{ false };//MOVE after removing ImageWidget object from myApp

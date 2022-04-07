@@ -117,8 +117,14 @@ void ImageCanvas::ProcessSavefile(wxXmlNode* node)
 {
     wxPoint position{};
     wxPoint originalDimensions{};
-    wxPoint currentScale{};
+    int currentScaleY{};
     wxString imgPath{};
+    wxPoint scrolledPos = GetViewStart();
+    m_loadingSaveFile = true;
+
+    //Have to do this before initializing ImageWidgets otherwise they wont be 
+    //positioned correctly on canvas
+    Scroll(0, 0);
 
     while (node)
     {
@@ -128,24 +134,31 @@ void ImageCanvas::ProcessSavefile(wxXmlNode* node)
             node = node->GetChildren();
         }
 
-        //wxLogMessage(node->GetName());
-
         if (node->GetName() == "positionX")
             position.x = wxAtoi(node->GetNodeContent());
         else if (node->GetName() == "positionY")
             position.y = wxAtoi(node->GetNodeContent());
         else if (node->GetName() == "imgPath")
             imgPath = node->GetNodeContent();
+        else if(node->GetName() == "currentScaleY")
+            currentScaleY = wxAtoi(node->GetNodeContent());
+
 
         //No more children so move up in heirarchy
         if (node->GetNext() == NULL)
         {
-            ImageWidget* imageWidget = new ImageWidget(this, wxID_ANY, position, wxDefaultSize, imgPath, m_panCanvas, *m_statusBar);
+            ImageWidget* imageWidget = new ImageWidget
+                (this, wxID_ANY, position, wxDefaultSize, imgPath, m_panCanvas, *m_statusBar, m_viewStart, m_loadingSaveFile, currentScaleY);
+
             node = node->GetParent();
         }
 
         node = node->GetNext();
     }
+
+    //Reset to where use was
+    Scroll(scrolledPos);
+    m_loadingSaveFile = false;
 }
 
 //---------------------------------------------------------------------------
@@ -223,7 +236,8 @@ void ImageCanvas::OnKey_A(wxKeyEvent& event)
         wxString fileLocation = GetImage();
 
         if (fileLocation != wxEmptyString)
-            ImageWidget* imageWidget = new ImageWidget(this, wxID_ANY, mPos, wxDefaultSize, fileLocation, m_panCanvas, *m_statusBar);
+            ImageWidget* imageWidget = new ImageWidget
+                (this, wxID_ANY, mPos, wxDefaultSize, fileLocation, m_panCanvas, *m_statusBar, m_viewStart, m_loadingSaveFile, 100);
     }
     event.Skip();
 }
@@ -283,7 +297,7 @@ void ImageCanvas::OnSave(wxKeyEvent& event)
         {
             ImageWidget* current = (ImageWidget*)node->GetData();
             saveImgPath = current->GetImgPath();
-            savePosition = current->GetPosition();
+            savePosition = current->Gett_PositionOnCanvas();
             saveOriginalDimensions = current->GetOriginalDimensions();
             saveCurrentScale = current->GetCurrentScale();
 
@@ -295,13 +309,6 @@ void ImageCanvas::OnSave(wxKeyEvent& event)
 
             wxXmlNode* currentScaleY = new wxXmlNode(currentImage, wxXML_ELEMENT_NODE, "currentScaleY");
             currentScaleY->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", wxString::Format(wxT("%d"), saveCurrentScale.y)));
-            wxXmlNode* currentScaleX = new wxXmlNode(currentImage, wxXML_ELEMENT_NODE, "currentScaleX");
-            currentScaleX->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", wxString::Format(wxT("%d"), saveCurrentScale.x)));
-
-            wxXmlNode* originalDimensionsY = new wxXmlNode(currentImage, wxXML_ELEMENT_NODE, "originalDimensionsY");
-            originalDimensionsY->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", wxString::Format(wxT("%d"), saveOriginalDimensions.y)));
-            wxXmlNode* originalDimensionsX = new wxXmlNode(currentImage, wxXML_ELEMENT_NODE, "originalDimensionsX");
-            originalDimensionsX->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", wxString::Format(wxT("%d"), saveOriginalDimensions.x)));
 
             wxXmlNode* positionY = new wxXmlNode(currentImage, wxXML_ELEMENT_NODE, "positionY");
             positionY->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", wxString::Format(wxT("%d"), savePosition.y)));
@@ -325,6 +332,9 @@ void ImageCanvas::OnKey_C(wxKeyEvent& event)
     if (key == 'C')
     {
         CenterScrollbars();
+
+        //needs to be updated so we can calculate where on Canvas images are when saving/loading
+        m_viewStart = GetViewStart();
     }
     event.Skip();
 }
@@ -335,25 +345,27 @@ void ImageCanvas::OnKey_C(wxKeyEvent& event)
 
 void ImageCanvas::HoverPrinting(wxMouseEvent& event)//Remove later
 {
-    //const wxPoint pt = event.GetPosition();
-    //wxPoint clientSize{}; GetClientSize(&clientSize.x, &clientSize.y);
-    //wxPoint scrolledPosition{}; GetViewStart(&scrolledPosition.x, &scrolledPosition.y);
-    //wxPoint windowSize{}; GetSize(&windowSize.x, &windowSize.y);
-    //wxPoint mPos = GetClientMousePos();
-    //wxPoint screenToClient = ScreenToClient(mPos);
-    //wxPoint clientToScreen = ClientToScreen(mPos);
-    //wxPoint mainScrnMPos = wxGetMousePosition();
+    const wxPoint pt = event.GetPosition();
+    wxPoint clientSize{}; GetClientSize(&clientSize.x, &clientSize.y);
+    wxPoint scrolledPosition{}; GetViewStart(&scrolledPosition.x, &scrolledPosition.y);
+    wxPoint windowSize{}; GetSize(&windowSize.x, &windowSize.y);
+    wxPoint mPos = GetClientMousePos();
+    wxPoint screenToClient = ScreenToClient(mPos);
+    wxPoint clientToScreen = ClientToScreen(mPos);
+    wxPoint mainScrnMPos = wxGetMousePosition();
 
-    //wxLogStatus(
-    //    " mPosX=" + wxString::Format(wxT("%d"), mPos.x) + ' ' +
-    //    " mPosY=" + wxString::Format(wxT("%d"), mPos.y) + ' ' +
-    //    " screenToClientX=" + wxString::Format(wxT("%d"), screenToClient.x) + ' ' +
-    //    " screenToClientY=" + wxString::Format(wxT("%d"), screenToClient.y) + ' ' +
-    //    " clientToScreenX=" + wxString::Format(wxT("%d"), clientToScreen.x) + ' ' +
-    //    " clientToScreenY=" + wxString::Format(wxT("%d"), clientToScreen.y) + ' ' +
-    //    " mainScrnMPos=" + wxString::Format(wxT("%d"), mainScrnMPos.x) + ' ' +
-    //    " mainScrnMPos=" + wxString::Format(wxT("%d"), mainScrnMPos.y)
-    //);
+    wxLogStatus(
+        " mPosX=" + wxString::Format(wxT("%d"), mPos.x) + ' ' +
+        " mPosY=" + wxString::Format(wxT("%d"), mPos.y) + ' ' +
+        " screenToClientX=" + wxString::Format(wxT("%d"), screenToClient.x) + ' ' +
+        " screenToClientY=" + wxString::Format(wxT("%d"), screenToClient.y) + ' ' +
+        " clientToScreenX=" + wxString::Format(wxT("%d"), clientToScreen.x) + ' ' +
+        " clientToScreenY=" + wxString::Format(wxT("%d"), clientToScreen.y) + ' ' +
+        " mainScrnMPos=" + wxString::Format(wxT("%d"), mainScrnMPos.x) + ' ' +
+        " mainScrnMPos=" + wxString::Format(wxT("%d"), mainScrnMPos.y) + ' ' +
+        " vsX=" + wxString::Format(wxT("%d"), m_viewStart.x) + ' ' +
+        " vsY=" + wxString::Format(wxT("%d"), m_viewStart.y)
+    );
     event.Skip();
 }
 
@@ -382,6 +394,9 @@ void ImageCanvas::RightIsDragging(wxMouseEvent& event)
         direction = IncrimentScrollDirection(event.GetPosition(), m_startMousePos, event);
         this->Scroll(scrolledPosition.x += direction.x, scrolledPosition.y += direction.y);
         //ScreenToClient(wxPoint(mousePosConverted_x, mousePosConverted_y));
+
+        //needs to be updated so we can calculate where on Canvas images are when saving/loading
+        m_viewStart = GetViewStart();
     }
 }
 

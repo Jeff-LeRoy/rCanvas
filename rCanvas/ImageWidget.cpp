@@ -19,8 +19,11 @@ ImageWidget::ImageWidget(wxWindow* parent,
                         wxPoint pos, 
                         wxSize size, 
                         wxString imgPath, 
-                        const bool& m_panCanvas, 
-                        wxStatusBar& statusBar)
+                        const bool& m_panCanvas, //Cant zoom when panning
+                        wxStatusBar& statusBar,
+                        const wxPoint& viewStart,
+                        const bool& saving,
+                        int imageHeight)
     :wxPanel(parent, id, pos, size)
 {
     this->SetBackgroundColour(wxColor(77, 38, 39));
@@ -29,6 +32,8 @@ ImageWidget::ImageWidget(wxWindow* parent,
     m_imgPath = imgPath;
     m_isCanvasPanning = &m_panCanvas;
     m_statusBar = &statusBar;
+    m_viewStart = &viewStart;
+    m_loadingSaveFile = &saving;
 
     //load image to heap
     m_bitmap = new wxBitmap(imgPath, wxBITMAP_TYPE_ANY);
@@ -43,13 +48,18 @@ ImageWidget::ImageWidget(wxWindow* parent,
     m_originalDimensions.y = m_bitmap->GetHeight();
 
     //If image is larger than client Y, scale it
-    wxPoint clientSize{}; 
+    wxPoint clientSize{};
     GetParent()->GetClientSize(&clientSize.x, &clientSize.y);
-    if (m_bitmap->GetHeight() >= clientSize.y)
-        RescaleImage(m_bitmap, clientSize.y);
+    if (!*m_loadingSaveFile)
+    {
+        if (m_bitmap->GetHeight() >= clientSize.y)
+            RescaleImage(m_bitmap, clientSize.y);
 
-    m_scale.x = m_bitmap->GetWidth();
-    m_scale.y = m_bitmap->GetHeight();
+        m_scale.x = m_bitmap->GetWidth();
+        m_scale.y = m_bitmap->GetHeight();
+    }
+    else
+        RescaleImage(m_bitmap, imageHeight + 20);
 
     //Move center of ImageWidget to cursor 
     //this->Move(wxPoint(pos.x - (m_scale.x / 2), pos.y - (m_scale.y / 2)));
@@ -203,6 +213,11 @@ void ImageWidget::ZoomToCursor(wxPoint& mousePos, bool scalingUp,
     this->Move((wxPoint(pos.m_x - m_offsetX, pos.m_y - m_offsetY)));
 }
 
+wxPoint ImageWidget::GetPositionOnCanvas()
+{
+    return *m_viewStart + GetPosition();
+}
+
 //---------------------------------------------------------------------------
 // Mouse / Keyboard Handlers
 //---------------------------------------------------------------------------
@@ -214,19 +229,21 @@ void ImageWidget::HoverPrinting(wxMouseEvent& event)//Remove later
 //| F - Restore original image size");
 
     //wxPoint pos = event.GetPosition();
-
     //int x = pos.x;
     //int y = pos.y;
-
     ////wxPoint scrn = event.GetPosition();
     //wxPoint scrn = m_parent->ScreenToClient(wxPoint(x, y));
     //wxPoint client = m_parent->ClientToScreen(wxPoint(x, y));
-    //
 
-    //wxLogStatus(
-    //    " m_scaleX" + wxString::Format(wxT("%lf"), (double)m_scale.x * 2) + ' ' +
-    //    " m_scaleY" + wxString::Format(wxT("%d"), m_scale.y)
-    //);
+    //----------------------------------------
+    wxPoint iWPos = GetPosition();
+    //wxPoint viewStart = GetViewStart();
+    
+
+    wxLogStatus(
+        " posX" + wxString::Format(wxT("%d"), m_viewStart->x) + ' ' +
+        " posY" + wxString::Format(wxT("%d"), m_viewStart->y)
+    );
 }
 
 void ImageWidget::OnKey_F(wxKeyEvent& event)
@@ -372,6 +389,11 @@ void ImageWidget::LeftIsDragging(wxMouseEvent& event)
         //Need to do this otherwise dragging an ImageWidget leave artifacts
         //GetParent()->ClearBackground();
         Refresh();
+
+        wxLogStatus(
+            " posX" + wxString::Format(wxT("%d"), GetPositionOnCanvas().x) + ' ' +
+            " posY" + wxString::Format(wxT("%d"), GetPositionOnCanvas().y)
+        );
     }
 }
 

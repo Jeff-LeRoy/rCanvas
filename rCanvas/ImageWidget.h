@@ -6,14 +6,16 @@ private:
     //Member Variables
     wxDouble m_scaleIncrimentor{ 100.0 };
     wxPoint m_imageWidgetClickPos{};
-    const bool* m_isCanvasPanning{};//From Canvas class
+    const bool* m_isCanvasPanning{}; //From Canvas class
+    const bool* m_loadingSaveFile{}; //From Canvas class
+    const wxPoint* m_viewStart{}; //From Canvas class
     bool m_widgetDragging{ false };
     wxPoint m_originalDimensions{};
     wxBitmap* m_bitmap = nullptr;
     wxImage* m_image = nullptr;
     int m_scaleMultiplier{ 1 };
     bool m_canDelete = false;
-    wxStatusBar* m_statusBar;//From mainFrame
+    wxStatusBar* m_statusBar; //From mainFrame
     wxPoint m_scale{ 1, 1 };
     bool m_scalingImage{};
     wxString m_imgPath{};
@@ -28,8 +30,10 @@ private:
     void Render(wxDC& dc);
     void ZoomToCursor(wxPoint& mousePos, bool scalingUp, 
         wxPoint2DDouble sizeAfterScale, wxPoint2DDouble sizeBeforeScale);
+    wxPoint GetPositionOnCanvas();
 
-    //Event Handlers
+
+    //Event Handlers Member Functions
     void OnCaptureLost(wxMouseCaptureLostEvent&);
     void ScrollWheelZoom(wxMouseEvent& event);
     void LeftIsDragging(wxMouseEvent& event);
@@ -51,15 +55,17 @@ public:
         wxSize size, 
         wxString imgPath, 
         const bool& m_panCanvas, 
-        wxStatusBar& statusBar);
+        wxStatusBar& statusBar,
+        const wxPoint& viewStart,
+        const bool& saving,
+        int imageHeight);
     ~ImageWidget();
 
     //Getters
     wxPoint GetOriginalDimensions() { return m_originalDimensions; }
     wxString GetImgPath() { return m_imgPath; }
     wxPoint GetCurrentScale() { return m_scale; }
-
-
+    wxPoint Gett_PositionOnCanvas() { return wxPoint(GetPositionOnCanvas().x, GetPositionOnCanvas().y); }
 
     //for scaling all images (not doing anything atm)
     void SetGlobalScale();
