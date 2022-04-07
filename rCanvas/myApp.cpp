@@ -32,10 +32,10 @@ void MainFrame::OnAbout(wxKeyEvent& event)
     {
         delete helpPopup;
         helpPopup = new PopupWindow(this);
-        helpPopup->SetSize(wxSize(390, 280));
+        helpPopup->SetSize(wxSize(390, 325));
         //wxPoint mPos = wxGetMousePosition();
         //wxPoint pos = ScreenToClient(mPos);
-        helpPopup->Position(ClientToScreen(wxPoint(0, 0)), wxSize(390, 280));
+        helpPopup->Position(ClientToScreen(wxPoint(0, 0)), wxSize(390, 325));
 
         wxStaticText* text = new wxStaticText(helpPopup, wxID_ANY,
             " \n"
@@ -43,8 +43,10 @@ void MainFrame::OnAbout(wxKeyEvent& event)
             " ----------------------------------------------------------------------------\n"
             " Pan canvas \t\t\t| Right Mouse + Drag\n"
             " Accelerate pan speed \t\t| CTRL + Right Mouse + Drag\n"
-            " Center canvas \t\t\t| a\n"
-            " Open a new image \t\t| o\n"
+            " Center canvas \t\t\t| C\n"
+            " Add a new image \t\t| A\n"
+            " Open an existing canvas \t\t| O\n"
+            " Save currently loaded Canvas \t| CTRL + S\n"
             " \n"
             " \n"
             " IMAGE-WIDGET SHORTCUTS\n"
@@ -52,10 +54,10 @@ void MainFrame::OnAbout(wxKeyEvent& event)
             " ----------------------------------------------------------------------------\n"
             " Scale image up / down \t\t| Mouse Scrollwheel\n"
             " Accelerate Scaling speed \t\t| CTRL + Mouse Scrollwheel\n"
-            " Delete an ImageWidget \t\t| d\n"
+            " Delete an ImageWidget \t\t| D\n"
             " Move image widget \t\t| Left Mouse + Drag\n"
             " Move without changing z-order \t| Alt + Left Mouse + Drag\n"
-            " Set image to original size \t\t| f\n"
+            " Set image to original size \t\t| F\n"
         );
         helpPopup->Popup();
     }
@@ -80,10 +82,15 @@ bool MyApp::OnInit()
     mainFrame->SetSizer(sizer);
     mainFrame->Show(true);
 
-    canvas->CenterScrollbars();
-    
-    //ImageWidget* img = new ImageWidget(canvas, wxID_ANY, wxPoint(0, 0), wxDefaultSize, "Images/image_grid.jpg", canvas->m_panCanvas, *statusBar);
+    //ImageWidget* img = new ImageWidget(canvas, wxID_ANY, wxPoint(1000, 0), wxDefaultSize, "Images/image_grid.jpg", canvas->m_panCanvas, *statusBar);
 
+    //Centers the scrollbars for startup
+    canvas->CenterScrollbars();
+
+    //Get view start for start up, this also needs to be done after CenterScrollbars or else it is 0,0
+    //which is not accurate after the canvas is centered
+    canvas->SettViewStart(canvas->GetViewStart());
+    
     mainFrame->Center();
 
     return true;

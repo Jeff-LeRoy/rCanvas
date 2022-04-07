@@ -8,10 +8,9 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include <wx/wx.h>
+#include <wx/xml/xml.h>
 #include "ImageWidget.h"
 #include "Canvas.h"
-
-
 class ImageWidget;
 
 //---------------------------------------------------------------------------
@@ -44,6 +43,8 @@ ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id, wxStatusBar& statusBar
     //Global key bindings
     Bind(wxEVT_CHAR_HOOK, &ImageCanvas::OnKey_O, this);
     Bind(wxEVT_CHAR_HOOK, &ImageCanvas::OnKey_A, this);
+    Bind(wxEVT_CHAR_HOOK, &ImageCanvas::OnKey_C, this);
+    Bind(wxEVT_CHAR_HOOK, &ImageCanvas::OnSave, this);
 
     m_statusBar->SetStatusText("Press F1 for help!");
 }
@@ -112,6 +113,59 @@ wxPoint ImageCanvas::GetClientMousePos()
     return mPos;
 }
 
+void ImageCanvas::ProcessSavefile(wxXmlNode* node)
+{
+    wxPoint position{};
+    int currentScaleY{};
+    wxString imgPath{};
+    wxPoint scrolledPos = GetViewStart();
+    m_loadingSaveFile = true;
+
+    //Have to do this before initializing ImageWidgets otherwise they wont be 
+    //positioned correctly on canvas
+    Scroll(0, 0);
+
+    while (node)
+    {
+        //If imagewidget then get children
+        if (node->GetAttribute("type") == "ImageWidget")
+            node = node->GetChildren();
+
+        //Assign data
+        if (node->GetName() == "positionX")
+            position.x = wxAtoi(node->GetNodeContent());
+        else if (node->GetName() == "positionY")
+            position.y = wxAtoi(node->GetNodeContent());
+        else if (node->GetName() == "imgPath")
+            imgPath = node->GetNodeContent();
+        else if(node->GetName() == "currentScaleY")
+            currentScaleY = wxAtoi(node->GetNodeContent());
+
+        //No more children so move up in heirarchy
+        if (node->GetNext() == NULL)
+        {
+            ImageWidget* imageWidget = new ImageWidget(this, 
+                wxID_ANY, 
+                position, 
+                wxDefaultSize, 
+                imgPath, m_panCanvas, 
+                *m_statusBar, 
+                m_viewStart, 
+                m_loadingSaveFile, 
+                currentScaleY);
+
+            node = node->GetParent();
+        }
+
+        node = node->GetNext();
+    }
+
+    //Reset to where user was
+    Scroll(scrolledPos);
+
+    m_loadingSaveFile = false;
+}
+
 //---------------------------------------------------------------------------
 //Override functions
 //---------------------------------------------------------------------------
@@ -174,37 +228,127 @@ void ImageCanvas::Render(wxDC& dc)
 }
 
 //---------------------------------------------------------------------------
-//Shortcut key handlers
+//Mouse / Keyboard Handlers
 //---------------------------------------------------------------------------
 
 void ImageCanvas::OnKey_A(wxKeyEvent& event)
 {
-    wxChar key = event.GetUnicodeKey();
+    wxChar key = event.GetKeyCode();
+    wxPoint mPos = GetClientMousePos();
+
     if (key == 'A')
     {
-        CenterScrollbars();
+        wxString fileLocation = GetImage();
+
+        if (fileLocation != wxEmptyString)
+            ImageWidget* imageWidget = new ImageWidget(this, 
+                wxID_ANY, 
+                mPos, 
+                wxDefaultSize, 
+                fileLocation, 
+                m_panCanvas, 
+                *m_statusBar, 
+                m_viewStart, 
+                m_loadingSaveFile, 
+                1);
     }
     event.Skip();
 }
 
 void ImageCanvas::OnKey_O(wxKeyEvent& event)
 {
-    wxChar key = event.GetKeyCode();
-    wxPoint mPos = GetClientMousePos();
+    wxChar key = event.GetUnicodeKey();
 
     if (key == 'O')
     {
-        wxString fileLocation = GetImage();
+        wxFileDialog openFileDialog(this, _("Open Canvas file"), "", "",
+            "Canvas files (*.xml)|*.xml", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 
-        if(fileLocation != wxEmptyString)
-            ImageWidget* imageWidget = new ImageWidget(this, wxID_ANY, mPos, wxDefaultSize, fileLocation, m_panCanvas, *m_statusBar);
+        if (openFileDialog.ShowModal() == wxID_CANCEL)
+            return;
+
+        //Get path to XML location
+        wxString fileLocation = (openFileDialog.GetPath());
+
+        //Handle loading XML
+        if (!doc.Load(fileLocation))
+            m_statusBar->SetStatusText("Failed To Load canvas.");
+        else
+            m_statusBar->SetStatusText("Successfully Loaded canvas");
+
+        //Make sure it is a rCanvas XML
+        if (doc.GetRoot()->GetName() != "rCanvasRoot")
+            wxLogMessage("Error loading Canvas");
+        else
+        {
+            wxXmlNode* rootChild = doc.GetRoot()->GetChildren();
+            ProcessSavefile(rootChild);
+        }
     }
     event.Skip();
 }
 
-//---------------------------------------------------------------------------
-//Mouse handlers
-//---------------------------------------------------------------------------
+void ImageCanvas::OnSave(wxKeyEvent& event)
+{
+    wxChar key = event.GetKeyCode();
+  
+    if (key == 'S' && event.ControlDown())
+    {
+        wxPoint savePosition{};
+        int saveImageID{0};
+        wxPoint saveCurrentScale{};
+        wxString saveImgPath{};
+
+        //Create a document and set up root node
+        wxXmlDocument xmlDoc;
+        wxXmlNode* root = new wxXmlNode(NULL, wxXML_ELEMENT_NODE, "rCanvasRoot");
+        xmlDoc.SetRoot(root);
+
+        wxWindowList& children = GetChildren();
+        for (wxWindowList::Node* node{ children.GetFirst() }; node; node = node->GetNext())
+        {
+            ImageWidget* current = (ImageWidget*)node->GetData();
+            saveImgPath = current->GetImgPath();
+            savePosition = current->GetPositionOnCanvas();
+            saveCurrentScale = current->GetCurrentScale();
+
+            wxXmlNode* currentImage = new wxXmlNode(root, wxXML_ELEMENT_NODE, "image_" + wxString::Format(wxT("%d"), saveImageID));
+            currentImage->AddAttribute("type", "ImageWidget");
+
+            wxXmlNode* imgPath = new wxXmlNode(currentImage, wxXML_ELEMENT_NODE, "imgPath");
+            imgPath->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", saveImgPath));
+
+            wxXmlNode* currentScaleY = new wxXmlNode(currentImage, wxXML_ELEMENT_NODE, "currentScaleY");
+            currentScaleY->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", wxString::Format(wxT("%d"), saveCurrentScale.y)));
+
+            wxXmlNode* positionY = new wxXmlNode(currentImage, wxXML_ELEMENT_NODE, "positionY");
+            positionY->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", wxString::Format(wxT("%d"), savePosition.y)));
+            wxXmlNode* positionX = new wxXmlNode(currentImage, wxXML_ELEMENT_NODE, "positionX");
+            positionX->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", wxString::Format(wxT("%d"), savePosition.x)));
+
+            saveImageID++;
+        }
+
+        // Write the output to a wxString.
+        xmlDoc.Save("testSaveFile.xml");
+
+        wxLogStatus("Saved!");
+    }
+    event.Skip();
+}
+
+void ImageCanvas::OnKey_C(wxKeyEvent& event)
+{
+    wxChar key = event.GetUnicodeKey();
+    if (key == 'C')
+    {
+        CenterScrollbars();
+
+        //needs to be updated so we can calculate where on Canvas images are when saving/loading
+        m_viewStart = GetViewStart();
+    }
+    event.Skip();
+}
 
 void ImageCanvas::HoverPrinting(wxMouseEvent& event)//Remove later
 {
@@ -225,7 +369,9 @@ void ImageCanvas::HoverPrinting(wxMouseEvent& event)//Remove later
     //    " clientToScreenX=" + wxString::Format(wxT("%d"), clientToScreen.x) + ' ' +
     //    " clientToScreenY=" + wxString::Format(wxT("%d"), clientToScreen.y) + ' ' +
     //    " mainScrnMPos=" + wxString::Format(wxT("%d"), mainScrnMPos.x) + ' ' +
-    //    " mainScrnMPos=" + wxString::Format(wxT("%d"), mainScrnMPos.y)
+    //    " mainScrnMPos=" + wxString::Format(wxT("%d"), mainScrnMPos.y) + ' ' +
+    //    " vsX=" + wxString::Format(wxT("%d"), m_viewStart.x) + ' ' +
+    //    " vsY=" + wxString::Format(wxT("%d"), m_viewStart.y)
     //);
     event.Skip();
 }
@@ -255,6 +401,9 @@ void ImageCanvas::RightIsDragging(wxMouseEvent& event)
         direction = IncrimentScrollDirection(event.GetPosition(), m_startMousePos, event);
         this->Scroll(scrolledPosition.x += direction.x, scrolledPosition.y += direction.y);
         //ScreenToClient(wxPoint(mousePosConverted_x, mousePosConverted_y));
+
+        //needs to be updated so we can calculate where on Canvas images are when saving/loading
+        m_viewStart = GetViewStart();
     }
 }
 

@@ -39,6 +39,9 @@
     <Image Include="Images\Image_Grid.jpg" />
     <Image Include="Images\image_huge.jpg" />
   </ItemGroup>
+  <ItemGroup>
+    <Xml Include="testSaveFile.xml" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
