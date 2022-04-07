@@ -23,16 +23,16 @@ A few examples with placeholder images, imagine it with real reference images.
 * **F1** - Help Menu
 * **Right Mouse + Drag** - Pan canvas
 * **CTRL + Right Mouse + Drag** - Accelerate the panning speed
-* **a** - Center canvas 
-* **o** - Open a new image
+* **A** - Center canvas 
+* **O** - Open a new image
 
 ### ImageWidget Shortcut Keys ( mouse is hovering over a loaded image on the canvas )
 * **Mouse Scrollwheel** - Scale image up / down
 * **CTRL + Mouse Scrollwheel** - Accelerate Scaling speed
-* **d** - Delete an ImageWidget
+* **D** - Delete an ImageWidget
 * **Left Mouse + Drag** - Move image widget
 * **Alt + Left Mouse + Drag** - Move image widget without changing z-order
-* **f** - Reset image to original dimensions
+* **F** - Reset image to original dimensions
 
 # Windows building
 1. Requires [wxWidgets](https://www.wxwidgets.org/downloads/) GUI library. You will probably need to download and build the library from source. I used wxWidgets-3.1.5 for rCanvas.
