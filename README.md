@@ -23,8 +23,10 @@ A few examples with placeholder images, imagine it with real reference images.
 * **F1** - Help Menu
 * **Right Mouse + Drag** - Pan canvas
 * **CTRL + Right Mouse + Drag** - Accelerate the panning speed
-* **A** - Center canvas 
-* **O** - Open a new image
+* **C** - Center canvas 
+* **A** - Add a new image
+* **O** - Open Canvas file
+* **CTRL + S** - Save Canvas File
 
 ### ImageWidget Shortcut Keys ( mouse is hovering over a loaded image on the canvas )
 * **Mouse Scrollwheel** - Scale image up / down
