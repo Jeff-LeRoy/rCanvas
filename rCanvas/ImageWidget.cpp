@@ -391,11 +391,6 @@ void ImageWidget::LeftIsDragging(wxMouseEvent& event)
         //Need to do this otherwise dragging an ImageWidget leave artifacts
         //GetParent()->ClearBackground();
         Refresh();
-
-        wxLogStatus(
-            " posX" + wxString::Format(wxT("%d"), GetPositionOnCanvas().x) + ' ' +
-            " posY" + wxString::Format(wxT("%d"), GetPositionOnCanvas().y)
-        );
     }
 }
 
