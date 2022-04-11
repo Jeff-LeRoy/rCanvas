@@ -42,6 +42,10 @@
   <ItemGroup>
     <Xml Include="testSaveFile.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Save_File_001.rcf" />
+    <None Include="Save_File_002.rcf" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
