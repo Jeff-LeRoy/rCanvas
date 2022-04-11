@@ -40,9 +40,6 @@
     <Image Include="Images\image_huge.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="testSaveFile.xml" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Save_File_001.rcf" />
     <None Include="Save_File_002.rcf" />
   </ItemGroup>
