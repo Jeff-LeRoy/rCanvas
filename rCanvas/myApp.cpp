@@ -75,7 +75,7 @@ bool MyApp::OnInit()
     wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
 
     MainFrame* mainFrame = new MainFrame(NULL, wxID_ANY, "rCanvas", wxPoint(100, 100), wxSize(1280, 900));
-    wxStatusBar* statusBar = mainFrame->CreateStatusBar();
+    wxStatusBar* statusBar = mainFrame->CreateStatusBar(2);
     ImageCanvas* canvas = new ImageCanvas(mainFrame, wxID_ANY, *statusBar);
 
     sizer->Add(canvas, 1, wxEXPAND);

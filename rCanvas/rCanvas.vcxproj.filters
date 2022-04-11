@@ -66,6 +66,7 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="testSaveFile.xml" />
+    <None Include="Save_File_002.rcf" />
+    <None Include="Save_File_001.rcf" />
   </ItemGroup>
 </Project>

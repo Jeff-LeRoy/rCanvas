@@ -15,7 +15,7 @@ private:
     wxImage* m_image = nullptr;
     int m_scaleMultiplier{ 1 };
     bool m_canDelete = false;
-    wxStatusBar* m_statusBar; //From mainFrame
+    wxStatusBar* m_statusBar; //From mainFrame class
     wxPoint m_scale{ 1, 1 };
     bool m_scalingImage{};
     wxString m_imgPath{};
