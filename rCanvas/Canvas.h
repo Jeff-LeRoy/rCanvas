@@ -13,8 +13,10 @@ private:
     wxPoint m_startMousePos;
     wxPoint m_viewStart{};
     int m_border{ 50 };
-    wxXmlDocument* m_XmlRcf;
+    wxXmlDocument* m_XmlRcf = nullptr;
+    wxString canvasStatus{"No Canvas Loaded"};
     //wxPoint m_clientSize{};
+
 
     //Member Functions
     bool ShouldScrollToChildOnFocus(wxWindow* child);
@@ -23,6 +25,7 @@ private:
     wxPoint GetClientMousePos();
     void Render(wxDC& dc);
     wxString GetImage();
+
 
     //Event Handlers
     wxPoint IncrimentScrollDirection(wxPoint pt, wxPoint start, wxMouseEvent& event);
@@ -37,6 +40,7 @@ private:
     void OnKey_A(wxKeyEvent& event);
     void OnKey_O(wxKeyEvent& event);
     void OnKey_C(wxKeyEvent& event);
+    void OnKey_X(wxKeyEvent& event);
 
 
 public:

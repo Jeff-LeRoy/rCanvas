@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
 // Application Name:    rCanvas    
 // File Name:           Canvas.cpp
-// Purpose:             Pan canvas/images, instance ImageWidgets
+// Purpose:             Pan canvas/images, create ImageWidgets, save/load
 // Author:              Jeffrey C. LeRoy
 // Created:             01/17/2022
 // Copyright:           (c) Jeffrey C. LeRoy
@@ -45,9 +45,11 @@ ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id, wxStatusBar& statusBar
     Bind(wxEVT_CHAR_HOOK, &ImageCanvas::OnKey_A, this);
     Bind(wxEVT_CHAR_HOOK, &ImageCanvas::OnKey_C, this);
     Bind(wxEVT_CHAR_HOOK, &ImageCanvas::OnKey_Ctrl_S, this);
+    Bind(wxEVT_CHAR_HOOK, &ImageCanvas::OnKey_X, this);
 
-    m_statusBar->SetStatusText("Press F1 for help!");
 
+    m_statusBar->SetStatusText("Press F1 for help!", 0);
+    m_statusBar->SetStatusText(canvasStatus, 1);
 }
 
 ImageCanvas::~ImageCanvas() 
@@ -270,22 +272,31 @@ void ImageCanvas::OnKey_O(wxKeyEvent& event)
 
     if (key == 'O')
     {
+        //Get info from FileDialog and then load saved file
+        //---------------------------------------------------------------------------
         wxFileDialog openFileDialog(this, _("Open Canvas file"), "", "",
             "rCanvas files (*.rcf)|*.rcf", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 
         if (openFileDialog.ShowModal() == wxID_CANCEL)
             return;
+        else
+        {
+            this->DestroyChildren();
+        }
 
         //Get path to XML location
         wxString fileLocation = (openFileDialog.GetPath());
+
+        canvasStatus = (openFileDialog.GetFilename());
+        m_statusBar->SetStatusText(canvasStatus, 1);
 
         m_XmlRcf = new wxXmlDocument(fileLocation);
 
         //Handle loading XML
         if (!m_XmlRcf->Load(fileLocation))
             m_statusBar->SetStatusText("Failed To Load canvas.", 1);
-        else
-            m_statusBar->SetStatusText("Successfully Loaded canvas", 1);
+        //else
+        //    m_statusBar->SetStatusText("Successfully Loaded canvas", 1);
 
         //Make sure it is a rCanvas XML
         if (m_XmlRcf->GetRoot()->GetName() != "rCanvasRoot")
@@ -297,6 +308,33 @@ void ImageCanvas::OnKey_O(wxKeyEvent& event)
         }
     }
     event.Skip();
+}
+
+void ImageCanvas::OnKey_X(wxKeyEvent& event)
+{
+    wxChar key = event.GetUnicodeKey();
+
+    if (key == 'X')
+    {
+        wxCloseEvent* close = new wxCloseEvent(wxEVT_CLOSE_WINDOW);
+        close->SetCanVeto(true);
+
+        if (close->CanVeto())
+        {
+            if (wxMessageBox("Clear all ImageWidgets from Canvas ?",
+                "Please confirm",
+                wxICON_QUESTION | wxYES_NO) != wxYES)
+            {
+                close->Veto();
+                return;
+            }
+        }
+        this->DestroyChildren();
+        canvasStatus = "No Canvas Loaded";
+        m_statusBar->SetStatusText(canvasStatus, 1);
+    }
+    else
+        event.Skip();
 }
 
 void ImageCanvas::OnKey_Ctrl_S(wxKeyEvent& event)
@@ -360,8 +398,6 @@ void ImageCanvas::OnKey_Ctrl_S(wxKeyEvent& event)
         //xmlDoc.Save("testSaveFile.rcf");
 
         delete xmlSaveDoc;
-
-        m_statusBar->SetStatusText("Saved!", 1);
     }
     event.Skip();
 }
