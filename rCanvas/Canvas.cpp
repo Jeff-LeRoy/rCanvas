@@ -7,7 +7,7 @@
 // Copyright:           (c) Jeffrey C. LeRoy
 /////////////////////////////////////////////////////////////////////////////
 
-#include <wx/wx.h>
+#include <wx/wxprec.h>
 #include <wx/xml/xml.h>
 #include "ImageWidget.h"
 #include "Canvas.h"
@@ -392,10 +392,15 @@ void ImageCanvas::OnKey_Ctrl_S(wxKeyEvent& event)
 
         wxString savePath = saveFileDialog.GetPath();
         wxString saveName = saveFileDialog.GetName();
+        wxString fileName = saveFileDialog.GetFilename();
 
         //Save the file to user PC
         xmlSaveDoc->Save(savePath + saveName);
         //xmlDoc.Save("testSaveFile.rcf");
+
+        //Set statusBar
+        canvasStatus = fileName;
+        m_statusBar->SetStatusText(canvasStatus, 1);
 
         delete xmlSaveDoc;
     }

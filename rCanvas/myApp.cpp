@@ -7,7 +7,7 @@
 // Copyright:           (c) Jeffrey C. LeRoy
 /////////////////////////////////////////////////////////////////////////////
 
-#include <wx/wx.h>
+#include <wx/wxprec.h>
 #include <wx/popupwin.h>
 #include "PopupWindow.h"
 #include "ImageWidget.h"
@@ -47,6 +47,7 @@ void MainFrame::OnAbout(wxKeyEvent& event)
             " Add a new image \t\t| A\n"
             " Open an existing canvas \t\t| O\n"
             " Save currently loaded Canvas \t| CTRL + S\n"
+            " Clear Canvas \t\t\t| X\n"
             " \n"
             " \n"
             " IMAGE-WIDGET SHORTCUTS\n"
@@ -57,7 +58,7 @@ void MainFrame::OnAbout(wxKeyEvent& event)
             " Delete an ImageWidget \t\t| D\n"
             " Move image widget \t\t| Left Mouse + Drag\n"
             " Move without changing z-order \t| Alt + Left Mouse + Drag\n"
-            " Set image to original size \t\t| F\n"
+            " Set image to full size \t\t| F\n"
         );
         helpPopup->Popup();
     }

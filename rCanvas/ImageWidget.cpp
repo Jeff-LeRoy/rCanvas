@@ -7,7 +7,7 @@
 // Copyright:           (c) Jeffrey C. LeRoy
 /////////////////////////////////////////////////////////////////////////////
 
-#include <wx/wx.h>
+#include <wx/wxprec.h>
 #include "ImageWidget.h"
 
 //---------------------------------------------------------------------------
@@ -283,7 +283,7 @@ void ImageWidget::OnKey_D(wxKeyEvent& event)
 
         if (close->CanVeto())
         {
-            if (wxMessageBox("Delete this image ?",
+            if (wxMessageBox("Delete this ImageWidget ?",
                 "Please confirm",
                 wxICON_QUESTION | wxYES_NO) != wxYES)
             {
