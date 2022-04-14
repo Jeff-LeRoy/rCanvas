@@ -59,6 +59,7 @@ public:
         const wxPoint& viewStart,
         const bool& saving,
         int imageHeight);
+
     ~ImageWidget();
 
     //Getters

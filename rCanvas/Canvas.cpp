@@ -26,10 +26,10 @@ ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id, wxStatusBar& statusBar
     this->SetDoubleBuffered(true);
 
     //Get users larger screen resolution (X or Y) and double it for canvas size 
-    int resolution = (wxSystemSettings::GetMetric(wxSYS_SCREEN_X) > wxSystemSettings::GetMetric(wxSYS_SCREEN_Y))
-        ? wxSystemSettings::GetMetric(wxSYS_SCREEN_X) : wxSystemSettings::GetMetric(wxSYS_SCREEN_Y);
+    //int resolution = (wxSystemSettings::GetMetric(wxSYS_SCREEN_X) > wxSystemSettings::GetMetric(wxSYS_SCREEN_Y))
+    //    ? wxSystemSettings::GetMetric(wxSYS_SCREEN_X) : wxSystemSettings::GetMetric(wxSYS_SCREEN_Y);
     
-    SetScrollbars(1, 1, resolution * 3, resolution * 3, 0, 0);
+    SetScrollbars(1, 1, 5000, 5000, 0, 0);
     ShowScrollbars(wxSHOW_SB_NEVER, wxSHOW_SB_NEVER);
 
     GetVirtualSize(&m_virtualSize.x, &m_virtualSize.y);
@@ -49,12 +49,46 @@ ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id, wxStatusBar& statusBar
 
 
     m_statusBar->SetStatusText("Press F1 for help!", 0);
-    m_statusBar->SetStatusText(canvasStatus, 1);
+    m_statusBar->SetStatusText(m_canvasStatus, 1);
 }
 
 ImageCanvas::~ImageCanvas() 
 {
     delete m_XmlRcf;
+}
+
+void ImageCanvas::HoverPrinting(wxMouseEvent& event)//Remove later
+{
+    //const wxPoint pt = event.GetPosition();
+    //wxPoint clientSize{}; GetClientSize(&clientSize.x, &clientSize.y);
+    //wxPoint scrolledPosition{}; GetViewStart(&scrolledPosition.x, &scrolledPosition.y);
+    //wxPoint windowSize{}; GetSize(&windowSize.x, &windowSize.y);
+    //wxPoint mPos = GetClientMousePos();
+    //wxPoint screenToClient = ScreenToClient(mPos);
+    //wxPoint clientToScreen = ClientToScreen(mPos);
+    //wxPoint mainScrnMPos = wxGetMousePosition();
+
+    //wxLogStatus(
+    //    " mPosX=" + wxString::Format(wxT("%d"), mPos.x) + ' ' +
+    //    " mPosY=" + wxString::Format(wxT("%d"), mPos.y) + ' ' +
+    //    " screenToClientX=" + wxString::Format(wxT("%d"), screenToClient.x) + ' ' +
+    //    " screenToClientY=" + wxString::Format(wxT("%d"), screenToClient.y) + ' ' +
+    //    " clientToScreenX=" + wxString::Format(wxT("%d"), clientToScreen.x) + ' ' +
+    //    " clientToScreenY=" + wxString::Format(wxT("%d"), clientToScreen.y) + ' ' +
+    //    " mainScrnMPos=" + wxString::Format(wxT("%d"), mainScrnMPos.x) + ' ' +
+    //    " mainScrnMPos=" + wxString::Format(wxT("%d"), mainScrnMPos.y) + ' ' +
+    //    " vsX=" + wxString::Format(wxT("%d"), m_viewStart.x) + ' ' +
+    //    " vsY=" + wxString::Format(wxT("%d"), m_viewStart.y)
+    //);
+
+     //wxLogStatus(
+     //    " m_viewStartX=" + wxString::Format(wxT("%d"), m_viewStart.x) + ' ' +
+     //    " m_viewStartY=" + wxString::Format(wxT("%d"), m_viewStart.y) + ' ' +
+     //    " m_clientSizeX=" + wxString::Format(wxT("%d"), m_clientSize.x) + ' ' +
+     //    " m_clientSizeY=" + wxString::Format(wxT("%d"), m_clientSize.y)
+
+     //);
+    event.Skip();
 }
 
 wxString ImageCanvas::GetImage()
@@ -117,6 +151,78 @@ wxPoint ImageCanvas::GetClientMousePos()
     wxPoint mPos{ pt.x - this->GetScreenPosition().x, pt.y - this->GetScreenPosition().y };
 
     return mPos;
+}
+
+//---------------------------------------------------------------------------
+//Save / Load / Open
+//---------------------------------------------------------------------------
+
+void ImageCanvas::OnKey_A(wxKeyEvent& event)
+{
+    wxChar key = event.GetKeyCode();
+    wxPoint mPos = GetClientMousePos();
+
+    if (key == 'A')
+    {
+        wxString fileLocation = GetImage();
+
+        if (fileLocation != wxEmptyString)
+            ImageWidget* imageWidget = new ImageWidget(this,
+                wxID_ANY,
+                mPos,
+                wxDefaultSize,
+                fileLocation,
+                m_panCanvas,
+                *m_statusBar,
+                m_viewStart,
+                m_loadingSaveFile,
+                1);
+    }
+    event.Skip();
+}
+
+void ImageCanvas::OnKey_O(wxKeyEvent& event)
+{
+    wxChar key = event.GetUnicodeKey();
+
+    if (key == 'O')
+    {
+        //Get info from FileDialog and then load saved file
+        //---------------------------------------------------------------------------
+        wxFileDialog openFileDialog(this, _("Open Canvas file"), "", "",
+            "rCanvas files (*.rcf)|*.rcf", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+
+        if (openFileDialog.ShowModal() == wxID_CANCEL)
+            return;
+        else
+        {
+            this->DestroyChildren();
+        }
+
+        //Get path to XML location
+        wxString fileLocation = (openFileDialog.GetPath());
+
+        m_canvasStatus = (openFileDialog.GetFilename());
+        m_statusBar->SetStatusText(m_canvasStatus, 1);
+
+        m_XmlRcf = new wxXmlDocument(fileLocation);
+
+        //Handle loading XML
+        if (!m_XmlRcf->Load(fileLocation))
+            m_statusBar->SetStatusText("Failed To Load canvas.", 1);
+        //else
+        //    m_statusBar->SetStatusText("Successfully Loaded canvas", 1);
+
+        //Make sure it is a rCanvas XML
+        if (m_XmlRcf->GetRoot()->GetName() != "rCanvasRoot")
+            wxLogMessage("Not an rCanvas file");
+        else
+        {
+            wxXmlNode* rootChild = m_XmlRcf->GetRoot()->GetChildren();
+            LoadSavefile(rootChild);
+        }
+    }
+    event.Skip();
 }
 
 void ImageCanvas::LoadSavefile(wxXmlNode* node)
@@ -242,74 +348,6 @@ void ImageCanvas::Render(wxDC& dc)
 //Mouse / Keyboard Handlers
 //---------------------------------------------------------------------------
 
-void ImageCanvas::OnKey_A(wxKeyEvent& event)
-{
-    wxChar key = event.GetKeyCode();
-    wxPoint mPos = GetClientMousePos();
-
-    if (key == 'A')
-    {
-        wxString fileLocation = GetImage();
-
-        if (fileLocation != wxEmptyString)
-            ImageWidget* imageWidget = new ImageWidget(this, 
-                wxID_ANY, 
-                mPos, 
-                wxDefaultSize, 
-                fileLocation, 
-                m_panCanvas, 
-                *m_statusBar, 
-                m_viewStart, 
-                m_loadingSaveFile, 
-                1);
-    }
-    event.Skip();
-}
-
-void ImageCanvas::OnKey_O(wxKeyEvent& event)
-{
-    wxChar key = event.GetUnicodeKey();
-
-    if (key == 'O')
-    {
-        //Get info from FileDialog and then load saved file
-        //---------------------------------------------------------------------------
-        wxFileDialog openFileDialog(this, _("Open Canvas file"), "", "",
-            "rCanvas files (*.rcf)|*.rcf", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
-
-        if (openFileDialog.ShowModal() == wxID_CANCEL)
-            return;
-        else
-        {
-            this->DestroyChildren();
-        }
-
-        //Get path to XML location
-        wxString fileLocation = (openFileDialog.GetPath());
-
-        canvasStatus = (openFileDialog.GetFilename());
-        m_statusBar->SetStatusText(canvasStatus, 1);
-
-        m_XmlRcf = new wxXmlDocument(fileLocation);
-
-        //Handle loading XML
-        if (!m_XmlRcf->Load(fileLocation))
-            m_statusBar->SetStatusText("Failed To Load canvas.", 1);
-        //else
-        //    m_statusBar->SetStatusText("Successfully Loaded canvas", 1);
-
-        //Make sure it is a rCanvas XML
-        if (m_XmlRcf->GetRoot()->GetName() != "rCanvasRoot")
-            wxLogMessage("Not an rCanvas file");
-        else
-        {
-            wxXmlNode* rootChild = m_XmlRcf->GetRoot()->GetChildren();
-            LoadSavefile(rootChild);
-        }
-    }
-    event.Skip();
-}
-
 void ImageCanvas::OnKey_X(wxKeyEvent& event)
 {
     wxChar key = event.GetUnicodeKey();
@@ -330,8 +368,8 @@ void ImageCanvas::OnKey_X(wxKeyEvent& event)
             }
         }
         this->DestroyChildren();
-        canvasStatus = "No Canvas Loaded";
-        m_statusBar->SetStatusText(canvasStatus, 1);
+        m_canvasStatus = "No Canvas Loaded";
+        m_statusBar->SetStatusText(m_canvasStatus, 1);
     }
     else
         event.Skip();
@@ -399,8 +437,8 @@ void ImageCanvas::OnKey_Ctrl_S(wxKeyEvent& event)
         //xmlDoc.Save("testSaveFile.rcf");
 
         //Set statusBar
-        canvasStatus = fileName;
-        m_statusBar->SetStatusText(canvasStatus, 1);
+        m_canvasStatus = fileName;
+        m_statusBar->SetStatusText(m_canvasStatus, 1);
 
         delete xmlSaveDoc;
     }
@@ -417,40 +455,6 @@ void ImageCanvas::OnKey_C(wxKeyEvent& event)
         //needs to be updated so we can calculate where on Canvas images are when saving/loading
         m_viewStart = GetViewStart();
     }
-    event.Skip();
-}
-
-void ImageCanvas::HoverPrinting(wxMouseEvent& event)//Remove later
-{
-    //const wxPoint pt = event.GetPosition();
-    //wxPoint clientSize{}; GetClientSize(&clientSize.x, &clientSize.y);
-    //wxPoint scrolledPosition{}; GetViewStart(&scrolledPosition.x, &scrolledPosition.y);
-    //wxPoint windowSize{}; GetSize(&windowSize.x, &windowSize.y);
-    //wxPoint mPos = GetClientMousePos();
-    //wxPoint screenToClient = ScreenToClient(mPos);
-    //wxPoint clientToScreen = ClientToScreen(mPos);
-    //wxPoint mainScrnMPos = wxGetMousePosition();
-
-    //wxLogStatus(
-    //    " mPosX=" + wxString::Format(wxT("%d"), mPos.x) + ' ' +
-    //    " mPosY=" + wxString::Format(wxT("%d"), mPos.y) + ' ' +
-    //    " screenToClientX=" + wxString::Format(wxT("%d"), screenToClient.x) + ' ' +
-    //    " screenToClientY=" + wxString::Format(wxT("%d"), screenToClient.y) + ' ' +
-    //    " clientToScreenX=" + wxString::Format(wxT("%d"), clientToScreen.x) + ' ' +
-    //    " clientToScreenY=" + wxString::Format(wxT("%d"), clientToScreen.y) + ' ' +
-    //    " mainScrnMPos=" + wxString::Format(wxT("%d"), mainScrnMPos.x) + ' ' +
-    //    " mainScrnMPos=" + wxString::Format(wxT("%d"), mainScrnMPos.y) + ' ' +
-    //    " vsX=" + wxString::Format(wxT("%d"), m_viewStart.x) + ' ' +
-    //    " vsY=" + wxString::Format(wxT("%d"), m_viewStart.y)
-    //);
-
-     //wxLogStatus(
-     //    " m_viewStartX=" + wxString::Format(wxT("%d"), m_viewStart.x) + ' ' +
-     //    " m_viewStartY=" + wxString::Format(wxT("%d"), m_viewStart.y) + ' ' +
-     //    " m_clientSizeX=" + wxString::Format(wxT("%d"), m_clientSize.x) + ' ' +
-     //    " m_clientSizeY=" + wxString::Format(wxT("%d"), m_clientSize.y)
-
-     //);
     event.Skip();
 }
 
