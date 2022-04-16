@@ -1,5 +1,7 @@
 #pragma once
 #include <wx/xml/xml.h>
+#include <wx/popupwin.h>
+#include "CanvasPopup.h"
 
 class ImageCanvas : public wxScrolledWindow
 {
@@ -16,7 +18,7 @@ private:
     wxPoint m_viewStart{};
     int m_border{ 50 };
     //wxPoint m_clientSize{};
-
+    PopupWindow* resizePopup{};
 
     //Member Functions
     bool ShouldScrollToChildOnFocus(wxWindow* child);
@@ -41,6 +43,7 @@ private:
     void OnKey_O(wxKeyEvent& event);
     void OnKey_C(wxKeyEvent& event);
     void OnKey_X(wxKeyEvent& event);
+    void OnKey_R(wxKeyEvent& event);
 
 
 public:

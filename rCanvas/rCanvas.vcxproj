@@ -22,13 +22,13 @@
     <ClInclude Include="Canvas.h" />
     <ClInclude Include="ImageWidget.h" />
     <ClInclude Include="myApp.h" />
-    <ClInclude Include="PopupWindow.h" />
+    <ClInclude Include="CanvasPopup.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Canvas.cpp" />
     <ClCompile Include="ImageWidget.cpp" />
     <ClCompile Include="myApp.cpp" />
-    <ClCompile Include="PopupWindow.cpp" />
+    <ClCompile Include="CanvasPopup.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Images\image_1.jpg" />

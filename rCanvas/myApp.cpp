@@ -9,7 +9,7 @@
 
 #include <wx/wxprec.h>
 #include <wx/popupwin.h>
-#include "PopupWindow.h"
+#include "CanvasPopup.h"
 #include "ImageWidget.h"
 #include "Canvas.h"
 #include "myApp.h"
@@ -33,9 +33,7 @@ void MainFrame::OnAbout(wxKeyEvent& event)
         delete helpPopup;
         helpPopup = new PopupWindow(this);
         helpPopup->SetSize(wxSize(390, 325));
-        //wxPoint mPos = wxGetMousePosition();
-        //wxPoint pos = ScreenToClient(mPos);
-        helpPopup->Position(ClientToScreen(wxPoint(0, 0)), wxSize(390, 325));
+        helpPopup->Position(ClientToScreen(wxPoint(0, 0)), wxSize(25, 25));
 
         wxStaticText* text = new wxStaticText(helpPopup, wxID_ANY,
             " \n"

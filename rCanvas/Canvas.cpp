@@ -8,10 +8,10 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include <wx/wxprec.h>
-#include <wx/xml/xml.h>
 #include "ImageWidget.h"
 #include "Canvas.h"
 class ImageWidget;
+
 
 //---------------------------------------------------------------------------
 // Constructor / Destructor
@@ -46,7 +46,7 @@ ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id, wxStatusBar& statusBar
     Bind(wxEVT_CHAR_HOOK, &ImageCanvas::OnKey_C, this);
     Bind(wxEVT_CHAR_HOOK, &ImageCanvas::OnKey_Ctrl_S, this);
     Bind(wxEVT_CHAR_HOOK, &ImageCanvas::OnKey_X, this);
-
+    Bind(wxEVT_CHAR_HOOK, &ImageCanvas::OnKey_R, this);
 
     m_statusBar->SetStatusText("Press F1 for help!", 0);
     m_statusBar->SetStatusText(m_canvasStatus, 1);
@@ -373,6 +373,38 @@ void ImageCanvas::OnKey_X(wxKeyEvent& event)
     }
     else
         event.Skip();
+}
+
+void ImageCanvas::OnKey_R(wxKeyEvent& event)
+{
+    wxChar key = event.GetUnicodeKey();
+
+    if (key == 'R')
+    {
+        delete resizePopup;
+        
+        wxBoxSizer* sizerHorizontal = new wxBoxSizer(wxHORIZONTAL);
+        //wxBoxSizer* sizerVertical = new wxBoxSizer(wxVERTICAL);
+
+        resizePopup = new PopupWindow(this);
+        resizePopup->SetSize(wxSize(200, 150));
+        resizePopup->Position(ClientToScreen(wxPoint(0, 0)), wxSize(25, 25));
+
+        wxTextCtrl* width = new wxTextCtrl(resizePopup, wxID_ANY, wxString::Format(wxT("%d"), m_virtualSize.x), wxDefaultPosition, wxDefaultSize);
+        wxTextCtrl* heigth = new wxTextCtrl(resizePopup, wxID_ANY, wxString::Format(wxT("%d"), m_virtualSize.y), wxDefaultPosition, wxDefaultSize);
+
+        sizerHorizontal->Add(resizePopup);
+        sizerHorizontal->Add(width, 0, wxALL, 5);
+        sizerHorizontal->Add(heigth, 0, wxALL, 5);
+
+        //SetFocus();
+
+        resizePopup->SetSizerAndFit(sizerHorizontal);
+
+        resizePopup->Popup();
+    }
+
+    event.Skip();
 }
 
 void ImageCanvas::OnKey_Ctrl_S(wxKeyEvent& event)

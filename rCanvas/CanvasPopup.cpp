@@ -9,20 +9,12 @@
 
 #include <wx/wx.h>
 #include <wx/popupwin.h>
-#include "PopupWindow.h"
+#include "CanvasPopup.h"
 
 PopupWindow::PopupWindow(wxWindow* parent)
 	: wxPopupTransientWindow(parent, false)
 {
-	//wxPanel* panel = new wxPanel(this);
-	this->SetSize(wxSize(200, 200));
 	this->SetBackgroundColour(wxColor(150, 150, 150));
-
-	wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-
-	//sizer->Add(text, 1, wxEXPAND);
-	//sizer->Add(btn);
-	this->SetSizer(sizer);
 
 	Bind(wxEVT_LEAVE_WINDOW, &PopupWindow::ExitWindow, this);
 }

@@ -24,7 +24,7 @@
     <ClInclude Include="Canvas.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PopupWindow.h">
+    <ClInclude Include="CanvasPopup.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -38,7 +38,7 @@
     <ClCompile Include="Canvas.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PopupWindow.cpp">
+    <ClCompile Include="CanvasPopup.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
