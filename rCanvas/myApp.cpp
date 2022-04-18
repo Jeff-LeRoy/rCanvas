@@ -31,8 +31,9 @@ void MainFrame::OnAbout(wxKeyEvent& event)
     if (key == WXK_F1)
     {
         delete helpPopup;
-        helpPopup = new PopupWindow(this);
-        helpPopup->SetSize(wxSize(390, 325));
+        wxBoxSizer* sizerVertical = new wxBoxSizer(wxVERTICAL);
+        helpPopup = new CanvasPopup(this);
+        helpPopup->SetSize(wxSize(200, 200));
         helpPopup->Position(ClientToScreen(wxPoint(0, 0)), wxSize(25, 25));
 
         wxStaticText* text = new wxStaticText(helpPopup, wxID_ANY,
@@ -58,6 +59,9 @@ void MainFrame::OnAbout(wxKeyEvent& event)
             " Move without changing z-order \t| Alt + Left Mouse + Drag\n"
             " Set image to full size \t\t| F\n"
         );
+
+        sizerVertical->Add(text);
+        helpPopup->SetSizerAndFit(sizerVertical);
         helpPopup->Popup();
     }
     event.Skip();

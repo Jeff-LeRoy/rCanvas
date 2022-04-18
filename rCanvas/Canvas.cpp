@@ -29,8 +29,8 @@ ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id, wxStatusBar& statusBar
     //int resolution = (wxSystemSettings::GetMetric(wxSYS_SCREEN_X) > wxSystemSettings::GetMetric(wxSYS_SCREEN_Y))
     //    ? wxSystemSettings::GetMetric(wxSYS_SCREEN_X) : wxSystemSettings::GetMetric(wxSYS_SCREEN_Y);
     
-    SetScrollbars(1, 1, 5000, 5000, 0, 0);
-    ShowScrollbars(wxSHOW_SB_NEVER, wxSHOW_SB_NEVER);
+    SetScrollbars(1, 1, 1000, 1000, 0, 0);
+    //ShowScrollbars(wxSHOW_SB_NEVER, wxSHOW_SB_NEVER);
 
     GetVirtualSize(&m_virtualSize.x, &m_virtualSize.y);
 
@@ -82,12 +82,10 @@ void ImageCanvas::HoverPrinting(wxMouseEvent& event)//Remove later
     //);
 
      //wxLogStatus(
-     //    " m_viewStartX=" + wxString::Format(wxT("%d"), m_viewStart.x) + ' ' +
-     //    " m_viewStartY=" + wxString::Format(wxT("%d"), m_viewStart.y) + ' ' +
-     //    " m_clientSizeX=" + wxString::Format(wxT("%d"), m_clientSize.x) + ' ' +
-     //    " m_clientSizeY=" + wxString::Format(wxT("%d"), m_clientSize.y)
-
+     //    " m_viewStartX=" + wxString::Format(wxT("%d"), m_virtualSize.x) + ' ' +
+     //    " m_viewStartY=" + wxString::Format(wxT("%d"), m_virtualSize.y)
      //);
+
     event.Skip();
 }
 
@@ -381,27 +379,20 @@ void ImageCanvas::OnKey_R(wxKeyEvent& event)
 
     if (key == 'R')
     {
-        delete resizePopup;
-        
-        wxBoxSizer* sizerHorizontal = new wxBoxSizer(wxHORIZONTAL);
-        //wxBoxSizer* sizerVertical = new wxBoxSizer(wxVERTICAL);
+        m_resizedialog = new CanvasDialog(this, "Resize Canvas", ClientToScreen(wxPoint(25, 25)), m_virtualSize);
 
-        resizePopup = new PopupWindow(this);
-        resizePopup->SetSize(wxSize(200, 150));
-        resizePopup->Position(ClientToScreen(wxPoint(0, 0)), wxSize(25, 25));
-
-        wxTextCtrl* width = new wxTextCtrl(resizePopup, wxID_ANY, wxString::Format(wxT("%d"), m_virtualSize.x), wxDefaultPosition, wxDefaultSize);
-        wxTextCtrl* heigth = new wxTextCtrl(resizePopup, wxID_ANY, wxString::Format(wxT("%d"), m_virtualSize.y), wxDefaultPosition, wxDefaultSize);
-
-        sizerHorizontal->Add(resizePopup);
-        sizerHorizontal->Add(width, 0, wxALL, 5);
-        sizerHorizontal->Add(heigth, 0, wxALL, 5);
-
-        //SetFocus();
-
-        resizePopup->SetSizerAndFit(sizerHorizontal);
-
-        resizePopup->Popup();
+        if (m_resizedialog->ShowModal() == wxID_OK)
+        {
+            wxPoint newCanvasSize = m_resizedialog->GetCanvasSize();
+            //wxLogStatus(wxString::Format(wxT("%d"), newCanvasSize.x) + " " + wxString::Format(wxT("%d"), newCanvasSize.y));
+            
+            m_virtualSize = { newCanvasSize.x, newCanvasSize.y };
+            SetVirtualSize(newCanvasSize.x, newCanvasSize.y);
+            Refresh();
+            CenterScrollbars();
+        }
+        //Dialog was cancelled
+        m_resizedialog->Destroy();
     }
 
     event.Skip();

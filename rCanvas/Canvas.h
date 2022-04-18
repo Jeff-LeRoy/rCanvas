@@ -10,6 +10,7 @@ private:
     wxString m_canvasStatus{"No Canvas Loaded"};
     wxXmlDocument* m_XmlRcf = nullptr;
     int m_subgridPixelSpacing{ 150 };
+    CanvasDialog* m_resizedialog{};
     bool m_loadingSaveFile{false};
     int m_dragMultiplier{ 1 };
     wxStatusBar* m_statusBar;//From mainFrame
@@ -17,8 +18,7 @@ private:
     wxPoint m_startMousePos;
     wxPoint m_viewStart{};
     int m_border{ 50 };
-    //wxPoint m_clientSize{};
-    PopupWindow* resizePopup{};
+
 
     //Member Functions
     bool ShouldScrollToChildOnFocus(wxWindow* child);

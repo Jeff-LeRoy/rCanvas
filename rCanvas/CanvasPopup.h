@@ -1,11 +1,25 @@
 #pragma once
 
-class PopupWindow : public wxPopupTransientWindow
+class CanvasPopup : public wxPopupTransientWindow
 {
 private:
-	void ExitWindow(wxMouseEvent& event);
+	//void OnKillFocus(wxFocusEvent& event);
+	//void OnSetFocus(wxFocusEvent& event);
+	//void OnKeyDown(wxKeyEvent& event);
 
 public:
-	PopupWindow(wxWindow* parent);
+	CanvasPopup(wxWindow* parent);
+};
+
+
+class CanvasDialog : public wxDialog
+{
+private:
+	wxTextCtrl* widthEntry{};
+	wxTextCtrl* heigthEntry{};
+
+public:
+	CanvasDialog(wxWindow* parent, const wxString& title, const wxPoint& pos, const wxPoint& canvasSize);
+	wxPoint GetCanvasSize();
 };
 

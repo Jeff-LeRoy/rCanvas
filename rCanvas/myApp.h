@@ -9,7 +9,7 @@ public:
 class MainFrame : public wxFrame
 {
 private:
-    PopupWindow* helpPopup{};
+    CanvasPopup* helpPopup{};
     void OnAbout(wxKeyEvent& event);
 
 public:
