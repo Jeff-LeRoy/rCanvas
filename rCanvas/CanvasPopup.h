@@ -3,9 +3,6 @@
 class CanvasPopup : public wxPopupTransientWindow
 {
 private:
-	//void OnKillFocus(wxFocusEvent& event);
-	//void OnSetFocus(wxFocusEvent& event);
-	//void OnKeyDown(wxKeyEvent& event);
 
 public:
 	CanvasPopup(wxWindow* parent);

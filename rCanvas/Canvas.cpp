@@ -29,8 +29,8 @@ ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id, wxStatusBar& statusBar
     //int resolution = (wxSystemSettings::GetMetric(wxSYS_SCREEN_X) > wxSystemSettings::GetMetric(wxSYS_SCREEN_Y))
     //    ? wxSystemSettings::GetMetric(wxSYS_SCREEN_X) : wxSystemSettings::GetMetric(wxSYS_SCREEN_Y);
     
-    SetScrollbars(1, 1, 1000, 1000, 0, 0);
-    //ShowScrollbars(wxSHOW_SB_NEVER, wxSHOW_SB_NEVER);
+    SetScrollbars(1, 1, 5000, 5000, 0, 0);
+    ShowScrollbars(wxSHOW_SB_NEVER, wxSHOW_SB_NEVER);
 
     GetVirtualSize(&m_virtualSize.x, &m_virtualSize.y);
 
@@ -276,6 +276,76 @@ void ImageCanvas::LoadSavefile(wxXmlNode* node)
     m_loadingSaveFile = false;
 }
 
+void ImageCanvas::OnKey_Ctrl_S(wxKeyEvent& event)
+{
+    wxChar key = event.GetKeyCode();
+
+    if (key == 'S' && event.ControlDown())
+    {
+        wxPoint savePosition{};
+        int saveImageID{ 0 };
+        wxPoint saveCurrentScale{};
+        wxString saveImgPath{};
+
+        //Save all images on Canvas to xml doc
+        //---------------------------------------------------------------------------
+
+        wxXmlDocument* xmlSaveDoc = new wxXmlDocument();
+        wxXmlNode* root = new wxXmlNode(NULL, wxXML_ELEMENT_NODE, "rCanvasRoot");
+        xmlSaveDoc->SetRoot(root);
+
+        wxWindowList& children = GetChildren();
+        for (wxWindowList::Node* node{ children.GetFirst() }; node; node = node->GetNext())
+        {
+            ImageWidget* current = (ImageWidget*)node->GetData();
+            saveImgPath = current->GetImgPath();
+            savePosition = current->GetPositionOnCanvas();
+            saveCurrentScale = current->GetCurrentScale();
+
+            wxXmlNode* currentImage = new wxXmlNode(root, wxXML_ELEMENT_NODE, "image_" + wxString::Format(wxT("%d"), saveImageID));
+            currentImage->AddAttribute("type", "ImageWidget");
+
+            wxXmlNode* imgPath = new wxXmlNode(currentImage, wxXML_ELEMENT_NODE, "imgPath");
+            imgPath->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", saveImgPath));
+
+            wxXmlNode* currentScaleY = new wxXmlNode(currentImage, wxXML_ELEMENT_NODE, "currentScaleY");
+            currentScaleY->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", wxString::Format(wxT("%d"), saveCurrentScale.y)));
+
+            wxXmlNode* positionY = new wxXmlNode(currentImage, wxXML_ELEMENT_NODE, "positionY");
+            positionY->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", wxString::Format(wxT("%d"), savePosition.y)));
+            wxXmlNode* positionX = new wxXmlNode(currentImage, wxXML_ELEMENT_NODE, "positionX");
+            positionX->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", wxString::Format(wxT("%d"), savePosition.x)));
+
+            saveImageID++;
+        }
+
+        //Get path and save file name from FileDialog then save
+        //---------------------------------------------------------------------------
+
+        wxFileDialog
+            saveFileDialog(this, _("Save rCanvas file"), "", "",
+                "RCF files (*.rcf)|*.rcf", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+
+        if (saveFileDialog.ShowModal() == wxID_CANCEL)
+            return;     // the user changed idea...
+
+        wxString savePath = saveFileDialog.GetPath();
+        wxString saveName = saveFileDialog.GetName();
+        wxString fileName = saveFileDialog.GetFilename();
+
+        //Save the file to user PC
+        xmlSaveDoc->Save(savePath + saveName);
+        //xmlDoc.Save("testSaveFile.rcf");
+
+        //Set statusBar
+        m_canvasStatus = fileName;
+        m_statusBar->SetStatusText(m_canvasStatus, 1);
+
+        delete xmlSaveDoc;
+    }
+    event.Skip();
+}
+
 //---------------------------------------------------------------------------
 //Override functions
 //---------------------------------------------------------------------------
@@ -386,6 +456,18 @@ void ImageCanvas::OnKey_R(wxKeyEvent& event)
             wxPoint newCanvasSize = m_resizedialog->GetCanvasSize();
             //wxLogStatus(wxString::Format(wxT("%d"), newCanvasSize.x) + " " + wxString::Format(wxT("%d"), newCanvasSize.y));
             
+            //Limiting min Canvas size
+            if (newCanvasSize.x < canvasMin.x)
+                newCanvasSize.x = canvasMin.x;
+            else if(newCanvasSize.y < canvasMin.y)
+                newCanvasSize.y = canvasMin.y;
+
+            //Limiting max Canvas size
+            if (newCanvasSize.x > canvasMax.x)
+                newCanvasSize.x = canvasMax.x;
+            else if (newCanvasSize.y > canvasMax.y)
+                newCanvasSize.y = canvasMax.y;
+
             m_virtualSize = { newCanvasSize.x, newCanvasSize.y };
             SetVirtualSize(newCanvasSize.x, newCanvasSize.y);
             Refresh();
@@ -395,76 +477,6 @@ void ImageCanvas::OnKey_R(wxKeyEvent& event)
         m_resizedialog->Destroy();
     }
 
-    event.Skip();
-}
-
-void ImageCanvas::OnKey_Ctrl_S(wxKeyEvent& event)
-{
-    wxChar key = event.GetKeyCode();
-  
-    if (key == 'S' && event.ControlDown())
-    {
-        wxPoint savePosition{};
-        int saveImageID{0};
-        wxPoint saveCurrentScale{};
-        wxString saveImgPath{};
-
-        //Save all images on Canvas to xml doc
-        //---------------------------------------------------------------------------
-
-        wxXmlDocument* xmlSaveDoc = new wxXmlDocument();
-        wxXmlNode* root = new wxXmlNode(NULL, wxXML_ELEMENT_NODE, "rCanvasRoot");
-        xmlSaveDoc->SetRoot(root);
-
-        wxWindowList& children = GetChildren();
-        for (wxWindowList::Node* node{ children.GetFirst() }; node; node = node->GetNext())
-        {
-            ImageWidget* current = (ImageWidget*)node->GetData();
-            saveImgPath = current->GetImgPath();
-            savePosition = current->GetPositionOnCanvas();
-            saveCurrentScale = current->GetCurrentScale();
-
-            wxXmlNode* currentImage = new wxXmlNode(root, wxXML_ELEMENT_NODE, "image_" + wxString::Format(wxT("%d"), saveImageID));
-            currentImage->AddAttribute("type", "ImageWidget");
-
-            wxXmlNode* imgPath = new wxXmlNode(currentImage, wxXML_ELEMENT_NODE, "imgPath");
-            imgPath->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", saveImgPath));
-
-            wxXmlNode* currentScaleY = new wxXmlNode(currentImage, wxXML_ELEMENT_NODE, "currentScaleY");
-            currentScaleY->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", wxString::Format(wxT("%d"), saveCurrentScale.y)));
-
-            wxXmlNode* positionY = new wxXmlNode(currentImage, wxXML_ELEMENT_NODE, "positionY");
-            positionY->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", wxString::Format(wxT("%d"), savePosition.y)));
-            wxXmlNode* positionX = new wxXmlNode(currentImage, wxXML_ELEMENT_NODE, "positionX");
-            positionX->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", wxString::Format(wxT("%d"), savePosition.x)));
-
-            saveImageID++;
-        }
-
-        //Get path and save file name from FileDialog then save
-        //---------------------------------------------------------------------------
-
-        wxFileDialog
-            saveFileDialog(this, _("Save rCanvas file"), "", "",
-                "RCF files (*.rcf)|*.rcf", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
-
-        if (saveFileDialog.ShowModal() == wxID_CANCEL)
-            return;     // the user changed idea...
-
-        wxString savePath = saveFileDialog.GetPath();
-        wxString saveName = saveFileDialog.GetName();
-        wxString fileName = saveFileDialog.GetFilename();
-
-        //Save the file to user PC
-        xmlSaveDoc->Save(savePath + saveName);
-        //xmlDoc.Save("testSaveFile.rcf");
-
-        //Set statusBar
-        m_canvasStatus = fileName;
-        m_statusBar->SetStatusText(m_canvasStatus, 1);
-
-        delete xmlSaveDoc;
-    }
     event.Skip();
 }
 

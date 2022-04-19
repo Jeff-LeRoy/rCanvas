@@ -47,6 +47,7 @@ void MainFrame::OnAbout(wxKeyEvent& event)
             " Open an existing canvas \t\t| O\n"
             " Save currently loaded Canvas \t| CTRL + S\n"
             " Clear Canvas \t\t\t| X\n"
+            " Resize Canvas \t\t\t| R\n"
             " \n"
             " \n"
             " IMAGE-WIDGET SHORTCUTS\n"
