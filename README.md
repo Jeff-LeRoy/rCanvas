@@ -27,6 +27,7 @@ A few examples with placeholder images, imagine it with real reference images.
 * **A** - Add a new image
 * **O** - Open Canvas file
 * **CTRL + S** - Save Canvas File
+* **R** - Resize Canvas
 
 ### ImageWidget Shortcut Keys ( mouse is hovering over a loaded image on the canvas )
 * **Mouse Scrollwheel** - Scale image up / down
