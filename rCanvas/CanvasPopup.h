@@ -17,6 +17,6 @@ private:
 
 public:
 	CanvasDialog(wxWindow* parent, const wxString& title, const wxPoint& pos, const wxPoint& canvasSize);
-	wxPoint GetCanvasSize();
+	wxPoint GetCanvasSizeEntered();
 };
 

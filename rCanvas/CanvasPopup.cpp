@@ -58,7 +58,7 @@ CanvasDialog::CanvasDialog(wxWindow* parent, const wxString& title, const wxPoin
 	SetSizerAndFit(sizerVertical);
 }
 
-wxPoint CanvasDialog::GetCanvasSize()
+wxPoint CanvasDialog::GetCanvasSizeEntered()
 {
 	wxPoint canvasSize = { wxAtoi(widthEntry->GetLineText(0)), wxAtoi(heigthEntry->GetLineText(0)) };
 	return canvasSize;

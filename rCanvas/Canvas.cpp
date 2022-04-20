@@ -30,7 +30,7 @@ ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id, wxStatusBar& statusBar
     //    ? wxSystemSettings::GetMetric(wxSYS_SCREEN_X) : wxSystemSettings::GetMetric(wxSYS_SCREEN_Y);
     
     SetScrollbars(1, 1, 5000, 5000, 0, 0);
-    ShowScrollbars(wxSHOW_SB_NEVER, wxSHOW_SB_NEVER);
+    //ShowScrollbars(wxSHOW_SB_NEVER, wxSHOW_SB_NEVER);
 
     GetVirtualSize(&m_virtualSize.x, &m_virtualSize.y);
 
@@ -81,10 +81,10 @@ void ImageCanvas::HoverPrinting(wxMouseEvent& event)//Remove later
     //    " vsY=" + wxString::Format(wxT("%d"), m_viewStart.y)
     //);
 
-     //wxLogStatus(
-     //    " m_viewStartX=" + wxString::Format(wxT("%d"), m_virtualSize.x) + ' ' +
-     //    " m_viewStartY=" + wxString::Format(wxT("%d"), m_virtualSize.y)
-     //);
+     wxLogStatus(
+         " m_viewStartX=" + wxString::Format(wxT("%d"), m_virtualSize.x) + ' ' +
+         " m_viewStartY=" + wxString::Format(wxT("%d"), m_virtualSize.y)
+     );
 
     event.Skip();
 }
@@ -449,17 +449,26 @@ void ImageCanvas::OnKey_R(wxKeyEvent& event)
 
     if (key == 'R')
     {
-        m_resizedialog = new CanvasDialog(this, "Resize Canvas", ClientToScreen(wxPoint(25, 25)), m_virtualSize);
-
+        //Need to assign this to parent of canvas otherwise pointer to m_resizedDialog is still a child
+        //of canvas and shows up when iterating through ImageWidgets. Alternatively we could //delete m_resizedialog;
+        m_resizedialog = new CanvasDialog(this->GetParent(), "Resize Canvas", ClientToScreen(wxPoint(25, 25)), m_virtualSize);
+        wxPoint newCanvasSize{};
+        bool resize{ false };
+        
         if (m_resizedialog->ShowModal() == wxID_OK)
         {
-            wxPoint newCanvasSize = m_resizedialog->GetCanvasSize();
-            //wxLogStatus(wxString::Format(wxT("%d"), newCanvasSize.x) + " " + wxString::Format(wxT("%d"), newCanvasSize.y));
-            
+            newCanvasSize = m_resizedialog->GetCanvasSizeEntered();
+            resize = true;
+        }
+        //Dialog was cancelled
+        m_resizedialog->Destroy();
+
+        if (resize)
+        {
             //Limiting min Canvas size
             if (newCanvasSize.x < canvasMin.x)
                 newCanvasSize.x = canvasMin.x;
-            else if(newCanvasSize.y < canvasMin.y)
+            else if (newCanvasSize.y < canvasMin.y)
                 newCanvasSize.y = canvasMin.y;
 
             //Limiting max Canvas size
@@ -468,15 +477,32 @@ void ImageCanvas::OnKey_R(wxKeyEvent& event)
             else if (newCanvasSize.y > canvasMax.y)
                 newCanvasSize.y = canvasMax.y;
 
+            //Get difference of Canvas change
+            int changeX = abs((m_virtualSize.x - newCanvasSize.x) / 2);
+            int changeY = abs((m_virtualSize.y - newCanvasSize.y) / 2);
+
+            //Resize Canvas
             m_virtualSize = { newCanvasSize.x, newCanvasSize.y };
             SetVirtualSize(newCanvasSize.x, newCanvasSize.y);
             Refresh();
-            CenterScrollbars();
-        }
-        //Dialog was cancelled
-        m_resizedialog->Destroy();
-    }
+        
+            Scroll(0, 0);
 
+            //Loop through ImageWidgets and reposition
+            wxWindowList& children = GetChildren();
+            for (wxWindowList::Node* node{ children.GetFirst() }; node; node = node->GetNext())
+            {
+                ImageWidget* current = (ImageWidget*)node->GetData();
+                wxPoint savePosition = current->GetPosition();
+                wxLogStatus(wxString::Format(wxT("%d"), savePosition.x) + " " + wxString::Format(wxT("%d"), savePosition.y));
+                current->Move(wxPoint(savePosition.x + changeX, savePosition.y + changeY));
+            }
+            CenterScrollbars();
+
+            resize = false;
+        }
+
+    }
     event.Skip();
 }
 
