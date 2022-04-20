@@ -478,8 +478,8 @@ void ImageCanvas::OnKey_R(wxKeyEvent& event)
                 newCanvasSize.y = canvasMax.y;
 
             //Get difference of Canvas change
-            int changeX = abs((m_virtualSize.x - newCanvasSize.x) / 2);
-            int changeY = abs((m_virtualSize.y - newCanvasSize.y) / 2);
+            int changeX = (newCanvasSize.x - m_virtualSize.x) / 2;
+            int changeY = (newCanvasSize.y - m_virtualSize.y) / 2;
 
             //Resize Canvas
             m_virtualSize = { newCanvasSize.x, newCanvasSize.y };
@@ -494,14 +494,16 @@ void ImageCanvas::OnKey_R(wxKeyEvent& event)
             {
                 ImageWidget* current = (ImageWidget*)node->GetData();
                 wxPoint savePosition = current->GetPosition();
-                wxLogStatus(wxString::Format(wxT("%d"), savePosition.x) + " " + wxString::Format(wxT("%d"), savePosition.y));
-                current->Move(wxPoint(savePosition.x + changeX, savePosition.y + changeY));
+
+                //If negative got smaller, positive got bigger
+                int moveX = (changeX > 0) ? abs(changeX) : changeX;
+                int moveY = (changeX > 0) ? abs(changeY) : changeY;
+
+                current->Move(wxPoint(savePosition.x + moveX, savePosition.y + moveY));
             }
             CenterScrollbars();
-
             resize = false;
         }
-
     }
     event.Skip();
 }
