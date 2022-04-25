@@ -319,6 +319,15 @@ void ImageCanvas::OnKey_Ctrl_S(wxKeyEvent& event)
             saveImageID++;
         }
 
+        //Save Canvas size
+        //---------------------------------------------------------------------------
+        wxXmlNode* canvas = new wxXmlNode(root, wxXML_ELEMENT_NODE, "ImageCanvas");
+        canvas->AddAttribute("type", "CanvasSize");
+        wxXmlNode* canvasY = new wxXmlNode(canvas, wxXML_ELEMENT_NODE, "canvasY");
+        canvasY->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", wxString::Format(wxT("%d"), m_virtualSize.y)));
+        wxXmlNode* canvasX = new wxXmlNode(canvas, wxXML_ELEMENT_NODE, "canvasX");
+        canvasX->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", wxString::Format(wxT("%d"), m_virtualSize.x)));
+
         //Get path and save file name from FileDialog then save
         //---------------------------------------------------------------------------
 
