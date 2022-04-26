@@ -229,12 +229,15 @@ void ImageCanvas::LoadSavefile(wxXmlNode* node)
     wxPoint position{};
     int currentScaleY{};
     wxString imgPath{};
-    //wxPoint scrolledPos = GetViewStart();
+    wxPoint scrolledPos = GetViewStart();
     m_loadingSaveFile = true;
 
     //Get size of canvas from save file and resize if not default
     newCanvasSize.x = wxAtoi(node->GetChildren()->GetNodeContent());
     newCanvasSize.y = wxAtoi(node->GetChildren()->GetNext()->GetNodeContent());
+    
+    //Get difference of Canvas change too add to scrolled position
+    wxPoint scrolledPosAdd((newCanvasSize.x - m_virtualSize.x) / 2, (newCanvasSize.y - m_virtualSize.y) / 2);
 
     if (m_virtualSize != newCanvasSize)
     {
@@ -283,8 +286,7 @@ void ImageCanvas::LoadSavefile(wxXmlNode* node)
     }
 
     //Reset to where user was
-    //Scroll(scrolledPos);
-    CenterScrollbars();
+    Scroll(scrolledPos + scrolledPosAdd);
 
     m_loadingSaveFile = false;
 }

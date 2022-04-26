@@ -40,12 +40,17 @@ CanvasDialog::CanvasDialog(wxWindow* parent, const wxString& title, const wxPoin
 		"Anything outside of this range will be\n"
 		"automatically resized.\n"
 	);
+	wxStaticText* textX = new wxStaticText(this, wxID_ANY, "X" );
+	wxStaticText* textY = new wxStaticText(this, wxID_ANY, "Y");
+
 	widthEntry = new wxTextCtrl(this, wxID_ANY, wxString::Format(wxT("%d"), canvasSize.x), wxDefaultPosition, wxDefaultSize);
 	heigthEntry = new wxTextCtrl(this, wxID_ANY, wxString::Format(wxT("%d"), canvasSize.y), wxDefaultPosition, wxDefaultSize);
 	wxButton* resizeButton = new wxButton(this, wxID_OK, "Resize");
 	wxButton* cancelButton = new wxButton(this, wxID_CANCEL, "Cancel");
 
+	sizerHorInput->Add(textX, 0, wxALL, 5);
 	sizerHorInput->Add(widthEntry, 0, wxALL, 5);
+	sizerHorInput->Add(textY, 0, wxALL, 5);
 	sizerHorInput->Add(heigthEntry, 0, wxALL, 5);
 	sizerHorButtons->Add(resizeButton, 0, wxALL, 5);
 	sizerHorButtons->Add(cancelButton, 0, wxALL, 5);
