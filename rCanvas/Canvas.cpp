@@ -225,11 +225,24 @@ void ImageCanvas::OnKey_O(wxKeyEvent& event)
 
 void ImageCanvas::LoadSavefile(wxXmlNode* node)
 {
+    wxPoint newCanvasSize{};
     wxPoint position{};
     int currentScaleY{};
     wxString imgPath{};
-    wxPoint scrolledPos = GetViewStart();
+    //wxPoint scrolledPos = GetViewStart();
     m_loadingSaveFile = true;
+
+    //Get size of canvas from save file and resize if not default
+    newCanvasSize.x = wxAtoi(node->GetChildren()->GetNodeContent());
+    newCanvasSize.y = wxAtoi(node->GetChildren()->GetNext()->GetNodeContent());
+
+    if (m_virtualSize != newCanvasSize)
+    {
+        m_virtualSize = { newCanvasSize.x, newCanvasSize.y };
+        SetVirtualSize(newCanvasSize.x, newCanvasSize.y);
+    }
+    //Skips Canvas node in XML
+    node = node->GetNext();
 
     //Have to do this before initializing ImageWidgets otherwise they wont be 
     //positioned correctly on canvas
@@ -266,12 +279,12 @@ void ImageCanvas::LoadSavefile(wxXmlNode* node)
 
             node = node->GetParent();
         }
-
         node = node->GetNext();
     }
 
     //Reset to where user was
-    Scroll(scrolledPos);
+    //Scroll(scrolledPos);
+    CenterScrollbars();
 
     m_loadingSaveFile = false;
 }
@@ -475,16 +488,16 @@ void ImageCanvas::OnKey_R(wxKeyEvent& event)
         if (resize)
         {
             //Limiting min Canvas size
-            if (newCanvasSize.x < canvasMin.x)
-                newCanvasSize.x = canvasMin.x;
-            else if (newCanvasSize.y < canvasMin.y)
-                newCanvasSize.y = canvasMin.y;
+            if (newCanvasSize.x < m_canvasMin.x)
+                newCanvasSize.x = m_canvasMin.x;
+            else if (newCanvasSize.y < m_canvasMin.y)
+                newCanvasSize.y = m_canvasMin.y;
 
             //Limiting max Canvas size
-            if (newCanvasSize.x > canvasMax.x)
-                newCanvasSize.x = canvasMax.x;
-            else if (newCanvasSize.y > canvasMax.y)
-                newCanvasSize.y = canvasMax.y;
+            if (newCanvasSize.x > m_canvasMax.x)
+                newCanvasSize.x = m_canvasMax.x;
+            else if (newCanvasSize.y > m_canvasMax.y)
+                newCanvasSize.y = m_canvasMax.y;
 
             //Get difference of Canvas change
             int changeX = (newCanvasSize.x - m_virtualSize.x) / 2;
@@ -506,7 +519,7 @@ void ImageCanvas::OnKey_R(wxKeyEvent& event)
 
                 //If negative got smaller, positive got bigger
                 int moveX = (changeX > 0) ? abs(changeX) : changeX;
-                int moveY = (changeX > 0) ? abs(changeY) : changeY;
+                int moveY = (changeY > 0) ? abs(changeY) : changeY;
 
                 current->Move(wxPoint(savePosition.x + moveX, savePosition.y + moveY));
             }
