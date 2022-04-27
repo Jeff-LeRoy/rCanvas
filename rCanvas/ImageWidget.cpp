@@ -216,7 +216,7 @@ void ImageWidget::ZoomToCursor(wxPoint& mousePos, bool scalingUp,
 wxPoint ImageWidget::CalcPositionOnCanvas()
 {
     //This will return the position of the ImageWidget on the canvas
-    //0,0 is top left corner
+    //relative to 0,0 the top left corner of the canvas
     return *m_viewStart + GetPosition();
 }
 
@@ -241,11 +241,11 @@ void ImageWidget::HoverPrinting(wxMouseEvent& event)//Remove later
     //wxPoint iWPos = GetPosition();
     ////wxPoint viewStart = GetViewStart();
     //
-
-    //wxLogStatus(
-    //    " posX" + wxString::Format(wxT("%d"), m_viewStart->x) + ' ' +
-    //    " posY" + wxString::Format(wxT("%d"), m_viewStart->y)
-    //);
+    wxPoint pos = CalcPositionOnCanvas();
+    wxLogStatus(
+        " posX" + wxString::Format(wxT("%d"), pos.x) + ' ' +
+        " posY" + wxString::Format(wxT("%d"), pos.y)
+    );
 }
 
 void ImageWidget::OnKey_F(wxKeyEvent& event)

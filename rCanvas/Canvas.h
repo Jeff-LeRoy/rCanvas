@@ -9,9 +9,9 @@ private:
     //Member Variables
     wxString m_canvasStatus{"No Canvas Loaded"};
     wxXmlDocument* m_XmlRcf = nullptr;
-    wxPoint canvasMax{ 50000, 50000 };
+    wxPoint m_canvasMax{ 50000, 50000 };
     int m_subgridPixelSpacing{ 150 };
-    wxPoint canvasMin{ 1000, 1000 };
+    wxPoint m_canvasMin{ 1000, 1000 };
     CanvasDialog* m_resizedialog{};
     bool m_loadingSaveFile{false};
     int m_dragMultiplier{ 1 };

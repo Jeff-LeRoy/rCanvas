@@ -30,7 +30,7 @@ ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id, wxStatusBar& statusBar
     //    ? wxSystemSettings::GetMetric(wxSYS_SCREEN_X) : wxSystemSettings::GetMetric(wxSYS_SCREEN_Y);
     
     SetScrollbars(1, 1, 5000, 5000, 0, 0);
-    ShowScrollbars(wxSHOW_SB_NEVER, wxSHOW_SB_NEVER);
+    //ShowScrollbars(wxSHOW_SB_NEVER, wxSHOW_SB_NEVER);
 
     GetVirtualSize(&m_virtualSize.x, &m_virtualSize.y);
 
@@ -81,10 +81,10 @@ void ImageCanvas::HoverPrinting(wxMouseEvent& event)//Remove later
     //    " vsY=" + wxString::Format(wxT("%d"), m_viewStart.y)
     //);
 
-     //wxLogStatus(
-     //    " m_viewStartX=" + wxString::Format(wxT("%d"), m_virtualSize.x) + ' ' +
-     //    " m_viewStartY=" + wxString::Format(wxT("%d"), m_virtualSize.y)
-     //);
+     wxLogStatus(
+         " m_viewStartX=" + wxString::Format(wxT("%d"), m_virtualSize.x) + ' ' +
+         " m_viewStartY=" + wxString::Format(wxT("%d"), m_virtualSize.y)
+     );
 
     event.Skip();
 }
@@ -225,11 +225,27 @@ void ImageCanvas::OnKey_O(wxKeyEvent& event)
 
 void ImageCanvas::LoadSavefile(wxXmlNode* node)
 {
+    wxPoint newCanvasSize{};
     wxPoint position{};
     int currentScaleY{};
     wxString imgPath{};
     wxPoint scrolledPos = GetViewStart();
     m_loadingSaveFile = true;
+
+    //Get size of canvas from save file and resize if not default
+    newCanvasSize.x = wxAtoi(node->GetChildren()->GetNodeContent());
+    newCanvasSize.y = wxAtoi(node->GetChildren()->GetNext()->GetNodeContent());
+    
+    //Get difference of Canvas change too add to scrolled position
+    wxPoint scrolledPosAdd((newCanvasSize.x - m_virtualSize.x) / 2, (newCanvasSize.y - m_virtualSize.y) / 2);
+
+    if (m_virtualSize != newCanvasSize)
+    {
+        m_virtualSize = { newCanvasSize.x, newCanvasSize.y };
+        SetVirtualSize(newCanvasSize.x, newCanvasSize.y);
+    }
+    //Skips Canvas node in XML
+    node = node->GetNext();
 
     //Have to do this before initializing ImageWidgets otherwise they wont be 
     //positioned correctly on canvas
@@ -266,12 +282,11 @@ void ImageCanvas::LoadSavefile(wxXmlNode* node)
 
             node = node->GetParent();
         }
-
         node = node->GetNext();
     }
 
     //Reset to where user was
-    Scroll(scrolledPos);
+    Scroll(scrolledPos + scrolledPosAdd);
 
     m_loadingSaveFile = false;
 }
@@ -318,6 +333,15 @@ void ImageCanvas::OnKey_Ctrl_S(wxKeyEvent& event)
 
             saveImageID++;
         }
+
+        //Save Canvas size
+        //---------------------------------------------------------------------------
+        wxXmlNode* canvas = new wxXmlNode(root, wxXML_ELEMENT_NODE, "ImageCanvas");
+        canvas->AddAttribute("type", "CanvasSize");
+        wxXmlNode* canvasY = new wxXmlNode(canvas, wxXML_ELEMENT_NODE, "canvasY");
+        canvasY->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", wxString::Format(wxT("%d"), m_virtualSize.y)));
+        wxXmlNode* canvasX = new wxXmlNode(canvas, wxXML_ELEMENT_NODE, "canvasX");
+        canvasX->AddChild(new wxXmlNode(wxXML_TEXT_NODE, "", wxString::Format(wxT("%d"), m_virtualSize.x)));
 
         //Get path and save file name from FileDialog then save
         //---------------------------------------------------------------------------
@@ -449,34 +473,62 @@ void ImageCanvas::OnKey_R(wxKeyEvent& event)
 
     if (key == 'R')
     {
-        m_resizedialog = new CanvasDialog(this, "Resize Canvas", ClientToScreen(wxPoint(25, 25)), m_virtualSize);
-
+        //Need to assign this to parent of canvas otherwise pointer to m_resizedDialog is still a child
+        //of canvas and shows up when iterating through ImageWidgets. Alternatively we could //delete m_resizedialog;
+        m_resizedialog = new CanvasDialog(this->GetParent(), "Resize Canvas", ClientToScreen(wxPoint(25, 25)), m_virtualSize);
+        wxPoint newCanvasSize{};
+        bool resize{ false };
+        
         if (m_resizedialog->ShowModal() == wxID_OK)
         {
-            wxPoint newCanvasSize = m_resizedialog->GetCanvasSize();
-            //wxLogStatus(wxString::Format(wxT("%d"), newCanvasSize.x) + " " + wxString::Format(wxT("%d"), newCanvasSize.y));
-            
-            //Limiting min Canvas size
-            if (newCanvasSize.x < canvasMin.x)
-                newCanvasSize.x = canvasMin.x;
-            else if(newCanvasSize.y < canvasMin.y)
-                newCanvasSize.y = canvasMin.y;
-
-            //Limiting max Canvas size
-            if (newCanvasSize.x > canvasMax.x)
-                newCanvasSize.x = canvasMax.x;
-            else if (newCanvasSize.y > canvasMax.y)
-                newCanvasSize.y = canvasMax.y;
-
-            m_virtualSize = { newCanvasSize.x, newCanvasSize.y };
-            SetVirtualSize(newCanvasSize.x, newCanvasSize.y);
-            Refresh();
-            CenterScrollbars();
+            newCanvasSize = m_resizedialog->GetCanvasSizeEntered();
+            resize = true;
         }
         //Dialog was cancelled
         m_resizedialog->Destroy();
-    }
 
+        if (resize)
+        {
+            //Limiting min Canvas size
+            if (newCanvasSize.x < m_canvasMin.x)
+                newCanvasSize.x = m_canvasMin.x;
+            else if (newCanvasSize.y < m_canvasMin.y)
+                newCanvasSize.y = m_canvasMin.y;
+
+            //Limiting max Canvas size
+            if (newCanvasSize.x > m_canvasMax.x)
+                newCanvasSize.x = m_canvasMax.x;
+            else if (newCanvasSize.y > m_canvasMax.y)
+                newCanvasSize.y = m_canvasMax.y;
+
+            //Get difference of Canvas change
+            int changeX = (newCanvasSize.x - m_virtualSize.x) / 2;
+            int changeY = (newCanvasSize.y - m_virtualSize.y) / 2;
+
+            //Resize Canvas
+            m_virtualSize = { newCanvasSize.x, newCanvasSize.y };
+            SetVirtualSize(newCanvasSize.x, newCanvasSize.y);
+            Refresh();
+        
+            Scroll(0, 0);
+
+            //Loop through ImageWidgets and reposition
+            wxWindowList& children = GetChildren();
+            for (wxWindowList::Node* node{ children.GetFirst() }; node; node = node->GetNext())
+            {
+                ImageWidget* current = (ImageWidget*)node->GetData();
+                wxPoint savePosition = current->GetPosition();
+
+                //If negative got smaller, positive got bigger
+                int moveX = (changeX > 0) ? abs(changeX) : changeX;
+                int moveY = (changeY > 0) ? abs(changeY) : changeY;
+
+                current->Move(wxPoint(savePosition.x + moveX, savePosition.y + moveY));
+            }
+            CenterScrollbars();
+            resize = false;
+        }
+    }
     event.Skip();
 }
 
