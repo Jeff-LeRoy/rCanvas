@@ -2,6 +2,8 @@
 
 class MyApp : public wxApp
 {
+private:
+
 public:
     virtual bool OnInit() override;
 };
@@ -9,8 +11,8 @@ public:
 class MainFrame : public wxFrame
 {
 private:
-    CanvasPopup* helpPopup{};
     void OnAbout(wxKeyEvent& event);
+    CanvasPopup* helpPopup{};
 
 public:
     MainFrame(wxWindow* parent, wxWindowID 	id, const wxString& title, const wxPoint& pos, const wxSize& size);

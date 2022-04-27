@@ -19,6 +19,34 @@ CanvasPopup::CanvasPopup(wxWindow* parent)
 	: wxPopupTransientWindow(parent, false)
 {
 	this->SetBackgroundColour(wxColor(150, 150, 150));
+	wxBoxSizer* sizerVertical = new wxBoxSizer(wxVERTICAL);
+	wxStaticText* text = new wxStaticText(this, wxID_ANY,
+		" \n"
+		" GLOBAL SHORTCUTS\n"
+		" ----------------------------------------------------------------------------\n"
+		" Pan canvas \t\t\t| Right Mouse + Drag\n"
+		" Accelerate pan speed \t\t| CTRL + Right Mouse + Drag\n"
+		" Center canvas \t\t\t| C\n"
+		" Add a new image \t\t| A\n"
+		" Open an existing canvas \t\t| O\n"
+		" Save currently loaded Canvas \t| CTRL + S\n"
+		" Clear Canvas \t\t\t| X\n"
+		" Resize Canvas \t\t\t| R\n"
+		" \n"
+		" \n"
+		" IMAGE-WIDGET SHORTCUTS\n"
+		" (When mouse is hovering over an image)\n"
+		" ----------------------------------------------------------------------------\n"
+		" Scale image up / down \t\t| Mouse Scrollwheel\n"
+		" Accelerate Scaling speed \t\t| CTRL + Mouse Scrollwheel\n"
+		" Delete an ImageWidget \t\t| D\n"
+		" Move image widget \t\t| Left Mouse + Drag\n"
+		" Move without changing z-order \t| Alt + Left Mouse + Drag\n"
+		" Set image to full size \t\t| F\n"
+	);
+	sizerVertical->Add(text);
+	SetSizerAndFit(sizerVertical);
+	Popup();
 }
 
 //---------------------------------------------------------------------------
