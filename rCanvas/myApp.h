@@ -12,7 +12,7 @@ class MainFrame : public wxFrame
 {
 private:
     void OnAbout(wxKeyEvent& event);
-    CanvasPopup* helpPopup{};
+    CanvasPopup* m_helpPopup{};
     void ToggleFullScreen(wxKeyEvent& event);
 
 public:

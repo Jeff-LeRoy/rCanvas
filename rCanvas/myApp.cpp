@@ -32,10 +32,10 @@ void MainFrame::OnAbout(wxKeyEvent& event)
 
     if (key == WXK_F1)
     {
-        delete helpPopup;
-        helpPopup = new CanvasPopup(this);
-        helpPopup->Position(ClientToScreen(wxPoint(25, 25)), wxSize(0, 0));
-        helpPopup->Popup();
+        delete m_helpPopup;
+        m_helpPopup = new CanvasPopup(this);
+        m_helpPopup->Position(ClientToScreen(wxPoint(25, 25)), wxSize(0, 0));
+        m_helpPopup->Popup();
     }
     event.Skip();
 }

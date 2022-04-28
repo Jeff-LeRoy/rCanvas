@@ -12,8 +12,8 @@ public:
 class CanvasDialog : public wxDialog
 {
 private:
-	wxTextCtrl* widthEntry{};
-	wxTextCtrl* heigthEntry{};
+	wxTextCtrl* m_widthEntry{};
+	wxTextCtrl* m_heigthEntry{};
 
 public:
 	CanvasDialog(wxWindow* parent, const wxString& title, const wxPoint& pos, const wxPoint& canvasSize);
