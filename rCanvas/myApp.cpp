@@ -22,6 +22,8 @@ MainFrame::MainFrame(wxWindow* parent, wxWindowID 	id, const wxString& title, co
     : wxFrame(parent, id, title, pos, size)
 {
     Bind(wxEVT_CHAR_HOOK, &MainFrame::OnAbout, this);
+    Bind(wxEVT_CHAR_HOOK, &MainFrame::ToggleFullScreen, this);
+
 }
 
 void MainFrame::OnAbout(wxKeyEvent& event)
@@ -37,6 +39,19 @@ void MainFrame::OnAbout(wxKeyEvent& event)
     }
     event.Skip();
 }
+
+void MainFrame::ToggleFullScreen(wxKeyEvent& event)
+{
+    wxChar key = event.GetKeyCode();
+
+    if (key == WXK_F11)
+    {
+        ShowFullScreen(!IsFullScreen());
+    }
+    event.Skip();
+
+}
+
 
 //---------------------------------------------------------------------------
 // Application

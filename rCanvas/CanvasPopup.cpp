@@ -24,6 +24,8 @@ CanvasPopup::CanvasPopup(wxWindow* parent)
 		" \n"
 		" GLOBAL SHORTCUTS\n"
 		" ----------------------------------------------------------------------------\n"
+		" Help Menu \t\t\t| F1\n"
+		" Toggle full screen \t\t| F11\n"
 		" Pan canvas \t\t\t| Right Mouse + Drag\n"
 		" Accelerate pan speed \t\t| CTRL + Right Mouse + Drag\n"
 		" Center canvas \t\t\t| C\n"
@@ -44,6 +46,7 @@ CanvasPopup::CanvasPopup(wxWindow* parent)
 		" Move without changing z-order \t| Alt + Left Mouse + Drag\n"
 		" Set image to full size \t\t| F\n"
 	);
+
 	sizerVertical->Add(text);
 	SetSizerAndFit(sizerVertical);
 	Popup();
