@@ -30,7 +30,7 @@ ImageCanvas::ImageCanvas(wxWindow* parent, wxWindowID id, wxStatusBar& statusBar
     //    ? wxSystemSettings::GetMetric(wxSYS_SCREEN_X) : wxSystemSettings::GetMetric(wxSYS_SCREEN_Y);
     
     SetScrollbars(1, 1, 5000, 5000, 0, 0);
-    //ShowScrollbars(wxSHOW_SB_NEVER, wxSHOW_SB_NEVER);
+    ShowScrollbars(wxSHOW_SB_NEVER, wxSHOW_SB_NEVER);
 
     GetVirtualSize(&m_virtualSize.x, &m_virtualSize.y);
 
@@ -81,10 +81,10 @@ void ImageCanvas::HoverPrinting(wxMouseEvent& event)//Remove later
     //    " vsY=" + wxString::Format(wxT("%d"), m_viewStart.y)
     //);
 
-     wxLogStatus(
-         " m_viewStartX=" + wxString::Format(wxT("%d"), m_virtualSize.x) + ' ' +
-         " m_viewStartY=" + wxString::Format(wxT("%d"), m_virtualSize.y)
-     );
+     //wxLogStatus(
+     //    " m_viewStartX=" + wxString::Format(wxT("%d"), m_virtualSize.x - m_border) + ' ' +
+     //    " m_viewStartY=" + wxString::Format(wxT("%d"), m_virtualSize.y - m_border)
+     //);
 
     event.Skip();
 }
@@ -229,7 +229,7 @@ void ImageCanvas::LoadSavefile(wxXmlNode* node)
     wxPoint position{};
     int currentScaleY{};
     wxString imgPath{};
-    wxPoint scrolledPos = GetViewStart();
+    //wxPoint scrolledPos = GetViewStart();
     m_loadingSaveFile = true;
 
     //Get size of canvas from save file and resize if not default
@@ -286,7 +286,8 @@ void ImageCanvas::LoadSavefile(wxXmlNode* node)
     }
 
     //Reset to where user was
-    Scroll(scrolledPos + scrolledPosAdd);
+    //Scroll(scrolledPos + scrolledPosAdd);
+    CenterScrollbars();
 
     m_loadingSaveFile = false;
 }

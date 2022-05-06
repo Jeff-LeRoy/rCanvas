@@ -53,7 +53,7 @@ public:
     ~ImageCanvas();
 
     //Setters
-    void SettViewStart(wxPoint vs) { m_viewStart = vs; }
+    void SetViewStart(wxPoint vs) { m_viewStart = vs; }
 
     void CenterScrollbars();
     bool m_panCanvas{ false };//MOVE after removing ImageWidget object from myApp

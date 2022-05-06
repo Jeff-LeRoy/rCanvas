@@ -83,7 +83,7 @@ bool MyApp::OnInit()
 
     //Get view start for start up, this also needs to be done after CenterScrollbars or else it is 0,0
     //which is not accurate after the canvas is centered
-    canvas->SettViewStart(canvas->GetViewStart());
+    canvas->SetViewStart(canvas->GetViewStart());
     
     mainFrame->Center();
 

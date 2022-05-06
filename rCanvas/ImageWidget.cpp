@@ -72,7 +72,7 @@ ImageWidget::ImageWidget(wxWindow* parent,
 
     m_timer.SetOwner(this);
 
-    //Bind Mouse Events
+    //Bind Events
     Bind(wxEVT_MOUSEWHEEL, &ImageWidget::ScrollWheelZoom, this);
     Bind(wxEVT_RIGHT_DOWN, &ImageWidget::RightIsDown, this);
     Bind(wxEVT_LEFT_DOWN, &ImageWidget::LeftIsDown, this);
@@ -226,9 +226,9 @@ wxPoint ImageWidget::CalcPositionOnCanvas()
 
 void ImageWidget::HoverPrinting(wxMouseEvent& event)//Remove later
 {
-//    m_statusBar->SetStatusText("Right click + drag to pan canvas \
-//| Left click + drag to move image \
-//| F - Restore original image size");
+    //    m_statusBar->SetStatusText("Right click + drag to pan canvas \
+    //| Left click + drag to move image \
+    //| F - Restore original image size");
 
     //wxPoint pos = event.GetPosition();
     //int x = pos.x;
@@ -240,12 +240,12 @@ void ImageWidget::HoverPrinting(wxMouseEvent& event)//Remove later
     //----------------------------------------
     //wxPoint iWPos = GetPosition();
     ////wxPoint viewStart = GetViewStart();
-    //
-    wxPoint pos = CalcPositionOnCanvas();
-    wxLogStatus(
-        " posX" + wxString::Format(wxT("%d"), pos.x) + ' ' +
-        " posY" + wxString::Format(wxT("%d"), pos.y)
-    );
+    
+    //wxPoint pos = CalcPositionOnCanvas();
+    //wxLogStatus(
+    //    " posX" + wxString::Format(wxT("%d"), pos.x) + ' ' +
+    //    " posY" + wxString::Format(wxT("%d"), pos.y)
+    //);
 }
 
 void ImageWidget::OnKey_F(wxKeyEvent& event)
@@ -382,14 +382,13 @@ void ImageWidget::LeftIsDragging(wxMouseEvent& event)
 
         wxPoint screenMousePos = wxGetMousePosition();
 
-        int TopLeftCorner_x = screenMousePos.x - m_imageWidgetClickPos.x;
-        int TopLeftCorner_y = screenMousePos.y - m_imageWidgetClickPos.y;
+        //This position is the ImageWidget position relative to the SCREEN/Monitor
+        int IW_ScreenPosX = screenMousePos.x - m_imageWidgetClickPos.x;
+        int IW_ScreenPosY = screenMousePos.y - m_imageWidgetClickPos.y;
 
         //Move box to converted screen position (m_parent var is from window.h)
-        this->Move(m_parent->ScreenToClient(wxPoint(TopLeftCorner_x, TopLeftCorner_y)));
+        this->Move(m_parent->ScreenToClient(wxPoint(IW_ScreenPosX, IW_ScreenPosY)));
 
-        //Need to do this otherwise dragging an ImageWidget leave artifacts
-        //GetParent()->ClearBackground();
         Refresh();
     }
 }

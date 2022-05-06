@@ -63,8 +63,8 @@ public:
     ~ImageWidget();
 
     //Getters
-    wxString GetImgPath() { return m_imgPath; }
-    wxPoint GetCurrentScale() { return m_scale; }
+    wxString GetImgPath() const { return m_imgPath; }
+    wxPoint GetCurrentScale() const { return m_scale; }
     wxPoint GetPositionOnCanvas() { return wxPoint(CalcPositionOnCanvas().x, CalcPositionOnCanvas().y); }
 
     //for scaling all images (not doing anything atm)
