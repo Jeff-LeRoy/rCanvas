@@ -6,7 +6,9 @@ rCanvas is a minimilistic image viewer with the advantage that you can load mult
 
 # Examples
 A few examples with placeholder images, imagine it with real reference images.
+![rCanvas](https://github.com/Jeff-LeRoy/rCanvas/assets/7757495/3d9a6990-3f3d-44e4-ad9f-4124386ed31a)
 ![Capture](https://user-images.githubusercontent.com/7757495/155215023-f28c532b-1cd4-4d01-85d3-92d0f16968ef.PNG)
+
 
 # Features
 * Load JPG, PNG, GIF and BMP images
